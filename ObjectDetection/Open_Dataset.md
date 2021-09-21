@@ -108,6 +108,25 @@ googleimagesdownload keywords "Polar bears, baloons, Beaches" --limit 1000 --chr
 ```
 - 옵션: https://google-images-download.readthedocs.io/en/latest/arguments.html
 
+- config 파일 작성하여 다운
+    - download_config.json 작성
+    - config 파일 저장된 디렉토리에서 실행
+```
+ex)
+{
+    "Records" : [{
+        "keywords" : "dog",
+        "limit" : 10,
+        "format" : "jpg",
+        "color_type":"full-color",
+        "print_urls":true,
+        "print_size":true
+}]
+}
+```
+```
+C:\my_image>googleimagesdownload --config download_config.json
+```
 
 ## 영상 무료 제공 사이트
 
@@ -120,18 +139,22 @@ googleimagesdownload keywords "Polar bears, baloons, Beaches" --limit 1000 --chr
 # LabelImg 를 이용한 Object Detection 데이터 Labelling
 - github에서 다운 받은 뒤 압축풀기
     - https://github.com/tzutalin/labelImg
+    
 - 의존 라이브러리 설치
     - conda install pyqt=5
     - conda install -c anaconda lxml
     - pyrcc5 -o libs/resources.py resources.qrc
+    
 - data\predefined_classes.txt 변경
     - Labeling할 대상 클래스들로 변경
+    
 - 실행
     - `python labelImg.py`
     - 메뉴: view > Auto save mode 체크
     - open dir - labeling할 이미지 디렉토리 열기
     - change save dir: annotation 파일 저장 디렉토리 설정
     - Labelling Format 지정: Pascal VOC, YOLO
+    
 - 주요 단축키
 
     |단축키|설명|
