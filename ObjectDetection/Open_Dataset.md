@@ -4,16 +4,19 @@
 - 2009년 ImageNet 데이터셋 이후 다양한 단체들에서 Object Detection, semantic segmentation, pose estimation 등 다양한 컴퓨터 비전 문제에 활용할 수 있는 Image Dataset을 제공
 - Computer Vision을 위한 Open Dataset 들은 이미지와 그 이미지에 대한 문제영역 관련 Annotation 파일을 제공
 
+
 ## Annotation이란
 - 학습시킬때 필요한 정보를 제공하는 문서(text) 파일
 - 보통 각 이미지파일의 위치, 학습시 필요한 출력 정보(y, output)등을 제공한다.
     - 출력 정보: 이미지내의 Object(물체)들의 Bounding Box 위치정보, Object의 Label, segmentation 파일위치 등.
 - Open Dataset마다 작성 포멧이 다르지만 보통 **JSON**, **XML**, **CSV**등을 사용
 
+
 ### Annotation 예
 <p align="center">
   <img src="./images/image12.png">
 </p>
+
 
 ## PASCAL VOC(Visual Object Classes)
 - http://host.robots.ox.ac.uk/pascal/VOC/
@@ -31,6 +34,7 @@
     - 이미지 내의 27,450 물체에대한 annotate와 6,929개의 segmentation 을 제공
 - Annotation 파일은 xml 포멧으로 제공
 
+
 ### PASCAL VOC의 class들
 - 4개 그룹의 20개 클래스로 구성
 1. Person: person
@@ -39,11 +43,13 @@
 4. Indoor: bottle, chair, dining table, potted plant, sofa, tv/monitor
         - Bounding Box안의 물체의 class 또는 확률
 
+
 # MS-COCO Dataset
 - COCO (Common Objects in Context)
 - https://cocodataset.org/
 - https://arxiv.org/pdf/1405.0312.pdf
 - 연도별로 데이터 셋을 제공
+
 
 ## 특징
 - Object Detection, segmentation을 위한 고해상도의 33만장의 이미지와 20만개 이상의 Label을 제공
@@ -53,6 +59,7 @@
 <p align="center">
   <img src="./images/image13.png">
 </p>
+
 
 # 그외 Datasets
 
@@ -71,6 +78,7 @@
 
 
 # 이미지 수집
+
 ## google images download 라이브러리
 - 다운받고 싶은 이미지 keyword를 입력하면 구글에서 이미지 검색해서 다운로드 하는 라이브러리
 - CLI (Command Line Interface) 환경에서 명령어를 이용해 다운받는 방법과 python 코드로 작성해 다운받는 2가지 방식 지원
@@ -84,12 +92,16 @@
     - https://chromedriver.chromium.org/downloads
     - 현재는 적용 안됨
 
+
 ### 명령프롬프트에서 실행
 - 구문
 ```
 googleimagesdownload --옵션 옵션값
 ex) googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20 -f jpg
 ```
+>- Polar bears, baloons, Beaches의 이미지를 각각 20개의 jpg 파일만 저장
+<br>
+
 - chrome driver 연동시 `--chromedriver 드라이버경로`  설정
 ```
 googleimagesdownload keywords "Polar bears, baloons, Beaches" --limit 1000 --chromedriver C:\Users\domain\Downloads\chromedriver_win32\chromedriver.exe
@@ -121,10 +133,11 @@ googleimagesdownload keywords "Polar bears, baloons, Beaches" --limit 1000 --chr
     - change save dir: annotation 파일 저장 디렉토리 설정
     - Labelling Format 지정: Pascal VOC, YOLO
 - 주요 단축키
-|단축키|설명|
-|-|-|
-|w|BBox 그리기|
-|d|다음 이미지|
-|a|이전 이미지|
-|del|BBox 삭제|
-|ctrl+shift+d|현재 이미지 삭제|
+
+    |단축키|설명|
+    |-|-|
+    |w|BBox 그리기|
+    |d|다음 이미지|
+    |a|이전 이미지|
+    |del|BBox 삭제|
+    |ctrl+shift+d|현재 이미지 삭제|
