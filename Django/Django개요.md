@@ -19,9 +19,11 @@
 
 ## Django(장고) 설치
   - 가상환경 설정
+  
     `conda create -n django python=3.8`
 
   - 가상환경에서 장고와 jupyter 설치
+  
     `pip install django`
     `conda install jupyter`
   
