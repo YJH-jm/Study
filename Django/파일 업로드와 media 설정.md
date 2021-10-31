@@ -16,7 +16,7 @@
     - MEDIA_URL
         - 업로드 된 파일을 클라이언트가 요청할 때 사용할 시작 URL (URL Prefix)
 
-            <img src="./images/image_media2.PNG" width = "70%">
+            <img src="./images/image_media2.PNG" width = "80%">
 
 
 ## Model의 FileField와 ImageField
@@ -48,20 +48,20 @@
     - models.FileField(upload_to = "docs/%Y/%m/%d")
         - docs/2021/01/05 경로에 저장
 
-        <img src="./images/image_media4.PNG" width = "">
+            <img src="./images/image_media4.PNG" width = "20%">
         
 ## Template에서 MEDIA url 처리
 - settings.py의 MEDIA_URL 과 Field의 upload_to 의 경로를 조합해서 url 경로를 만듦 
 - 하드코딩 할 경우 경로가 바뀌면 소스코드를 모두 변경
 - 필드의 url 속성을 이용한 경로 조회 가능
     
-    <img src="./images/image_media6.PNG" width = "">
+    <img src="./images/image_media6.PNG" width = "50%">
 
 ## 개발 서버를 위해 media 파일 url 등록
 - static 파일과 다르게 장고 개발 서버는 Media 파일을 client에게 서비스하는 것을 지원하지 않음
 - 개발 서버에 media 파일 서비스를 위해 설정파일[config]/urls.py 에 등록
 
-    <img src="./images/image_media5.PNG" width = "">
+    <img src="./images/image_media5.PNG" width = "60%">
 
 ## 파일 업로드 - HTML
 - form 설정
@@ -71,4 +71,4 @@
 - input 태그
     - type : file
 
-        <img src="./images/image_media7.PNG" width = "">
+        <img src="./images/image_media7.PNG" width = "60%">
