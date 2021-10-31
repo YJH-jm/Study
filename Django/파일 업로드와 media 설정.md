@@ -11,12 +11,12 @@
     - MEDIA_ROOT
         - 업로드 된 파일이 저장될 디렉토리 설정
 
-            <img src="./images/image_media.PNG" width = "20%">
+            <img src="./images/image_media.PNG" width = "70%">
 
     - MEDIA_URL
         - 업로드 된 파일을 클라이언트가 요청할 때 사용할 시작 URL (URL Prefix)
 
-            <img src="./images/image_media2.PNG" width = "20%">
+            <img src="./images/image_media2.PNG" width = "70%">
 
 
 ## Model의 FileField와 ImageField
