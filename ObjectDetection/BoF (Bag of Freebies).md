@@ -50,7 +50,7 @@
     <br>
 
     <p align=center><img src="images/image28.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1708.04896.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1708.04896.pdf">출처</a></p>
 
 - **CutOut**
     - 랜덤으로 사각형 영역을 선택하여 0의 값으로 보충하는 방법
@@ -58,7 +58,7 @@
     <br>
 
     <p align=center><img src="images/image29.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1708.04552.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1708.04552.pdf">출처</a></p>
 
 
 - **Hide-and-seek**
@@ -67,7 +67,7 @@
     <br>
     
     <p align=center><img src="images/image30.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1811.02545.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1811.02545.pdf">출처</a></p>
 
 <br>
 
@@ -77,7 +77,7 @@
     <br>
 
     <p align=center><img src="images/image31.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/2001.04086.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/2001.04086.pdf">출처</a></p>
 
 <br>
 
@@ -95,8 +95,8 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
 
     <br>
     
-    <p align=center><img src="images/image55.PNG" width = 40%></p>
-    <p align=center><a ref="https://stats.stackexchange.com/questions/201569/what-is-the-difference-between-dropout-and-drop-connect">출처</a></p>
+    <p align=center><img src="images/image55.png" width = 40%></p>
+    <p align=center><a href="https://stats.stackexchange.com/questions/201569/what-is-the-difference-between-dropout-and-drop-connect">출처</a></p>
 
 <br>
 
@@ -105,7 +105,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image56.PNG" width = 40%></p>
-    <p align=center><a ref="https://stats.stackexchange.com/questions/201569/what-is-the-difference-between-dropout-and-drop-connect">출처</a></p>
+    <p align=center><a href="https://stats.stackexchange.com/questions/201569/what-is-the-difference-between-dropout-and-drop-connect">출처</a></p>
 
     <br>
 
@@ -128,7 +128,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>  
 
     <p align=center><img src="images/image32.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/2001.04086.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/2001.04086.pdf">출처</a></p>
 
 <br>
 
@@ -140,7 +140,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image33.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1811.12231.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1811.12231.pdf"> 출처</a></p>
 
 <br>
 <br>
@@ -200,7 +200,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image34.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1708.02002.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1708.02002.pdf">출처</a></p>
 
 <br>
 
@@ -248,25 +248,67 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/me19.png" ></p>
+    <p align=center><img src="images/me20.png" > &nbsp;: Ground Truth Bounding Box</p>
+    <p align=center><img src="images/me21.png" > &nbsp;: Bounding Box</p>
+
     
 <br>
 
 - **GIoU(Generalized IoU)**
     - IoU는 겹쳐지지 않는 박스가 있다면 얼마나 떨어져있는지 학습 할 수 없음
-    - Bounding Box와 Ground Truth Box를 동시에 감싸는 최소 영역을 만들고 그 영역을 이용하여 Bounding Box와 Ground Truth Box가 얼마나 떨어져있는지 반영
+        - 아래 그림의 차이를 구별하여 학습하지 못함  
+
+    <br>
+    
+    <p align=center><img src="images/image57.PNG" width = 40%></p>
+    
+    <br>
+        
+
+
+    - GIoU는 Bounding Box와 Ground Truth Box를 동시에 감싸는 최소 영역을 만들고 그 영역을 이용하여 Bounding Box와 Ground Truth Box가 얼마나 떨어져있는지 반영
+
+    <br>
+
+    <p align=center><img src="images/me22.png" ></p>
+    <p align=center><img src="images/me23.png" > &nbsp;: Bounding Box와 Ground Truth Bounding Box를 다 포함하는 최소한의 Box</p>
+
+    <br>
 
 <br>
 
 - **DIoU(Distance IoU)**
-    - 객체 간의 중심점 사이의 거리를 고려
+    - IoU와 객체 간의 중심점 사이의 거리를 고려
+    - IoU Loss에 중심점 고려하는 panalty term 추가 
+
+    <br>
 
     <p align=center><img src="images/image35.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1911.08287.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1911.08287.pdf">출처</a></p>
+
+    <br>
+
+    
+    <br>
+    <p align=center><img src="images/me24.png" ></p>
+    <p align=center><img src="images/me25.png" ></p>
+
+    <p align=center><img src="images/me26.png" > &nbsp;: Euclidean distance</p>
+    <p align=center><img src="images/me27.png" > &nbsp;: Bounding Box의 중심점 좌표</p>
+    <p align=center><img src="images/me28.png" > &nbsp;: Ground Truth Bounding Box의 중심 좌표</p>
+
+
 
 <br>
 
 - **CIoU**
-    - 
+    - DIoU에서 두 객체 사이의 aspect ratio를 같이 고려하는 방법
+   
+   <br>
+    <p align=center><img src="images/me29.png" ></p>
+    <p align=center><img src="images/me30.png" ></p>
+    <p align=center><img src="images/me31.png" ></p>
+
 
 <br>
 <br>
@@ -297,7 +339,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
 
     <p align=center><img src="images/image37.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1406.4729.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1406.4729.pdf">출처</a></p>
 
     <br>
 
@@ -318,14 +360,14 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
 
         <p align=center><img src="images/gif.gif" width = 40%></p>
-        <p align=center><a ref="https://zzsza.github.io/data/2018/02/23/introduction-convolution/">출처</a></p>
+        <p align=center><a href="https://zzsza.github.io/data/2018/02/23/introduction-convolution/">출처</a></p>
 
     - SPP에 atrous convolution 적용하여 ASSP
 
     <br>
 
     <p align=center><img src="images/image38.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
 
     <br>
 
@@ -334,7 +376,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
     
     <p align=center><img src="images/image39.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
 
 <br>
 
@@ -344,7 +386,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image40.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1606.00915.pdf">출처</a></p>
 
     
     <br>
@@ -361,7 +403,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image41.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1709.01507.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1709.01507.pdf">출처</a></p>
 
     - Squeeze
         - 채널 별 가중치를 계산하기 위해 global average pooling 으로 1차원으로 만들어 각 채널을 하나의 숫자로 표현하는 것 가능
@@ -374,7 +416,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
 
     <p align=center><img src="images/image42.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1709.01507.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1709.01507.pdf">출처</a></p>
 
 <br>
 
@@ -384,7 +426,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
     
     <p align=center><img src="images/image44.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1807.06521v2.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1807.06521v2.pdf">출처</a></p>
 
     <br>
 
@@ -395,7 +437,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image43.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1807.06521v2.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1807.06521v2.pdf">출처</a></p>
 
     <br>
 
@@ -409,7 +451,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
 
         <p align=center><img src="images/image45.PNG" width = 40%></p>
-        <p align=center><a ref="https://openaccess.thecvf.com/content_cvpr_2017/papers/Lin_Feature_Pyramid_Networks_CVPR_2017_paper.pdf">출처</a></p>
+        <p align=center><a href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Lin_Feature_Pyramid_Networks_CVPR_2017_paper.pdf">출처</a></p>
 
         <br>
 
@@ -420,7 +462,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
 
         <p align=center><img src="images/image46.PNG" width = 40%></p>
-        <p align=center><a ref="https://openaccess.thecvf.com/content_cvpr_2017/papers/Lin_Feature_Pyramid_Networks_CVPR_2017_paper.pdf">출처</a></p>
+        <p align=center><a href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Lin_Feature_Pyramid_Networks_CVPR_2017_paper.pdf">출처</a></p>
 
         <br>
         
@@ -443,7 +485,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image47.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1811.04533v3.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1811.04533v3.pdf">출처</a></p>
 
     <br>
 
@@ -452,7 +494,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         <br>
         
         <p align=center><img src="images/image48.PNG" width = 40%></p>
-        <p align=center><a ref="https://herbwood.tistory.com/23">출처</a></p>
+        <p align=center><a href="https://herbwood.tistory.com/23">출처</a></p>
         
         <br>
 
@@ -472,7 +514,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image49.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1911.09516v2.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1911.09516v2.pdf">출처</a></p>
 
     <br>
 
@@ -487,7 +529,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
 
     <p align=center><img src="images/image50.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1911.09516v2.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1911.09516v2.pdf">출처</a></p>
 
     <br>
 
@@ -524,7 +566,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
     
     <p align=center><img src="images/image51.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1502.01852.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1502.01852.pdf">출처</a></p>
 
     - ReLU 에서 음수값의 계수를 학습 가능한 파라미터로 두고 학습을 통해서 업데이트 시키는 activation function 
     - dying ReLU 해결
@@ -544,7 +586,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
 
     <br>
     <p align=center><img src="images/image52.PNG" width = 20%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1502.01852.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1502.01852.pdf">출처</a></p>
 
     - self-normalizing 위해 고안
 
@@ -555,7 +597,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     <br>
     
     <p align=center><img src="images/image53.PNG" width = 40%></p>
-    <p align=center><a ref="https://arxiv.org/pdf/1710.05941.pdf">출처</a></p>
+    <p align=center><a href="https://arxiv.org/pdf/1710.05941.pdf">출처</a></p>
 
     <br>
 
