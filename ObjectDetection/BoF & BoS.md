@@ -493,7 +493,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
         
         <br>
         
-        <p align=center><img src="images/image48.PNG" width = 40%></p>
+        <p align=center><img src="images/image48.png" width = 40%></p>
         <p align=center><a href="https://herbwood.tistory.com/23">출처</a></p>
         
         <br>
@@ -506,9 +506,8 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     - Channel-wise attention
         - feature가 가장 많은 효율을 얻을 수 있는 channel에 집중(attention)하도록 설계하는 작업을 수행
         -  Scale-wise feature concatenation 과정에서 출력한 feature map을 SE(Squeeze Excitation) block에 입력 
-    - 
-    -
 
+<br>
 
 - **ASFF (Adaptively Spatial Feature Fusion)**
     <br>
@@ -571,7 +570,7 @@ Feature map에도 위와 비슷하게 적용되는 방법 존재
     - ReLU 에서 음수값의 계수를 학습 가능한 파라미터로 두고 학습을 통해서 업데이트 시키는 activation function 
     - dying ReLU 해결
 
-    <p align=center><img src="https://latex.codecogs.com/svg.image?f(y_{i})=\begin{cases}y_{i}&space;&&space;y_{i}&space;\geq&space;0\\a_{i}y_{i}&&space;y_{i}&space;<&space;0\end{cases}" title="f(y_{i})=\begin{cases}y_{i} & y_{i} \geq 0\\a_{i}y_{i}& y_{i} < 0\end{cases}" /></p>
+    <!-- <p align=center><img src="https://latex.codecogs.com/svg.image?f(y_{i})=\begin{cases}y_{i}&space;&&space;y_{i}&space;\geq&space;0\\a_{i}y_{i}&&space;y_{i}&space;<&space;0\end{cases}" title="f(y_{i})=\begin{cases}y_{i} & y_{i} \geq 0\\a_{i}y_{i}& y_{i} < 0\end{cases}" /></p> -->
 
 <br>
 
