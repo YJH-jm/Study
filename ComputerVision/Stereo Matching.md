@@ -129,8 +129,67 @@
 
 - 매칭 문제를 쉽게 해결하기 위해 epipolar line을 평행하도록 이미지를 변환하는 과정을 이미지 렉티피케이션(image rectification)
 
+<br>
+
 <p align=center><img src="images/image6.jpg" width=40%></p>
 <p align=center><a href="http://www.ntrexgo.com/archives/2280">출처</a></p>
+
+<br>
+<br>
+
+## Camera Calibration
+- 실제 3차원의 점들이 카메라로 찍은 이미지 상에서 어디에 맺히는지는 영상을 찍을 당시의 카메라의 위치 및 방향에 의해 결정 
+- 또한 이미지는 사용된 렌즈, 렌즈와 이미지 센서와의 거리, 렌즈와 이미지 센서가 이루는 각 등 카메라 내부의 기구적인 부분에 의해서 크게 영향을 받음
+- 3차원 점들이 영상에 투영된 위치를 구하거나 역으로 영상 좌표로부터 3차원 공간 좌표를 복원할 때에는 이러한 요인을 제거해야만 정확한 계산이 가능
+- 카메라 파라미터를 구하는 과정을 카메라 캘리브레이션라고 함
+    - 구해서 파라미터를 조절하는 과정이라고 설명하는 논문도 있음 
+
+<br>
+
+- 핀홀 카메라 모델에서의 3차원 공간상 점들을 2차원 이미지 평면에 투사한 변환 관계
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?s\begin{bmatrix}x&space;\\y&space;\\1\end{bmatrix}=\begin{bmatrix}f_{x}&space;&&space;skew\_cf_{x}&space;&&space;c_{x}&space;\\0&space;&&space;f_{y}&space;&&space;c_{y}&space;&space;\\0&space;&&space;0&space;&&space;1&space;&space;\\\end{bmatrix}\begin{bmatrix}r_{11}&space;&&space;r_{12}&space;&&space;r_{13}&space;&&space;t_{1}&space;\\r_{21}&space;&&space;r_{22}&space;&&space;r_{23}&space;&&space;t_{2}&space;\\r_{31}&space;&&space;r_{32}&space;&&space;r_{33}&space;&&space;t_{3}&space;\\\end{bmatrix}&space;\begin{bmatrix}X&space;\\Y&space;\\Z&space;\\1\end{bmatrix}=A\begin{bmatrix}R|t\end{bmatrix}\begin{bmatrix}X&space;\\Y&space;\\Z&space;\\1\end{bmatrix}" title="s\begin{bmatrix}x \\y \\1\end{bmatrix}=\begin{bmatrix}f_{x} & skew\_cf_{x} & c_{x} \\0 & f_{y} & c_{y} \\0 & 0 & 1 \\\end{bmatrix}\begin{bmatrix}r_{11} & r_{12} & r_{13} & t_{1} \\r_{21} & r_{22} & r_{23} & t_{2} \\r_{31} & r_{32} & r_{33} & t_{3} \\\end{bmatrix} \begin{bmatrix}X \\Y \\Z \\1\end{bmatrix}=A\begin{bmatrix}R|t\end{bmatrix}\begin{bmatrix}X \\Y \\Z \\1\end{bmatrix}" /></p>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?A" title="A" /> &nbsp;: 키메라 내부 파라미터(intrinsic parameter) </p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{bmatrix}R|t\end{bmatrix}" title="\begin{bmatrix}R|t\end{bmatrix}" /> &nbsp;: 카메라 외부 파라미터(extrinsic parameter) </p>
+
+<br>
+
+### 카메라 내부 파라미터(intrinsic parameters)
+- 초점 거리 (focal length)
+    - 렌즈중심과 이미지센서(CCD, CMOS 등)와의 거리
+    - <img src="https://latex.codecogs.com/svg.image?f_{x},&space;f_{y}" title="f_{x}, f_{y}" />
+
+<br>
+
+- 주점 (principal point)
+    - 카메라 렌즈의 중심에서 이미지 센서에 내린 수선의 발의 좌표
+    - <img src="https://latex.codecogs.com/svg.image?c_{x},&space;c_{y}" title="c_{x}, c_{y}" />
+
+<br>
+
+- 비대칭 계수 (skew coefficient)
+    - 이미지 센서의 cell array의 y 축이 기울어진 정도 
+
+    <br>
+
+    <p align=center><img src="images/image21.png" width=40%></p>
+    <p align=center><a href="https://darkpgmr.tistory.com/32#calibration2">출처</a></p>
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?skew\_{c}=tan(\alpha)" title="skew\_{c}=tan(\alpha)" /></p>
+
+<br>
+
+### 카메라 외부 파라미터(extrinsic parameters)
+-  카메라 좌표계와 월드 좌표계 사이의 변환 관계를 설명하는 파라미터
+    - 두 좌표계 사이의 회전(Rotation) 및 평행 이동(translation) 으로 표현
+- 카메라를 어떤 위치에 어떤 방향으로 설치했는지에 따라 달라짐
+- 외부 파라미터를 구하기 위해서는 내부 파라미터를 먼저 구해야 함
+
 
 <br>
 <br>
@@ -141,7 +200,6 @@
     - 베이스라인 : 두 카메라의 간격
     - 시차 : 두 영상에서 동일하게 나타나는 물체에 대한 위치 차이(아래 그림에서 x축 위치 차이)
         - x축의 위치 차이만 고려할 수 있는 이유는 Stereo Rectification 과정 거쳤기 때문
-
 
 <br>
 
@@ -164,6 +222,12 @@
     - 즉, 시차 (disparity)를 계산하는 과정 
 - 계산 된 시차 값들을 이미지로 표현하면 흑백영상으로 표현 가능한데 이를 disparity image 또는 depth map 라고 함
     - 밝을수록 가까운 물체에 해당
+
+- Stereo Matching의 보편적 단계
+    1. 
+    2.
+    3.
+    4.
 
 <br>
 
