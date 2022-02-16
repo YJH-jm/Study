@@ -324,7 +324,7 @@
         - **Rank transform**
             - 개별적으로 기준 영상의 window와 목표 영상의 window를 설정
             - window 내에 존재하는 pixel들에 Rank 윈도우를 설정
-            - Rank wundow를 중심 pixel로 가지고 이동하는 Window를 만들어 중심 pixel과 주변 pixel을 비교하여 1과 0의 값으로 계산(Census transform 처럼)
+            - Rank window를 중심 pixel로 가지고 이동하는 window를 만들어 중심 pixel과 주변 pixel을 비교하여 1과 0의 값으로 계산(Census transform 처럼)
             - 그 후 1의 수를 세어 Rank window 중심 부분에 해당하는 pixel 위치에 그 값을 넣음
             - 이렇게 만들어진 window들을 SAD 수행하여 Ranking matching cost 값 획득 
 
