@@ -96,8 +96,24 @@
 <br>
 
 ### Fundamental Matrix
+- 카메라 파라미터까지 포함한 두 이미지의 실제 픽셀(pixel) 좌표 사이의 기하학적 관계를 표현하는 행렬
+- 영상 A에서는 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;p_{img}" title="\inline p_{img}" />에 투영되고, 영상 B에서는  &nbsp; <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{img}'" title="\inline p_{img}'" />에 투영되었다면 두 영상 좌표 사이에는 다음 관계를 만족하는 행렬이 항상 존재
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?p_{img}'^{T}Ep_{img}=0" title="p_{img}'^{T}Ep_{img}=0" /></p>
+
+<br>
 
 <p align=center><img src="https://latex.codecogs.com/svg.image?\begin{bmatrix}x'&space;&&space;y'&space;&&space;1&space;\\\end{bmatrix}F\begin{bmatrix}x&space;\\y&space;\\1\end{bmatrix}&space;" title="\begin{bmatrix}x' & y' & 1 \\\end{bmatrix}F\begin{bmatrix}x \\y \\1\end{bmatrix} " /></p>
+
+<br>
+
+- 영상 A에 대한 카메라 내부 파라미터 행렬을 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;K" title="\inline K" /> , 영상 B에 대한 카메라 행렬을 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;K^{'}" title="\inline K^{'}" /> 라하면 다음 관계를 만족
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?E=K^{'T}FK" title="E=K^{'T}FK" /></p>
 
 <br>
 <br>
@@ -224,6 +240,7 @@
     - 대부분의 Stereo matching 방법은 disparity estimation에 집중함
 - 계산 된 시차 값들을 이미지로 표현하면 흑백영상으로 표현 가능한데 이를 disparity image 또는 depth map 라고 함
     - 시차의 차이가 클수록 가까이에 있는 물체, 즉 밝을 수록 가까이 있는 물체 
+- Stereo Matching 전에 camera calibration 과정과 stereo rectification 과정 거치는 것이 좋음
 
 <br>
 
@@ -235,10 +252,8 @@
     1. Matching cost computation
         - 동일한 장면이지만 다른 시점을 가진 stereo 영상들로부터 matching 알고리즘을 적용하여 복수의 영상의 같은 pixel 내 서로 유사도를 계산하여 cost를 구하여 3차원 cost volume(x, y, costs) 생성
     2. Cost aggregation
-        
     3. Disparity computation / optimization
     4. Disparity refinement
-        - 추정된 시차가 정수 단위의 이산값 가지고 있기에 연속적 값을 가지게 만들어 오류를 줄이는 단계
 
 <br>
 
@@ -418,22 +433,38 @@
 
 <br>
 
-### MC-CNN (Stereo Matching cost with a Convolutional Neural Network)
+### **MC-CNN (Stereo Matching cost with a Convolutional Neural Network)**
+- 2016년에 처음으로 제안된 supervised deep learning 프레임워크
+- stereo image pair를 해당 disparity에 매핑하는 patch 레벨 방식 
+
 
 <br>
-
 <p align=center><img src="images/image16.PNG" width=40%></p>
 <p align=center><a href="https://www.sciencedirect.com/science/article/pii/S1319157820304493">출처</a></p>
 
 <br>
 
+- 네트워크의 목적은 모든 고려중인 disparity에 대해 각 위치 p에서의 matching cost를 결정하는 것 
+- Cost는 점 p에 대한 patch간 절대 차이로 간단하게 결정
+
+<br>
+<p align=center><img src="https://latex.codecogs.com/svg.image?C_{AD}(\textbf{p},d)=\sum_{\textbf{q}\in&space;N_{p}}|I^{L}(q)-I^{R}(qd)|" title="C_{AD}(\textbf{p},d)=\sum_{\textbf{q}\in N_{p}}|I^{L}(q)-I^{R}(qd)|" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;pd=(x-d,y)" title="\inline pd=(x-d,y)" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;I^{L},&space;I^{R}" title="\inline I^{L}, I^{R}" />&nbsp;:  image intensities</p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;N_{p}" title="\inline N_{p}" /> &nbsp;: <img src="https://latex.codecogs.com/svg.image?\inline&space;p" title="\inline p" /> 를 중심으로 하는 고정된 window의 위치집합 </p>
+
+<br>
+
+- 위 네트워크를 통하여 두 patch의 유사성 검사 가능
 - 이 네트워크를 통과하여 matching cost 얻음
 
 <br>
 
-<p align=center><img src="images/image17.PNG" width=40%></p>
+<p align=center><img src="images/image24.png" width=40%></p>
+<p align=center><a href="https://towardsdatascience.com/dl-for-depth-estimation-p2-7cb2c9ff325d#8c29">출처</a></p>
 
 <br>
+ 
 
 - 나머지는 전통적인 Stereo Matching 방식 따름
 
@@ -444,37 +475,53 @@
 
 <br>
 
-### GC-NET
+### **GC-NET (Geometry and Context Network)​**
+-  더 넓은 context 정보를 이해하기 위해 end-to-end stereo regression 모델을 학습하는 것이 목표
+
+<br>
+
 <p align=center><img src="images/image18.PNG" width=40%></p>
+<p align=center><a href="https://arxiv.org/pdf/1703.04309v1.pdf">출처</a></p>
+
+<br>
+
+- Sub-pixel disparity를 추정하기 위해 정제된 stere pair로 부터 end-to-end 학습 진행
+- Geometry에 영향을 미치는 미분가능한 cost volume 생성
+- Cost volumee을 통해 multi-scale 3D convolution에서 context를 학습
+- disparity 곡선을 평가하기 위해 미분가능한 Soft ArgMax 사용
+
+<br>
+
 <p align=center><img src="images/image19.PNG" width=20%></p>
 <p align=center><a href="https://arxiv.org/pdf/1703.04309v1.pdf">출처</a></p>
 
-- Unary Features
-    - 이 과정을 통해 cost volumn을 형성하며 matching cost 계산
 
-- Cost Volumn
-- 두 장의 이미지 각각에서 추출한 feature map의 disparity에 대한 비용함수를 추가
-    - cost volumn의 차원을 **height × width × (max disparity + 1) × feature size** 로 형성
+<p align=center><img src="images/image25.PNG" width=40%></p>
 
+- Feature Extration
+    - Raw pixel intensity를 통해 cost를 계산하는 방법 대신 요즘 feature representation 사용
+    - 저자틑 특징을 unary feature 라고 함
+    - 이 과정을 통해 cost volume 생성
+- Cost volume
+    - 두 장의 이미지 각각에서 추출한 feature map에 disparity에 대한 비용 함수 추가
+    - cost volume의 차원을 **height × width × (max disparity + 1) × feature size** 로 형성
+    - 각 disparity level에서의 반대편 stereo image와 대응되는 unary feature와 기존 unary feature를 합치고 4D volumn으로 패킹하여 만듦
 - Learning context
     - Unary 사이의 matching cost는 deep feature representation을 사용한다고 해도 완벽하지 않음
-    - Disparity cost volumn을 3차원 convolution으로 학습하며 이 volumn의 context를 고려하고 disparity estimate을 정제하는 것을 가능하게하는 regularization function 을 학습 할 수 있게 됨
-         
+    - Disparity cost volume을 3차원 convolution으로 학습하며 이 volume의 context를 고려하고 disparity estimate을 정제하는 것을 가능하게하는 regularization function 을 학습 할 수 있게 됨
     - Deconvolution은 dense의 예측을 original input 차원으로 할 수 있도록 만들어주기 때문에 필수
-- 
+- Soft Arg
+    - discrete해서 미분불가능한 값을 가능하게 변환하여 back propagation 가능하게 만듦
+    - sub-pixel의 disparity 예측하는 것을 가능하게 해줌
 
-- 
-<br>
-<br>
-
-
-## Unsupervised learning algorithm
-- 앞의 기술은 유사도 혹은 depth 수치를 제공하는 회귀 신경망을 설계함으로써 depth를 추정
-- 2017년 영국 Cambridge 대학교의 Kendall등은 다중 시점 매칭 문제를 회귀 문제가 아닌 멀티클래스 분류 문제로 접근
 
 <br>
 
-### PSMNet
+<br>
+
+### **PSMNet**
+- SPP는 서로 다른 scale과 location으로 context를 합쳐 cost volume을 형성하므로 global context 정보 이용하게 만듦
+- 3D CNN은 multiple hourglass network를 사용하여 cost volume을 정규화 하는 방법을 학습
 
 <br>
 
@@ -483,11 +530,28 @@
 
 <br>
 
-- 두 입력 사진에 동일한 weight를 적용한 CNN 모델을 적용하여 feature map 추출
-- 추출된 feature map이 각각 SPP(Spatial Pyramid Pooling) 을 거쳐 이미지의 context 정보를 가진 feature가 됨
-- SPP module을 통과한 feature들은 convolution layer를 거쳐 fusion 
-- feature map이 결합되어 4D cost volumn 생성
 
+- 두 입력 사진에 동일한 weight를 적용한 CNN 모델을 적용하여 feature map 추출
+
+<br>
+
+- SPP(Spatial Pyramid Pooling)
+    - multi-scale pooling 사용
+    - 각 level마다 원본 해상도에 다른 필터를 적용
+    -  추출된 feature map이 각각 SPP(Spatial Pyramid Pooling) 을 거쳐 이미지의 context 정보를 가진 feature가 됨
+
+<br>
+
+- SPP module을 통과한 feature들은 convolution layer를 거쳐 원래의 해상도로 up-sampling
+
+<br>
+
+- Cost Volume 생성
+    - 오른쪽 왼쪽 각 이미지에서 H x W x F 크기의 feature tensor 생성
+    - H x W x D x 2F 크기의 Cost Volume 생성
+
+- feature map이 결합되어 4D cost volume 생성
+ 
 <br>
 
 - 4D cost volume을 3D CNN에 통과시켜 cost volume 정규화
