@@ -49,7 +49,7 @@
 
 <br>
 
-<p align=center><img src="https://latex.codecogs.com/svg.image?p_{img}=(x,y)" title="p_{img}=(x,y)" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?p'=(u,v)" title="p'=(u,v)" /></p>
 
 <br>
 
@@ -116,27 +116,6 @@
 <br>
 
 
-## Stereo Rectification
-- 찾아낸 epipolar line을 평행하게 일치시키는 과정 
-- 일반적인 스테레오 카메라에서는 epipolar line이 사선으로 나타남 
-
-<br>
-
-<p align=center><img src="images/image5.jpg" width=40%></p>
-<p align=center><a href="http://www.ntrexgo.com/archives/2280">출처</a></p>
-
-<br>
-
-- 매칭 문제를 쉽게 해결하기 위해 epipolar line을 평행하도록 이미지를 변환하는 과정을 이미지 렉티피케이션(image rectification)
-
-<br>
-
-<p align=center><img src="images/image6.jpg" width=40%></p>
-<p align=center><a href="http://www.ntrexgo.com/archives/2280">출처</a></p>
-
-<br>
-<br>
-
 ## Camera Calibration
 - 실제 3차원의 점들이 카메라로 찍은 이미지 상에서 어디에 맺히는지는 영상을 찍을 당시의 카메라의 위치 및 방향에 의해 결정 
 - 또한 이미지는 사용된 렌즈, 렌즈와 이미지 센서와의 거리, 렌즈와 이미지 센서가 이루는 각 등 카메라 내부의 기구적인 부분에 의해서 크게 영향을 받음
@@ -194,6 +173,28 @@
 <br>
 <br>
 
+
+## Stereo Rectification
+- 찾아낸 epipolar line을 평행하게 일치시키는 과정 
+- 일반적인 스테레오 카메라에서는 epipolar line이 사선으로 나타남 
+
+<br>
+
+<p align=center><img src="images/image5.jpg" width=40%></p>
+<p align=center><a href="http://www.ntrexgo.com/archives/2280">출처</a></p>
+
+<br>
+
+- 매칭 문제를 쉽게 해결하기 위해 epipolar line을 평행하도록 이미지를 변환하는 과정을 이미지 렉티피케이션(image rectification)
+
+<br>
+
+<p align=center><img src="images/image6.jpg" width=40%></p>
+<p align=center><a href="http://www.ntrexgo.com/archives/2280">출처</a></p>
+
+<br>
+<br>
+
 ## Stereo Vision 3차원 거리 정보 계산
 - 3차원 거리 정보는 시차, 초점 거리(focal length), 베이스라인(baseline) 3가지 요소를 통해 획득 가능
     - 초점 거리 : 렌즈에서 이미지 센서까지의 거리
@@ -218,22 +219,27 @@
 <br>
 
 # Stereo Matching
-- 기준 영상에서의 한 점에 대한 동일한 점을 목표 영상에서 찾는 과정
+- 기준 영상(reference image)에서의 한 점에 대한 동일한 점을 목표 영상(target image)에서 찾는 과정
     - 즉, 시차 (disparity)를 계산하는 과정 
+    - 대부분의 Stereo matching 방법은 disparity estimation에 집중함
 - 계산 된 시차 값들을 이미지로 표현하면 흑백영상으로 표현 가능한데 이를 disparity image 또는 depth map 라고 함
-    - 밝을수록 가까운 물체에 해당
-
-- Stereo Matching의 보편적 단계
-    1. 
-    2.
-    3.
-    4.
+    - 시차의 차이가 클수록 가까이에 있는 물체, 즉 밝을 수록 가까이 있는 물체 
 
 <br>
 
 <p align=center><img src="images/image9.png" width=40%></p>
 
 <br>
+
+- Stereo Matching의 보편적 단계
+    1. Matching cost computation
+        - 동일한 장면이지만 다른 시점을 가진 stereo 영상들로부터 matching 알고리즘을 적용하여 복수의 영상의 같은 pixel 내 서로 유사도를 계산하여 cost를 구하여 3차원 cost volume(x, y, costs) 생성
+    2. Cost aggregation
+        
+    3. Disparity computation / optimization
+    4. Disparity refinement
+        - 추정된 시차가 정수 단위의 이산값 가지고 있기에 연속적 값을 가지게 만들어 오류를 줄이는 단계
+
 <br>
 
 
@@ -245,101 +251,163 @@
 
 <br>
 
-### 1. Global matching method
-- 영상 전체의 정보나 적어도 줄 단위 정보를 사용하는 방법
-- 영상의 일정 부분이 아닌 전체 정보를 사용하므로 알고리즘이 복잡하나 매우 정확한 깊이 영상 추출 가능 
-- Belief propagation, dynamic programming, semi-global matching, graph-cut, ..
-    - 일반적으로 **Semi-global matching** 주로 사용
-
-<br>
-
-### 2. Local matching method
-- 기준 pixel 근처의 작은 영역의 pixel들
-- 특징 기반(feature-based)과 영역 기반(area-based) 방법으로 나뉨
+### 1. Local matching method
+- 기준 pixel 근처의 작은 영역의 pixel들을 사용하는 방법
 - 특징 기반
     - 특징점을 기반으로 matching point를 찾음
     - 최근에는 사용하지 않음 
+
 - 영역 기반
-     - 일정 영역(=window)의 픽셀 정보들을 이용하여 matching point를 찾음
+    - 일정 영역(=window)의 픽셀 정보들을 이용하여 matching point를 찾음
     - 일정 크기의 윈도우 내 픽셀 정보들만 사용하기 때문에 global matching에 비해 상대적으로 부정확하지만 간단하고 빠름
-    - 전역 정합 방법의 초기 정합 비용(initial matching cost, 아래의 그림에서는 'matching cost cube'를 의미)을 계산하는데 사용
-    - SAD(Sum of absolute difference), SSD(Sum of squared difference), NCC(normalized cross correlation), Census transform, Rank transform, .. 
 
-    - 상대적으로 낮은 정확도를 개선하기 위한 방법
-        - post-processing
-            - **Left-right consistency check**, confidence check, median filter, **weighted median filter**, propagation, ...
-        - Aggregation
-            - Adaptive support weight, cross-based adaptive support weight, ...
+    - Matching cost computation
+        - SAD(Sum of absolute difference), SSD(Sum of squared difference), NCC(normalized cross correlation), Census transform, Rank transform, .. 
 
+        - **SAD (Sum of Absolute Difference)**
+            - 기준 영상과 목표 영상의 disparity search range 내 존재하는 각 pixel에 대한 절대값 차이 계산
+            - 범위 내 같은 위치의 pixel들의 절대값 차이를 계산한 후, 계산된 절대값 차이를 합산하여 matching cost로 사용
+                - window 내 픽셀 값들의 차이가 크면 클수록 유사하지 않다는 의미
+            
+        <br>
 
-- Depth map 생성 방법
-    - 시차 탐색 범위 (disparity search map)
-        - matching point를 찾는 최대 범위
-    - 정합 비용 (matching cost)
-        - window들 간의 비유사도 값 
-    - window를 기반으로 시차 탐색 범위(disparity search range) 내의 픽셀들에 대해 정합 비용(matching cost)를 계산한 후 disparity 계산 
-
-<br>
-
-<p align=center><img src="images/image12.png" width=40%></p>
-
-<br>
-
-    
-- **SAD (Sum of Absolute Difference)**
-    - 기준 영상과 목표 영상의 disparity search range 내 존재하는 각 pixel에 대한 절대값 차이 계산
-    - 범위 내 같은 위치의 pixel들의 절대값 차이를 계산한 후, 계산된 절대값 차이를 합산하여 matching cost로 사용
-        - window 내 픽셀 값들의 차이가 크면 클수록 유사하지 않다는 의미
-    
-<br>
-
-<p align=center><img src="images/image11.png" width=40%></p>
-<p align=center><a href="https://blog.naver.com/dldlsrb45/220879732646">출처</a></p>
+        <p align=center><img src="images/image11.png" width=40%></p>
+        <p align=center><a href="https://blog.naver.com/dldlsrb45/220879732646">출처</a></p>
 
 
-<br>
+        <br>
 
-- **SSD (Sum of Squared Difference)**
-    - SAD와 거의 비슷하지만 matching cost 구하는 방법이 다름
-     - window 내 같은 위치의 픽셀 값들의 차이를 계산한 후 제곱하여 합산한 값을 matching cost로 사용 
+        - **SSD (Sum of Squared Difference)**
+            - SAD와 거의 비슷하지만 matching cost 구하는 방법이 다름
+            - window 내 같은 위치의 픽셀 값들의 차이를 계산한 후 제곱하여 합산한 값을 matching cost로 사용 
 
-<br>
+        <br>
 
-<p align=center><img src="images/image13.png" width=40%></p>
-<p align=center><a href="https://blog.naver.com/dldlsrb45/220879732646">출처</a></p>
-
-
-<br>
-
-- **Census transform**
-    - 기준 영상과, 목표 영상의 window들 내에 존재하는 중심 pixe과 주변 pixel 값들의 비교를 통해 1 또는 0의 패턴 생성
-        - 중심 pixel이 주변 pixel 값보다 크면 1
-        - 중심 pixel값 보다 주변 pixel이 크거나 같으면 0
-    - 생성된 패턴은 1열의 벡터로 표현하고 이를 Census vector라 함 
-    - 기준 영상의 window에 대한 Census vector와 시차 탐색 범위 만큼의 목표 영상의 Census vector를 차이를 계산
-        - vector의 요소가 얼마나 다른지 확인 
-
-    - 잡음에 강한 특징
-
-<br>
-
-<p align=center><img src="images/image14.png" width=40%></p>
-<p align=center><a href="https://blog.naver.com/dldlsrb45/220880488720">출처</a></p>
+        <p align=center><img src="images/image13.png" width=40%></p>
+        <p align=center><a href="https://blog.naver.com/dldlsrb45/220879732646">출처</a></p>
 
 
-<br>
+        <br>
 
-- **Rank transform**
-    - 개별적으로 기준 영상의 window와 목표 영상의 window를 설정
-    - window 내에 존재하는 pixel들에 Rank 윈도우를 설정
-    - Rank wundow를 중심 pixel로 가지고 이동하는 Window를 만들어 중심 pixel과 주변 pixel을 비교하여 1과 0의 값으로 계산(Census transform 처럼)
-    - 그 후 1의 수를 세어 Rank window 중심 부분에 해당하는 pixel 위치에 그 값을 넣음
-    - 이렇게 만들어진 window들을 SAD 수행하여 Ranking matching cost 값 획득 
+        - **Census transform**
+            - 기준 영상과, 목표 영상의 window들 내에 존재하는 중심 pixe과 주변 pixel 값들의 비교를 통해 1 또는 0의 패턴 생성
+                - 중심 pixel이 주변 pixel 값보다 크면 1
+                - 중심 pixel값 보다 주변 pixel이 크거나 같으면 0
+            - 생성된 패턴은 1열의 벡터로 표현하고 이를 Census vector라 함 
+            - 기준 영상의 window에 대한 Census vector와 시차 탐색 범위 만큼의 목표 영상의 Census vector를 차이를 계산
+                - vector의 요소가 얼마나 다른지 확인 
+
+            - 잡음에 강한 특징
+
+        <br>
+
+        <p align=center><img src="images/image14.png" width=40%></p>
+        <p align=center><a href="https://blog.naver.com/dldlsrb45/220880488720">출처</a></p>
+
+
+        <br>
+
+        - **Rank transform**
+            - 개별적으로 기준 영상의 window와 목표 영상의 window를 설정
+            - window 내에 존재하는 pixel들에 Rank 윈도우를 설정
+            - Rank wundow를 중심 pixel로 가지고 이동하는 Window를 만들어 중심 pixel과 주변 pixel을 비교하여 1과 0의 값으로 계산(Census transform 처럼)
+            - 그 후 1의 수를 세어 Rank window 중심 부분에 해당하는 pixel 위치에 그 값을 넣음
+            - 이렇게 만들어진 window들을 SAD 수행하여 Ranking matching cost 값 획득 
+
+        <br>
+
+        <p align=center><img src="images/image15.png" width=40%></p>
+        <p align=center><a href="https://blog.naver.com/dldlsrb45/220880488720">출처</a></p>
+
+
+        <br>
+
+- Cost Aggregation
+    - Adaptive support weight, adaptive support weight, ...
+    - **Adaptive Support Weight**
+        - 모든 pixel이 같지 않음
+            - 가까운 pixel에 더 큰 weight 부여
+            - 비슷한 색에 더 큰 weight 부여
 
 <br>
 
-<p align=center><img src="images/image15.png" width=40%></p>
-<p align=center><a href="https://blog.naver.com/dldlsrb45/220880488720">출처</a></p>
+- Disparity computation / optimization
+    - Winner-takes-all
+        - 가장 작은 matching cost 값 선택
+
+    <br>
+
+    <p align=center><img src="images/image12.png" width=40%></p>
+
+    <br>
+
+- Disparity Refinement
+    - **Left-right consistency check**, Hole filling, **Weighted median filtering**
+
+
+<br>
+
+
+### 2. Global matching method
+- 영상 전체의 정보나 적어도 줄 단위 정보를 사용하는 방법
+- 좋은 stereo correspondence 요소
+    - Match quality 
+        - 각 pixel이 다른 이미지에서 좋은 match pixel을 찾아야 함
+    - Smoothness
+        - 두 pixel이 인접해있다면, 보통은 같은 거리로 움직여야 함 
+
+<br>
+
+- **Energy function**
+    - Data term과 smoothness term으로 구성
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?E(d)=\sum_{p}D(d_{p})&plus;\lambda&space;\sum_{p,q}&space;V(d_{p},d_{q})" title="E(d)=\sum_{p}D(d_{p})+\lambda \sum_{p,q} V(d_{p},d_{q})" /></p>
+
+    <br>
+
+    - **Data term**
+        - 다른 이미지에서 좋은 matching pixel을 찾는 Match quality 관점
+        
+        <br>
+
+        <p align=center><img src="https://latex.codecogs.com/svg.image?\sum_{p}D(d_{p})" title="\sum_{p}D(d_{p})" /></p>
+        
+        <br>
+        
+        - pixel <img src="https://latex.codecogs.com/svg.image?\inline&space;p" title="\inline p" /> 에 disparity <img src="https://latex.codecogs.com/svg.image?\inline&space;d_{p}" title="\inline d_{p}" /> 을 할당하기 위한 cost 
+
+        <br>
+
+    - **Smoothness term**
+        - Smoothness 관점 
+
+        <p align=center><img src="https://latex.codecogs.com/svg.image?\lambda&space;\sum_{p,q}&space;V(d_{p},d_{q})" title="\lambda \sum_{p,q} V(d_{p},d_{q})" /></p>
+        <p>
+        
+        <p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;p,q" title="\inline p,q" /> &nbsp; : 이웃한 pixel</p>
+
+        <br>
+
+        <p align=center><img src="images/image22.PNG" width=25%></p>
+        <p align=center><a href="https://www.cs.cmu.edu/~16385/s17/Slides/13.2_Stereo_Matching.pdf">출처</a></p>
+
+
+        <br>
+
+- Smoothness Cost 선택
+    <br>
+
+    <p align=center><img src="images/image23.PNG" width=25%></p>
+    <p align=center><a href="http://media.ee.ntu.edu.tw/courses/cv/18F/slides/cv2018_lec14.pdf">출처</a></p>
+
+
+    <br>
+
+- Energy function optimization
+    - Energy function의 global minima를 찾기 위해 여러 알고리즘 이용
+    - Belief propagation, dynamic programming, semi-global matching, graph-cut, ...
 
 <br>
 <br>
@@ -359,9 +427,14 @@
 
 <br>
 
+- 이 네트워크를 통과하여 matching cost 얻음
+
+<br>
+
 <p align=center><img src="images/image17.PNG" width=40%></p>
 
-- 이 네트워크를 통과하여 matching cost 얻음
+<br>
+
 - 나머지는 전통적인 Stereo Matching 방식 따름
 
 <br>
