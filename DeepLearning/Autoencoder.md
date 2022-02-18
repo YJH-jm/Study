@@ -127,7 +127,7 @@
 
 
 # Autoencoder
-## Autoencoder 기본적인 구조 
+## Basic Autoencoder (AE) 
 
 <br>
 
@@ -145,7 +145,7 @@
 <br>
 <br>
 
-## Autoencoder 수식
+### Autoencoder 수식
 
 <br>
 
@@ -172,7 +172,8 @@
     <br>
 
 
-- Loss function에 네트워크 input, output 값 이용
+- AE의 Loss를 Reconstruction error 라고도 함
+    - 네트워크 input, output 값 이용
 
     <br>
 
@@ -196,7 +197,7 @@
 <br>
 <br>
 
-## Linear Autoencoder
+### Linear Autoencoder
 - Hidden layer를 activation function 없이 사용
 
 <br>
@@ -220,7 +221,7 @@
 <br>
 <br>
 
-## Stacking Autoencoder
+### SAE (Stacking AutoEncoder)
 - 초기의 autoencoder는 네트워크 파라미터 초기화에도 많이 사용
     - 즉, pretraining 하는데 많이 사용
     - 지금은 거의 사용하지 않음
@@ -278,7 +279,14 @@
 
 <br>
 
-- 기존의 AE의 input에 rando mnoise 추가
+- 기존의 AE의 input에 확률적 맵핑을 시켜 noise를 추가한 새로운 input 생성
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?\widetilde{x}&space;\sim&space;q_{D}(\widetilde{x}|x)&space;" title="\widetilde{x} \sim q_{D}(\widetilde{x}|x) " /></p>
+    
+    <br>
+
     - 사람이 봤을 때 의미적으로 벗어나지 않을 만큼의 noise 추가
     - 다양한 방법으로 noise를 추가하나 이 논문에서는 noise에 해당하는 위치의 pixel울 0으로 바꿈
         - Extracting and Composing Robust Features with Denoising Autoencoders(2018)
@@ -290,7 +298,127 @@
 
     <br>
 
-- Loss은 noise가 추가되기 전의 데이터와 DAE를 통과한 후의 output을 비교
-<p align=center><img src="https://latex.codecogs.com/svg.image?L_{DAE}(x,y)=\sum_{x\in&space;D}&space;E_{q(\widetilde{x}|x)}[L(x,g(h(\widetilde{x})))]" title="L_{DAE}(x,y)=\sum_{x\in D} E_{q(\widetilde{x}|x)}[L(x,g(h(\widetilde{x})))]" /></p>
+- Loss는 **noise가 추가되기 전의 데이터**와 **noise를 추가한 데이터가 DAE를 통과한 후의 output**을 이용
 
-    - Manifold 상에서는 똑같지만 원공간에서는 다른 데이터를 학습시
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?L_{DAE}(x,y)=\sum_{x\in&space;D}&space;E_{q(\widetilde{x}|x)}[L(x,g(h(\widetilde{x})))]\approx&space;\sum_{x\in&space;D}\frac{1}{L}\sum&space;_{i=1}^{L}L(x,g(h(\widetilde{x}_{i})))" title="L_{DAE}(x,y)=\sum_{x\in D} E_{q(\widetilde{x}|x)}[L(x,g(h(\widetilde{x})))]\approx \sum_{x\in D}\frac{1}{L}\sum _{i=1}^{L}L(x,g(h(\widetilde{x}_{i})))" /></p>
+
+<br>
+
+- 즉, 학습된 Network는 noise가 추가된 데이터를 넣으면 noise가 제거된 데이터가 output으로 나오므로 denoise 됨
+
+<br>
+
+### Manifold Learning 관점
+
+<br>
+
+<p align=center><img src="images/image155.PNG" width=40%></p>
+<p align=center><a href="https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf">출처</a></p>
+
+<br>
+
+- 하나의 데이터에 여러개의 noise를 추가한 데이터들은 의미적으로는 같은 sample
+- 이 모든 sample들은 같은 manifold 공간에 맵핑이 되어야 함
+- 그러므로, Decoder를 통해 복원되는 데이터는 noise가 제거된, 즉 noise를 추가하기 전의 데이터 하나
+
+
+### SDAE ((Stacking Denoising AutoEncoder))
+- Weight를 초기화하기 위해 pretrain하는 과정을 SAE대신 SDAE를 사용한 방법 
+    - DAE를 제외하고는 위의 설명과 동일
+
+<br>
+
+<p align=center><img src="images/image156.PNG" width=40%></p>
+<p align=center><a href="https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf">출처</a></p>
+
+<br>
+
+- Noise를 추가했더니 점점 더 강한 edge detector가 나옴
+
+<br>
+<br>
+
+## SCAE (Stochastic Contractive AutoEncoder)
+- AE의 loss 에 regularization을 추가하면 DAE와 비슷하거나 더 좋은 효과를 낼 수 있음
+- DAE의 의미를 수식적으로 표현했다고 볼 수 있음
+
+<br>
+
+- Loss Function
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?L_{SCAE}=\sum_{x\in&space;D}L(x,g(h(x)))&plus;\lambda&space;E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" title="L_{SCAE}=\sum_{x\in D}L(x,g(h(x)))+\lambda E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" /></p>
+
+    <br>
+
+    - AE의 reconstruction error
+
+        <br>
+
+        <p align=center><img src="https://latex.codecogs.com/svg.image?\sum_{x\in&space;D}L(x,g(h(x)))" title="\sum_{x\in D}L(x,g(h(x)))" /></p>
+        
+        <br>
+    
+    - Stochastic regularization
+        - Manifold 상에서 위치를 같게 만들어주고 싶기 때문에 이 식 반영
+
+        <br>
+
+        <p align=center><img src="https://latex.codecogs.com/svg.image?E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" title="E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" /></p>
+        
+        <br>
+
+<br>
+<br>
+
+## CAE ( Contractive AutoEncoder )
+- SCAE의 stochastic 한 식을 deterministic 한 형태로 바꿈
+- Noise
+    
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" title="E_{q(\tilde{x}|x)}[{||h(x)-h(\tilde{x})||}^2]" /></p>
+        
+    <br>
+
+<br>
+<br>
+
+## VAE (Variational AutoEncoder)
+- AutoEncoder는 manifold learning이 목적
+    - Encoder를 self supervised learning으로 학습하기 위해 decoder를 이용
+    - 주 목적은 encoder
+- VAE는 generative model이 목적
+    - Decoder로 데이터를 만들기 위해 앞단인 encoder가 붙인 것
+
+<br>
+
+### Generator 
+
+<br>
+
+<p align=center><img src="images/image157.PNG" width=20%></p>
+<p align=center><a href="https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf">출처</a></p>
+
+<br>
+
+- Latent variable
+    - 이미지를 랜덤으로 만들어내는 것도 좋지만 우리는 만들어진 데이터를 control 하고 싶음
+    - 이 때, latent variable이 control 역할을 함
+        - 쉬운 분포를 써야 control이 쉬움
+    - Prior distribution에서 sampling 해서 얻어냄
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?z\sim&space;p(z)" title="z\sim p(z)" /></p>
+    
+    <br>
+
+- 학습이 잘 되기 위한 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;z" title="\inline z" /> sample을 잘 만들어내는 이상적인 sampling 함수 
+- 그게 뭔지를 모르니까 variance inference 방법으로 우리가 알고있는 거기서 sampling 시키면 될 것 같다..
+- 결국 p(x)를 구하고 싶음 
+
+
