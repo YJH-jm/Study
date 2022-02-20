@@ -643,8 +643,8 @@
 
 <br>
 
-<p align=center><img src="images/image162.PNG" /></p>
-
+<p align=center><img src="images/image162.PNG" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1312.6114.pdf">출처</a></p>
 <br>
 
 - 너무 작은 차원으로 축소를 한 것보다 큰 차원으로 축소한 것이 의미는 있음 복원은 잘되긴 함
