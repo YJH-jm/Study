@@ -391,34 +391,260 @@
 - AutoEncoder는 manifold learning이 목적
     - Encoder를 self supervised learning으로 학습하기 위해 decoder를 이용
     - 주 목적은 encoder
-- VAE는 generative model이 목적
+- VAE는 generative model로 데이터 생성이 목적
     - Decoder로 데이터를 만들기 위해 앞단인 encoder가 붙인 것
 
 <br>
 
-### Generator 
+### VAE 전체 흐름
+- 이 부분 먼저 봐야 나머지 흐름 이해감
 
 <br>
 
-<p align=center><img src="images/image157.PNG" width=20%></p>
-<p align=center><a href="https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf">출처</a></p>
+<p align=center><img src="images/image158.png" width=40%></p>
+<p align=center><a href="https://taeu.github.io/paper/deeplearning-paper-vae/">출처</a></p>
 
 <br>
 
-- Latent variable
-    - 이미지를 랜덤으로 만들어내는 것도 좋지만 우리는 만들어진 데이터를 control 하고 싶음
-    - 이 때, latent variable이 control 역할을 함
-        - 쉬운 분포를 써야 control이 쉬움
-    - Prior distribution에서 sampling 해서 얻어냄
+- AE는 encoder를 통과한 후 바로 latent space 생성
+- VAE는 encoder를 거치면 latent variable을 생성하기 전에 output으로 2개의 vector 생성
+    - 평균, 표준편차
+- 평균과 표준편차로 normal distribution을 생성하고 여기서 값을 sampling 하여 latenet variable 만듦
+- Sampling 하는 과정에서 reparameterization trick 사용
+    - 이 과정이 있어야 backpropagation이 가능
+    - 미분이 가능하게 바꿔주는 과정
+
+<br>
+
+### VAE 학습
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?-\sum_{j=1}^{D}x_{i,j}log{p_{i,j}}&plus;(1-x_{i,j})log(1-p_{i,j})" title="-\sum_{j=1}^{D}x_{i,j}log{p_{i,j}}+(1-x_{i,j})log(1-p_{i,j})" /></p>
+
+<br>
+
+- 우리가 궁극적으로 알고싶은 것은 &nbsp; <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x)" title="\inline p_{\theta}(x)" />
+    -  x를 우리가 가지고 있는 데이터라고 한다면 그 trainng 데이터의 likelihood를 최대화하고 싶음
+        - 내가 가지고 있는 x가 나올 확률이 가장 큰 distribution을 찾아야 함
+    - 아래 식을 최대화
+
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\frac{p_{\theta}(x,z)}{p_{\theta}(z)}=&space;p_{\theta}(x|z)dz" title="\frac{p_{\theta}(x,z)}{p_{\theta}(z)}= p_{\theta}(x|z)dz" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\int&space;p_{\theta}(x,z)dz=p_{\theta}(z)" title="\int p_{\theta}(x,z)dz=p_{\theta}(z)" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?p_{\theta}(x)=\int&space;p_{\theta}(z)p_{\theta}(x|z)dz" title="p_{\theta}(x)=\int p_{\theta}(z)p_{\theta}(x|z)dz" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(z)" title="\inline p_{\theta}(z)" /> &nbsp;: Simple gaussian prior</p>
+<p align=center> <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x|z)" title="\inline p_{\theta}(x|z)" /> &nbsp;: Decoder neural network</p>
+
+<br>
+
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(z)" title="\inline p_{\theta}(z)" /> 는 gaussian 분포를 따른다고 가정하므로 알 수 있음
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x|z)" title="\inline p_{\theta}(x|z)" /> 는 decoder 이기 때문에 신경망으로 구성할 수 있음
+- 하지만 모든 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;z" title="\inline z" /> 에 대해서 <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x|z)" title="\inline p_{\theta}(x|z)" /> 를 적분하는 것은 어려움
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}p_{\theta}(z|x)p_{\theta}(x)=p_{\theta}(x|z)p_{\theta}(z)\\p_{\theta}(z|x)=p_{\theta}(x|z)p_{\theta}(z)/p_{\theta}(x)\end{matrix}&space;" title="\begin{matrix}p_{\theta}(z|x)p_{\theta}(x)=p_{\theta}(x|z)p_{\theta}(z)\\p_{\theta}(z|x)=p_{\theta}(x|z)p_{\theta}(z)/p_{\theta}(x)\end{matrix} " /></p>
+
+<br>
+
+- 반대의 경우를 생각해보아도 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x)" title="\inline p_{\theta}(x)" />가 존재하기 때문에 불가능
+
+<br>
+
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x|z)" title="\inline p_{\theta}(x|z)" />&nbsp; 모델링 문제를 해결하기 위해서 **encoder**를 구성
+
+<br>
+
+<p align=center><img src="images/image159.PNG" width=20%></p>
+
+<br>
+
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;q_{\phi}(z|x)" title="\inline q_{\phi}(z|x)" />는 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(z|x)" title="\inline p_{\theta}(z|x)" /> 를 가장 근사화하는 네트워크 
+
+<br>
+
+- Encoder를 덧붙여 학습
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?log{p_{\theta}(x^{i})}=E_{z\sim&space;q_{\phi}(z|x^{i})}[logp_{\theta}(x^{i})]" title="log{p_{\theta}(x^{i})}=E_{z\sim q_{\phi}(z|x^{i})}[logp_{\theta}(x^{i})]" /></p>
+
+<br>
+
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(x)" title="\inline p_{\theta}(x)" /> 를 최대화 시키는 것이 목적이기 때문에 이 값에 log를 씌움
+- 그리고 기댓값의 형태로 나타냄
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}log{p_{\theta}(x^{(i)})}=E_{z\sim&space;q_{\phi}(z|x^{(i)})}[logp_{\theta}(x^{(i)})]&space;\\=&space;E_{z}[log\frac{p_{\theta}(x^{(i)}|z)p_{\theta}{(z)}}{p_{\theta}(z|x^{(i)})}]&space;\\=&space;E_{z}[log\frac{p_{\theta}(x^{(i)}|z)p_{\theta}{(z)}}{p_{\theta}(z|x^{(i)})}&space;\frac{q_{\phi}(z|x^{(i)})}{q_{\phi}(z|x^{(i)})}]&space;\\=E_{z}[log{p_{\theta}(x^{(i)}|z)}]-E_{z}[log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}{(z)}})]&plus;E_{z}[log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z|x^{(i)})}]\\\end{matrix}&space;" title="\begin{matrix}log{p_{\theta}(x^{(i)})}=E_{z\sim q_{\phi}(z|x^{(i)})}[logp_{\theta}(x^{(i)})] \\= E_{z}[log\frac{p_{\theta}(x^{(i)}|z)p_{\theta}{(z)}}{p_{\theta}(z|x^{(i)})}] \\= E_{z}[log\frac{p_{\theta}(x^{(i)}|z)p_{\theta}{(z)}}{p_{\theta}(z|x^{(i)})} \frac{q_{\phi}(z|x^{(i)})}{q_{\phi}(z|x^{(i)})}] \\=E_{z}[log{p_{\theta}(x^{(i)}|z)}]-E_{z}[log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}{(z)}})]+E_{z}[log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z|x^{(i)})}]\\\end{matrix} " /></p>
+
+<br>
+
+- Bayes' rule과 log 공식을 이용하여 식을 정리
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}log{p_{\theta}(x^{(i)})}=E_{z}\begin{bmatrix}log{p_{\theta}(x^{(i)}|z)}\end{bmatrix}-D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}&plus;D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}\end{matrix}" title="\begin{matrix}log{p_{\theta}(x^{(i)})}=E_{z}\begin{bmatrix}log{p_{\theta}(x^{(i)}|z)}\end{bmatrix}-D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}+D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}\end{matrix}" /></p>
+
+<br>
+
+- Expectation 개념을 이용해 적분으로 변환
+    - <img src="https://latex.codecogs.com/svg.image?\inline&space;E_{z\sim&space;q_{\phi}(z|x^{i})}\begin{bmatrix}{log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}}\end{bmatrix}=\int_{z}log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}q_{\phi}(z|x^{i})dz" title="\inline E_{z\sim q_{\phi}(z|x^{i})}\begin{bmatrix}{log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}}\end{bmatrix}=\int_{z}log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}q_{\phi}(z|x^{i})dz" />
+- KL divergence를 이용하여 변환
+    - <img src="https://latex.codecogs.com/svg.image?\inline&space;KL(P||Q)=\sum_{x}&space;P(x)log\frac{P(x)}{Q(x)}" title="\inline KL(P||Q)=\sum_{x} P(x)log\frac{P(x)}{Q(x)}" />
+    - KL divergence를 이용하면 두 확률분포의 차이(거리)를 계산
+- 즉, 변형된 위의 식을 최대화 해야함
+
+<br>
+
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" title="\inline D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" />
+    - Encoder를 통과한 확률분포가 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;z" title="\inline z" /> 의 확률분포와 같아야 함
+- <img src="https://latex.codecogs.com/svg.image?\inline&space;D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}" title="\inline D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}" />
+    - <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(z|x^{(i)})" title="\inline p_{\theta}(z|x^{(i)})" /> 는 우리가 알 수 없으므로 계산을 할 수 없음
+    - 다만 KL divergence는 차이이기 때문에 항상 0 보다 크거나 같음을 알 수 있음
 
     <br>
+    <p align=center><img src="https://latex.codecogs.com/svg.image?D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}\geq&space;0" title="D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}\geq 0" /></p>
 
-    <p align=center><img src="https://latex.codecogs.com/svg.image?z\sim&space;p(z)" title="z\sim p(z)" /></p>
+<br>
+
+- Tractable lower bound
+    <p align=center><img src="https://latex.codecogs.com/svg.image?L(x^{(i)},\theta,\phi)=E_{z}\begin{bmatrix}log{p_{\theta}(x^{(i)}|z)}\end{bmatrix}-D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" title="L(x^{(i)},\theta,\phi)=E_{z}\begin{bmatrix}log{p_{\theta}(x^{(i)}|z)}\end{bmatrix}-D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" /></p>
+
+- **ELBO (Evidence LowerBOund)**
+    - Variational lower bound
+    - 우리가 최적화 시켜야 하는 부분
+        - 
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?log{p_{\theta}\begin{pmatrix}x^{(i)}\end{pmatrix}}\geq&space;L(x^{(i)},\theta,\phi)&space;" title="log{p_{\theta}\begin{pmatrix}x^{(i)}\end{pmatrix}}\geq L(x^{(i)},\theta,\phi) " /></p>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?\theta^{*},&space;\phi^{*}=\underset{\theta,\phi}{argmax}\sum_{i=1}^{N}L(x^{(i)},\theta,\phi)" title="\theta^{*}, \phi^{*}=\underset{\theta,\phi}{argmax}\sum_{i=1}^{N}L(x^{(i)},\theta,\phi)" /></p>
+
+<br>
+
+
+### VAE loss function
+
+<br>
+
+<p align=center><img src="images/image160.PNG" width=40%></p>
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\underset{\theta,\phi}{argmin}\sum_{i=1}-E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|g_{\theta}(z)}\end{bmatrix}\end{bmatrix}&plus;D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix}" title="\underset{\theta,\phi}{argmin}\sum_{i=1}-E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|g_{\theta}(z)}\end{bmatrix}\end{bmatrix}+D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix}" /></p>
+<p align=center><img src="https://latex.codecogs.com/svg.image?\inline&space;cf:p\begin{pmatrix}x|g_{\theta}(z)\end{pmatrix}=p_{\theta}(x|z)" title="\inline cf:p\begin{pmatrix}x|g_{\theta}(z)\end{pmatrix}=p_{\theta}(x|z)" /></p>
+
+<br>
+
+ <br>
+
+#### Regularization
+- Assumption
+    1. Encoder를 통과해서 나오는 distribution이 diagonal covariance를 가진다고 가정
     
     <br>
 
-- 학습이 잘 되기 위한 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;z" title="\inline z" /> sample을 잘 만들어내는 이상적인 sampling 함수 
-- 그게 뭔지를 모르니까 variance inference 방법으로 우리가 알고있는 거기서 sampling 시키면 될 것 같다..
-- 결국 p(x)를 구하고 싶음 
+    <p align=center><img src="https://latex.codecogs.com/svg.image?q_{\phi}(z|x_{i})\sim&space;N(\mu_{i},\sigma_{i}^{2}I)" title="q_{\phi}(z|x_{i})\sim N(\mu_{i},\sigma_{i}^{2}I)" /></p>
+
+    <br>
+
+    2. 실제 z에 대한 distribution은 normal distribution을 따름
+    
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?p(z)\sim&space;N(0,I)" title="p(z)\sim N(0,I)" /></p>
+
+    <br>
+
+- 둘을 같게 만들어주어여 함
+    - 즉, Encoder를 통과한 값이 항상 normal distribution을 따르도록 만듦 
+    - Encoder를 통과하는 확률 분포와 정규분포와의 거리가 최소화되도록 함
+    - KL divergence 를 최소화
+
+<br>
+
+- 식을 정리하면 다음과 같은 식으로 정리가 됨
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\frac{1}{2}\sum_{j=1}^{J}(\mu_{i,j}^{2}&plus;\sigma_{i,j}^2-ln(\sigma_{i,j}^2)-1)" title="\frac{1}{2}\sum_{j=1}^{J}(\mu_{i,j}^{2}+\sigma_{i,j}^2-ln(\sigma_{i,j}^2)-1)" /></p>
+
+<br>
 
 
+#### Reconstruction error
+- Input이 그대로 복원될 수  있도록 하는 역할
+- 현재 sampling 용 함수에 대한 negative log likelihood
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|z}\end{pmatrix}\end{bmatrix}=\int&space;log\begin{pmatrix}{p(x_{i}|z}\end{pmatrix}q_{\phi}(z|x_{i})dz\\Monte-carlo&space;technique&space;\approx&space;\frac{1}{L}\sum_{z^{i,l}}log\begin{pmatrix}{p(x_{i}|z^{i,l})}\end{pmatrix}\end{matrix}" title="\begin{matrix}E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|z}\end{pmatrix}\end{bmatrix}=\int log\begin{pmatrix}{p(x_{i}|z}\end{pmatrix}q_{\phi}(z|x_{i})dz\\Monte-carlo technique \approx \frac{1}{L}\sum_{z^{i,l}}log\begin{pmatrix}{p(x_{i}|z^{i,l})}\end{pmatrix}\end{matrix}" /></p>
+
+<br>
+
+- Monte-carlo technique 이용
+    - 무한개, 혹은 무수히 많은 수의 sampling을 해서 평균을 내면 전체에 대한 기댓값과 거의 동일해짐
+
+    
+<br>
+
+<p align=center><img src="images/image161.PNG" width=40% /></p>
+
+<br>
+
+- Deep learning에서 이 방법을 쓰기에는 계산량이 너무 많음
+    - 그래서 L을 1로 가정
+    - 또한, sampling을 reparameterization trick 방식으로 진행
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}\frac{1}{L}\sum_{z^{i,l}}log\begin{pmatrix}{p(x_{i}|z^{i,l})}\end{pmatrix}\approx&space;log\begin{pmatrix}{p(x_{i}|z^{i})}\end{pmatrix}\end{matrix}" title="\begin{matrix}\frac{1}{L}\sum_{z^{i,l}}log\begin{pmatrix}{p(x_{i}|z^{i,l})}\end{pmatrix}\approx log\begin{pmatrix}{p(x_{i}|z^{i})}\end{pmatrix}\end{matrix}" /></p>
+
+ <br>
+
+- Assumption 
+    3. <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}" title="\inline p_{\theta}" /> 가 bernoulli distribution나 gaussian distribution를 따른다고 가정
+    - Bernoulli로 가정하면 Cross entropy 식으로 바뀜
+
+        <br>
+
+        <p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}log\begin{pmatrix}{p_{\theta}(x_{i}|z^{i})}\end{pmatrix}=log\prod_{j=1}^{D}p_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{i,j}^{x_i,j}(q-p_{i,j})^{1-x_{i,j}}\\=\sum_{j=1}^{D}x_{i,j}logp_{i,j}&plus;(1-x_{i,j})log(1-p_{i,j})\end{matrix}" title="\begin{matrix}log\begin{pmatrix}{p_{\theta}(x_{i}|z^{i})}\end{pmatrix}=log\prod_{j=1}^{D}p_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{i,j}^{x_i,j}(q-p_{i,j})^{1-x_{i,j}}\\=\sum_{j=1}^{D}x_{i,j}logp_{i,j}+(1-x_{i,j})log(1-p_{i,j})\end{matrix}" /></p>
+
+        <br>
+
+        - Gaussian으로 가정하면 MSE로 바뀜
+
+    
+
+<br>
+
+### Reparameterization Trick
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?z^{i,l}\sim&space;N(\mu_{i},&space;\sigma_{i}^{2}I)" title="z^{i,l}\sim N(\mu_{i}, \sigma_{i}^{2}I)" /></p>
+
+<br>
+
+- 단순히 평균과 표준편차만 이용하면 미분을 할 수 없어 backpropagation이 불가능
+
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}z^{i,l}=\mu_{i}&plus;\sigma_{i}\odot&space;\epsilon&space;\\\epsilon\sim&space;N(0,I)\end{matrix}" title="\begin{matrix}z^{i,l}=\mu_{i}+\sigma_{i}\odot \epsilon \\\epsilon\sim N(0,I)\end{matrix}" /></p>
+
+<br>
+
+- Normal distribution에서 sampling 한 후 표준편차에 더한 후 평균을 더하면 z에 관한 식이 나오고 위와 같은 결과를 얻게 됨
+
+<br>
+
+### Latent variable 차원 특징
+
+<br>
+
+<p align=center><img src="images/image162.PNG" /></p>
+
+<br>
+
+- 너무 작은 차원으로 축소를 한 것보다 큰 차원으로 축소한 것이 의미는 있음 복원은 잘되긴 함
