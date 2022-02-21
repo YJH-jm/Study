@@ -1,17 +1,4 @@
-# Autoencoder 개요
-1. Unsupervised learning
-    - 오토인코더 학습 할 때 unsupervised learning 
-2. Manifold learning
-    - 학습된 오토인코더에서 인코더는 차원 축소 역할 수행
-3. Generative model learning
-    - 학습된 오토인코더에서 디코더는 생성 모델의 역할 수행
-4. ML density estimation
-    - 오토인코더 학습 할 때 losss는 negative ML
-
-<br>
-<br>
-
-# Autoencoder를 위한 기본 내용 학습
+<!-- # Autoencoder를 위한 기본 내용 학습
 ## Deep Learning 
 
 <br>
@@ -78,11 +65,11 @@
 ## Maximum likelihood 관점 해석
 
 <br>
-<br>
+<br> -->
 
 # Manifold Learning
 ## Manifold
-- 고차원 데이터가 있을 때, 이 데이터를 데이터 공간에 배치하면 이 데이터들을 잘 아우르는 subspace를 **Manifold**  라고 함
+- 고차원 데이터가 있을 때, 이 데이터를 데이터 공간에 배치하면 이 데이터들을 잘 아우르는 subspace를 **Manifold** 라고 함
 
 <br>
 
@@ -101,9 +88,11 @@
 
 
 ## Manifold 역할
-- Data compression
 - Data visualization
-    - Data intuition, 해석, ...
+    - 데이터의 차원을 낮춰 data를 시각화 할 수 있게 하여 데이터를 해석 할 수 있게 함
+
+<br>
+
 - Curse of dimensionality 극복
     - Curse of dimensionality
         
@@ -118,13 +107,27 @@
         - 즉, 동일한 개수의 데이터의 밀도가 감소
         - 차원을 늘리면 동일한 데이터의 밀도가 떨어지고 모델 prediction이 제대로 되지 않음
         - 고차원에서 제대로 prediction 하기 위해서는 매우 많은 수의 데이터 필요
+
+<br>
+
 - Discovering most import features
-    - 고차원의 데이터를 잘 표현하는 manifold를 이용해 데이터의 특징 파악 가능
+    - 고차원의 데이터를 잘 표현한다는 의미는 데이터의 중요한 특징을 발견한다는 의미
+    - 고차원 데이터의 manifold 좌표들을 조정해보면 manifold의 변화에 따라 데이터도 유의미하게 조금씩 변화하는 것 확인 할 수 있음
+    - Manifold를 잘 찾았다는 의미는 데이터의 dominant한 특징을 잘 찾음
 
+        <br>
+
+        <p align=center><img src="images/image172.PNG" width=40%></p>
+        <p align=center><a href="https://www.slideshare.net/NaverEngineering/ss-96581209">출처</a></p>
+        
+        <br>
+
+        - 고차원에서는 B와 A1의 거리가 B와 A2의 길이보다 가까움
+        - Manifold에서는 B와 A1의 거리가 B와 A2의 길이보다 훨씬 멀음
+        - 즉, B와 A2가 데이터들의 주요한 특징들이 더 유사하다는 의미
 
 <br>
 <br>
-
 
 # Autoencoder
 ## Basic Autoencoder (AE) 
@@ -136,11 +139,11 @@
 
 <br>
 
-- input과 output이 같은 구조 
+- Input과 output이 같은 구조 
 - 보통은 가운데 차원이 줄어드는 형태
-    - 초반에는 차원이 늘어나는 sparse autoencoder, 지금은 거의 사용하지 않음
-- Bottleneck Hidden layer
-    - Latent Variable, Feature, Hidden representation, .. 등과 같은 표현
+    - 초반에는 차원이 늘어나는 sparse autoencoder 사용했지만 지금은 거의 사용하지 않음
+- Bottleneck hidden layer
+    - Latent variable, latent feature, hidden representation, .. 등과 같은 표현
 
 <br>
 <br>
@@ -172,7 +175,7 @@
     <br>
 
 
-- AE의 Loss를 Reconstruction error 라고도 함
+- AE의 loss를 **reconstruction error** 라고도 함
     - 네트워크 input, output 값 이용
 
     <br>
@@ -183,7 +186,6 @@
 
     - 이미 정답인 값을 알고있기 때문에 unsupervised learning에서 **sunpervised learning, self learning**으로 문제를 바꾸어 해결 가능
         - 차원 축소가 얼마나 잘 이루어졌는지 확인이 가능해짐
-
 
 <be>
 
@@ -216,7 +218,7 @@
 
     <br>
 
-    - Loss function으로 MSE 사용하는 경우 PCA와 같은 manifold 학습
+    - Loss function으로 MSE 사용하는 경우 PCA와 같은 manifold 학습 가능
 
 <br>
 <br>
@@ -271,6 +273,8 @@
 
     <br>
 
+<br>
+
 ## DAE (Denosing AutoEncoder)
 
 <br>
@@ -323,8 +327,9 @@
 - 이 모든 sample들은 같은 manifold 공간에 맵핑이 되어야 함
 - 그러므로, Decoder를 통해 복원되는 데이터는 noise가 제거된, 즉 noise를 추가하기 전의 데이터 하나
 
+<br>
 
-### SDAE ((Stacking Denoising AutoEncoder))
+### SDAE (Stacking Denoising AutoEncoder)
 - Weight를 초기화하기 위해 pretrain하는 과정을 SAE대신 SDAE를 사용한 방법 
     - DAE를 제외하고는 위의 설명과 동일
 
@@ -343,10 +348,11 @@
 ## SCAE (Stochastic Contractive AutoEncoder)
 - AE의 loss 에 regularization을 추가하면 DAE와 비슷하거나 더 좋은 효과를 낼 수 있음
 - DAE의 의미를 수식적으로 표현했다고 볼 수 있음
+    - DAE의 loss는 encoder가 데이터가 조금 변형이 되더라도 manifold 위에서 같은 위치로 매칭이 되도록 학습이 되어야 함
 
 <br>
 
-- Loss Function
+- Loss function
 
     <br>
 
@@ -374,9 +380,9 @@
 <br>
 <br>
 
-## CAE ( Contractive AutoEncoder )
-- SCAE의 stochastic 한 식을 deterministic 한 형태로 바꿈
-- Noise
+## CAE (Contractive AutoEncoder)
+- SCAE의 stochastic regularization 항을 deterministic 한 analytic regularization으로 바꿈
+    - Frobenius norm 형태로 바꿈
     
     <br>
 
@@ -499,8 +505,11 @@
 <br>
 
 - <img src="https://latex.codecogs.com/svg.image?\inline&space;D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" title="\inline D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}" />
+    
     - Encoder를 통과한 확률분포가 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;z" title="\inline z" /> 의 확률분포와 같아야 함
+
 - <img src="https://latex.codecogs.com/svg.image?\inline&space;D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}" title="\inline D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}" />
+    
     - <img src="https://latex.codecogs.com/svg.image?\inline&space;p_{\theta}(z|x^{(i)})" title="\inline p_{\theta}(z|x^{(i)})" /> 는 우리가 알 수 없으므로 계산을 할 수 없음
     - 다만 KL divergence는 차이이기 때문에 항상 0 보다 크거나 같음을 알 수 있음
 
@@ -515,7 +524,7 @@
 - **ELBO (Evidence LowerBOund)**
     - Variational lower bound
     - 우리가 최적화 시켜야 하는 부분
-        - 
+        
     <br>
 
     <p align=center><img src="https://latex.codecogs.com/svg.image?log{p_{\theta}\begin{pmatrix}x^{(i)}\end{pmatrix}}\geq&space;L(x^{(i)},\theta,\phi)&space;" title="log{p_{\theta}\begin{pmatrix}x^{(i)}\end{pmatrix}}\geq L(x^{(i)},\theta,\phi) " /></p>
@@ -586,7 +595,6 @@
 
 - Monte-carlo technique 이용
     - 무한개, 혹은 무수히 많은 수의 sampling을 해서 평균을 내면 전체에 대한 기댓값과 거의 동일해짐
-
     
 <br>
 
@@ -711,14 +719,13 @@
 
 <br>
 
-### MNIST Result
+### Result
+- MNIST data 사용
 
 <br>
 
 <p align=center><img src="images/image166.PNG" width=40%/></p>
 <p align=center><a href="https://arxiv.org/pdf/1406.5298.pdf">출처</a></p>
-
-<br>
 
 - Label을 제외한 주된 feature를 latent variable이 학습
 - (a) : label인 y 값을 고정하고 style을 바꾸는 경우
@@ -727,5 +734,120 @@
  <br>
  <br>
 
-<!-- ## AAE (Adversarial AutoEncoder)
-- VAE 학습 할 때 KL divergence term을 이ㅛㅇㅇ하여 prior과 sampling 함수의 차이 조절  -->
+## AAE (Adversarial AutoEncoder)
+- VAE는 decoder를 바꾸고 Encoder를 바꾸지는 못함
+- Loss function의 regularization(KL term) 계산해야 하는데 Gaussian 말고는 계산이 어려움
+    - 2개의 확률분포를 같게 만들어주기 위한 것
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix}" title="D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix}" /></p>
+
+    <br>
+
+- VAE에서 KL의 q가 p와 같아지도록 최적화를 하고 이 방식이 GAN의 학습 방법과 같음
+    - GAN은 target distribution이 있고 generation sample들의 distribution이 target과 같게 만들어주는 방식
+- KL 대신 GAN loss 사용하는 것이 AAE
+
+<br>
+
+### AAE 개요
+
+<br>
+
+<p align=center><img src="images/image167.jpg" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1511.05644.pdf">출처</a></p>
+
+<br>
+
+<br>
+
+<p align=center><img src="images/image168.png" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1511.05644.pdf">출처</a></p>
+
+<br>
+
+- KL term의 역할은 sampling 함수의 값이 prior과 같게 만들어주는 것
+    - P(prior)에서 만든 sample은 real sample 
+    - q(GAN)에서 만든 sample은 가짜 sample
+- 위의 구조에서는 GAN처럼 discriminator 추가
+    - KL term 필요 없어짐
+- 따라서, VAE의 regularization term 대신 GAN loss 사용 
+
+<br>
+
+### AAE 학습
+1. AE update
+    - reconstruction error에 따라 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;\phi,&space;\theta" title="\inline \phi, \theta" /> update
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?L_{i}(\phi,\theta,x_{i})=-E_{q_{\phi(z|x_{i})}}\begin{bmatrix}log\begin{pmatrix}p_{\theta}(x_{i}|z)\end{pmatrix}\end{bmatrix}&space;" title="L_{i}(\phi,\theta,x_{i})=-E_{q_{\phi(z|x_{i})}}\begin{bmatrix}log\begin{pmatrix}p_{\theta}(x_{i}|z)\end{pmatrix}\end{bmatrix} " /></p>
+
+    <br> 
+
+2. Discriminator update 
+- Discriminator loss를 통해 &nbsp;<img src="https://latex.codecogs.com/svg.image?\inline&space;\lambda" title="\inline \lambda" /> update
+- prior에서 생성된 값에 대해서 training data와 유사하게 만들어줌
+
+    <br>
+
+    <p align=center><img src="https://latex.codecogs.com/svg.image?-V_{i}(\phi,\lambda,x_{i},z_{i})=-logd_{\lambda}(z_{i})-log\begin{pmatrix}1-d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" title="-V_{i}(\phi,\lambda,x_{i},z_{i})=-logd_{\lambda}(z_{i})-log\begin{pmatrix}1-d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" /></p>
+
+    <br> 
+
+3. Generator update
+
+    <br>
+
+    <p align=center<img src="https://latex.codecogs.com/svg.image?-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" title="-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" /></p>
+
+    <br> 
+
+<br>
+
+### AAE 결과
+
+<br>
+
+<p align=center><img src="images/image169.jpg" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1511.05644.pdf">출처</a></p>
+
+<br>
+
+- VAE는 normal distribution에 가깝게 학습
+- AAE는 좀 더 prior의 모양에 가깝게 학습
+
+<br>
+
+### Incorporating Label Information in the Adversarial Regularization
+
+<br>
+
+<p align=center><img src="images/image170.jpg" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1511.05644.pdf">출처</a></p>
+
+<br>
+
+- discriminator에 prior distribution에서 뽑은 sample이 입력으로 들어갈 때 (real data)
+    - 해당 sample이 어떤 label을 가져야하는지 one-hot-encoding으로 변환하여 condition으로 넣어줌 
+- discriminator에 posterior distribution에서 뽑은 sample이 입력으로 들어갈 때 (fake data)
+    - 해당 이미지에 대한 label을 one-hot-encoding 으로 변환하여 condition으로 넣어줌
+- 이 과정을 거치면 가짜의 분포가 진짜의 분포를 따라감
+
+<br>
+
+### Incorporating Label Information in the Adversarial Regularization 결과
+
+<br>
+
+<p align=center><img src="images/image171.jpg" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1511.05644.pdf">출처</a></p>
+
+<br>
+
+- B : 각 gaussian distribution에서 동일한 위치는 동일한 스타일을 갖음
+- D : 나선을 따라서 해당 샘플들을 순차적으로 복원한 결과
+
+<br>
+
+**AAE는 manifold를 우리가 원하는 모양으로 강제화 할 수 있어 다루기 편함**
