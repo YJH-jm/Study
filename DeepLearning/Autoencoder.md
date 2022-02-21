@@ -89,7 +89,7 @@
 
 ## Manifold 역할
 - Data visualization
-    - 데이터의 차원을 낮춰 data를 시각화 할 수 있게 하여 데이터를 해석 할 수 있게 함
+    - 데이터의 차원을 낮춰 시각화 할 수 있게 하여 데이터를 해석 할 수 있게 함
 
 <br>
 
@@ -104,16 +104,16 @@
         <br>
         
         - 1차원 10개의 공간에 8개의 데이터가 있다고 할 때, 2차원으로 늘리면 100개의 공간에 8개의 데이터가 존재하고 3차원으로 늘리면 1000개의 공간에 8개의 데이터가 존재함
-        - 즉, 동일한 개수의 데이터의 밀도가 감소
-        - 차원을 늘리면 동일한 데이터의 밀도가 떨어지고 모델 prediction이 제대로 되지 않음
+        - 즉, 동일한 개수의 데이터는 차원이 늘어날수록 급격하게 밀도가 감소
+            - 모델 prediction이 제대로 되지 않음
         - 고차원에서 제대로 prediction 하기 위해서는 매우 많은 수의 데이터 필요
 
 <br>
 
 - Discovering most import features
     - 고차원의 데이터를 잘 표현한다는 의미는 데이터의 중요한 특징을 발견한다는 의미
-    - 고차원 데이터의 manifold 좌표들을 조정해보면 manifold의 변화에 따라 데이터도 유의미하게 조금씩 변화하는 것 확인 할 수 있음
-    - Manifold를 잘 찾았다는 의미는 데이터의 dominant한 특징을 잘 찾음
+    - 고차원 데이터의 manifold 좌표들을 조정해보면 manifold의 변화에 따라 데이터도 유의미하게 조금씩 변화
+    - Manifold를 잘 찾았다는 의미는 데이터의 dominant한 특징을 잘 찾았음을 의미
 
         <br>
 
@@ -123,7 +123,7 @@
         <br>
 
         - 고차원에서는 B와 A1의 거리가 B와 A2의 길이보다 가까움
-        - Manifold에서는 B와 A1의 거리가 B와 A2의 길이보다 훨씬 멀음
+        - Manifold에서는 B와 A2의 거리가 B와 A1의 길이보다 가까움
         - 즉, B와 A2가 데이터들의 주요한 특징들이 더 유사하다는 의미
 
 <br>
@@ -184,7 +184,7 @@
     <p align=center><img src="https://latex.codecogs.com/svg.image?L_{AE}=\sum_{x\in&space;D}L(x,&space;y)" title="L_{AE}=\sum_{x\in D}L(x, y)" /></p>
     <br>
 
-    - 이미 정답인 값을 알고있기 때문에 unsupervised learning에서 **sunpervised learning, self learning**으로 문제를 바꾸어 해결 가능
+    - 이미 정답인 값을 알고있기 때문에 unsupervised learning에서 **sunpervised learning, self learning**으로 바뀜
         - 차원 축소가 얼마나 잘 이루어졌는지 확인이 가능해짐
 
 <be>
