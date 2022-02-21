@@ -648,3 +648,84 @@
 <br>
 
 - 너무 작은 차원으로 축소를 한 것보다 큰 차원으로 축소한 것이 의미는 있음 복원은 잘되긴 함
+
+<br>
+<br>
+
+## CVAE (Conditional Variational AutoEncoder)
+- VAE를 기반으로 한 방법
+- VAE 에서는 label 정보를 사용하지 않음
+- Condition
+    - Label 정보를 알고있으니 encoder에도 사용하고 decoder에도 사용하겠다는 의미
+
+<br>
+
+### CVAE(M2) : Supervised version
+- 모든 데이터의 label 정보를 다 알고있고 이를 이용하는 경우
+
+<br>
+
+<p align=center><img src="images/image163.PNG" width=40%/></p>
+<p align=center><a href="https://www.slideshare.net/NaverEngineering/ss-96581209">출처</a></p>
+
+<br>
+
+### ELBO
+- VAE와 같은 방식으로 유도
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}log\begin{pmatrix}p_{\theta}(x,y)\end{matrix}=log\int&space;p_{\theta}(x,y|z)\frac{p(z)}{q_{\phi}(z|x,y)}q_{\phi}(z|x,y)dz\\\geq&space;\int&space;log&space;\begin{pmatrix}p_{\theta}(x,y|z)\frac{p(z)}{q_{\phi}(z|x,y)}\end{pmatrix}q_{\phi}(z|x,y)dz\\=\int&space;log&space;\begin{pmatrix}p_{\theta}(x|y,z)\frac{p(y)p(z)}{q_{\phi}(z|x,y)}\end{pmatrix}q_{\phi}(z|x,y)dz\\=E_{q_{\phi}(z|x,y)}\begin{bmatrix}log\begin{pmatrix}p_{\theta}(x|y,z)\end{bmatrix}&plus;log(p(y))\end{bmatrix}\\=-L(x,y)\end{matrix}&space;" title="\begin{matrix}log\begin{pmatrix}p_{\theta}(x,y)\end{matrix}=log\int p_{\theta}(x,y|z)\frac{p(z)}{q_{\phi}(z|x,y)}q_{\phi}(z|x,y)dz\\\geq \int log \begin{pmatrix}p_{\theta}(x,y|z)\frac{p(z)}{q_{\phi}(z|x,y)}\end{pmatrix}q_{\phi}(z|x,y)dz\\=\int log \begin{pmatrix}p_{\theta}(x|y,z)\frac{p(y)p(z)}{q_{\phi}(z|x,y)}\end{pmatrix}q_{\phi}(z|x,y)dz\\=E_{q_{\phi}(z|x,y)}\begin{bmatrix}log\begin{pmatrix}p_{\theta}(x|y,z)\end{bmatrix}+log(p(y))\end{bmatrix}\\=-L(x,y)\end{matrix} " /></p>
+
+<br>
+
+### CVAE(M2) : Unsupervised version (or Semi supervised version)
+- 일부 데이터의 label만 알고있는 경우
+- Label을 알고있을 경우는 CVAE를 이용
+- Label을 모르는 경우는 그 모르는 데이터에 대한 condition(y)를 추정하는 별도의 network를 이용
+- 추정한 y값으로 CVAE 이용
+
+<br>
+
+<p align=center><img src="images/image164.PNG" width=40%/></p>
+<p align=center><a href="https://www.slideshare.net/NaverEngineering/ss-96581209">출처</a></p>
+
+<br>
+
+### CVAE(M3) : Unsupervised version (or Semi supervised version)
+- 일부 데이터의 label만 알고있는 경우
+
+
+<br>
+
+<p align=center><img src="images/image165.PNG" width=40%/></p>
+<p align=center><a href="https://www.slideshare.net/NaverEngineering/ss-96581209">출처</a></p>
+
+<br>
+
+- 기존 VAE와 같은 M1으로 학습
+- Latent variable z를 생성하는 과정에서 label y를 추정하는 network 추가
+- label 정보 추정하여 z 생성
+- 성능이 더 좋음 
+
+
+<br>
+
+### MNIST Result
+
+<br>
+
+<p align=center><img src="images/image166.PNG" width=40%/></p>
+<p align=center><a href="https://arxiv.org/pdf/1406.5298.pdf">출처</a></p>
+
+<br>
+
+- Label을 제외한 주된 feature를 latent variable이 학습
+- (a) : label인 y 값을 고정하고 style을 바꾸는 경우
+- (b) : z 값, style을 고정하고 condition만 바꾸면 같은 style인데 숫자만 다르게 나옴  
+ 
+ <br>
+ <br>
+
+<!-- ## AAE (Adversarial AutoEncoder)
+- VAE 학습 할 때 KL divergence term을 이ㅛㅇㅇ하여 prior과 sampling 함수의 차이 조절  -->
