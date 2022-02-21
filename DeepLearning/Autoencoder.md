@@ -799,7 +799,7 @@
 
     <br>
 
-    <p align=center<img src="https://latex.codecogs.com/svg.image?-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" title="-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" /></p>
+    <p align=center><img src="https://latex.codecogs.com/svg.image?-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" title="-V_{i}(\phi,\lambda,x_{i},z_{i})=-log\begin{pmatrix}d_{\lambda}\begin{pmatrix}q_{\phi}(x_{i})\end{pmatrix}\end{pmatrix}" /></p>
 
     <br> 
 
