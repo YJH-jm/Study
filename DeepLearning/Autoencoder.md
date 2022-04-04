@@ -658,8 +658,17 @@
 - 너무 작은 차원으로 축소를 한 것보다 큰 차원으로 축소한 것이 의미는 있음 복원은 잘되긴 함
 
 <br>
+
+### VAE 특징
+- VAE와 같은 방식으로 유도
+- 학습이 끝난 이후에는 순수 생성을 위한 목적으로 사용 가능 
+    - Encoder의 이미지를 학습 결과가 Normal distribution을 따르도록 학습이 되므로
+- 종종 흐릿한 이미지 생성    
+
 <br>
 
+<br>
+    
 ## CVAE (Conditional Variational AutoEncoder)
 - VAE를 기반으로 한 방법
 - VAE 에서는 label 정보를 사용하지 않음
