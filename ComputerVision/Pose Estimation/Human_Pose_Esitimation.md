@@ -342,3 +342,6 @@
     - 그냥 3D scan 데이터를 얻는 것도 어렵짐나 어려운 포즈 데이터를 얻는 것은 더 어려움
 4. **Skinning weight**
     - 주로 3D artist가 만든 후 약간의 fine-tuning 
+
+<br>
+<br>
