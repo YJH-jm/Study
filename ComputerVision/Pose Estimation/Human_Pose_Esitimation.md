@@ -1,8 +1,58 @@
 # 2D Pose Estimation
+
+## Human body modeling
+### Kinematic
+
+<br>
+
+<p align=center><img src="./images/5.PNG"></p>
+
+<br>
+
+- 사람의 관절을 포인트로 나타내고 그 관절들의 위치와 관계를 나타내는 모델
+- 관절의 개수와 포인트는 학습시키는 데이터 셋마다 다름
+- 그래프나 트리로 표현 가능
+- 질감이나 특수한 표현을 하는데 제한적
+
+
+<br>
+
+### Planar
+
+<br>
+
+<p align=center><img src="./images/16.PNG"></p>
+
+<br>
+
+- 평면모델 같은 경우는 예전에 많이 사용된 모델
+- 인체를 표현하기 위해 body part를 나누어 직사각형의 모양으로 표현
+- 지금은 많이 사용하지 않음
+
+<br>
+
+### Volumetric
+
+<br>
+
+
+<p align=center><img src="./images/17.PNG"></p>
+
+<br>
+
+- 요즘 많이 연구되고 있으나 데이터 부족
+
+<br>
+<br>
+
+### 
+
 ## 2D Human Pose Estimation OverView
 - 입력 이미지로부터, 여러 사람의 관절을 2D 공간에 위치화 시키는 알고리즘
 
 <br>
+
+## 
 
 ### Simple 2D HPE
 
