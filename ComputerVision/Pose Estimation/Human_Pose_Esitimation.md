@@ -5,7 +5,7 @@
 
 <br>
 
-<p align=center><img src="./images/5.PNG"></p>
+<p align=center><img src="./images/5.png"></p>
 
 <br>
 
