@@ -21,7 +21,7 @@
 
 <br>
 
-<p align=center><img src="./images/16.PNG"></p>
+<p align=center><img src="./images/16.png"></p>
 
 <br>
 
@@ -36,7 +36,7 @@
 <br>
 
 
-<p align=center><img src="./images/17.PNG"></p>
+<p align=center><img src="./images/17.png"></p>
 
 <br>
 
