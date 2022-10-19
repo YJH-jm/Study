@@ -10,7 +10,6 @@
     - cross-dataset 에 대하여 더욱 일반화가 잘됨
     - multi-person 에 대하여 추가적인 계산 비용 없음
 
-
 <br>
 <br>
 
@@ -31,7 +30,7 @@ GCN에 대한 내용 공부하고 추가 할 것
         - RGB, optical flow 와 같은 다른 modalities를 결합하여 사용하면 성능 향상이 가능함을 예전 연구들에서 증명
         - 하지만 GCN의 경우는 skeleton들의 그래프를 사용하기 때문에 결합이 어려움
     3. Scalability
-        - GCN은 모든 사람의 관절을 노드로 하기 때문에 GCN의 complexith는 사람의 수에 따라 선형적으로 증가함
+        - GCN은 모든 사람의 관절을 노드로 하기 때문에 GCN의 complexity는 사람의 수에 따라 선형적으로 증가함
 
 <br>
 <br>
@@ -316,3 +315,222 @@ GCN에 대한 내용 공부하고 추가 할 것
 - GCN 기반의 방식들은 비디오에 있는 사람의 수가 증가하면 scale이 선형적으로 증가하기 때문에 group action recognition 방식에서 성능이 떨어짐
 - 이를 증명하기 위해서 Volleyball dataset 사용
 - 각 비디오에는 13명의 사람 존재 
+
+<br>
+<br>
+
+### 4.3 Multi-Modality Fusion with RGBPose-Conv3D
+
+- 앞에서 계속 언급했던 것 처럼 PoseConv3D는 Early-stage feature fusion 단계에서 다른 modality들과 잘 결합할 수 있음
+
+<br>
+
+<p align=center><img src="./images/10.png" width=50%></p>
+
+<br>
+
+
+- RGBPose-Conv3D, 초기 stage에서 RGB-pathway와 Pose-pathway는 cross-modality 특징 결합을 하는데 lateral connection이 이용됨
+- RGB와 Pose modality를 각각 학습시키고 이를 RGBPose-Conv3D를 초기화 시키는데 이용
+- 몇 번의 epoch로 fine tuning 시켜 lateral connection 학습
+- 최종 예측은 각 pathway에서 오는 예측 score를 합한 값으로 얻음
+- 초기와 마지막 fusion을 다시 합치면 더 좋은 결과 얻을 수 있음
+
+<br>
+
+- 단방향 lateral connection과 양방향 lateral connection 을 비교
+
+<br>
+
+<p align=center width=50%><img src="./images/9.png" width=50%></p>
+
+<br>
+
+- RGBPose-Conv3D는 또한 두 modality의 중요성이 다른 경우에도 작동을 잘 함
+- FineGYM 데이터는 pose modality에서 Pose modality의 중요성이 더 크고 NTU-60은 그 반대
+
+<br>
+
+<p align=center><img src="./images/11.png" width=50%></p>
+
+
+<br>
+<br>
+
+
+### 4.4 Comparisions with the state-of-the-art
+**Skeleton-based Action Recognition**
+
+<br>
+
+<p align=center><img src="./images/12.png" width=50%></p>
+
+<br>
+
+- PoseConv3D모델은 SlowOnly backbone 사용
+- 위의 모델은 3D skeleton 사용
+- 공평한 비교를 위해 MS-G3D++은 (x, y, c)를 input으로 받고, PoseConv3D는 같은 input으로 heatmap을 만들어 진행
+
+<br>
+<br>
+
+**Multi-modality Fusion**
+
+<br>
+
+<p align=center><img src="./images/10.png" width=50%></p>
+
+<br>
+
+- RGBPose-Conv3D는 backbone으로 R50 사용
+
+<br>
+
+<p align=center><img src="./images/13.png" width=50%></p>
+
+<br>
+<br>
+
+## 4.5 Ablation on Heatmap Porcessing
+**Subjects-centered Cropping** <br>
+- 데이터에서 사람의 위치와 사이즈는 매우 다양하기 때문에 가능한 작은 size의 H x W의 크기로 행동을 알고 싶은 대상의 정보를 저장하는것이 중요
+- 이를 알기 위해 같은 FINE-GTM dataset을 이용하여 Input size (32x56x56)로 하여 실험 진행
+- 이를 적용하여 실험한 결과 적용하지 않았을 때보다 Mean-Top1 이 **1% (91.7% to 92.7%)** 상승
+
+<br>
+<br>
+
+**Uniform Sampling**
+- Input이 작은 사이즈의 temporal window를 가지게 되면 human action의 전체적인 역동성을 파악하기 힘듦
+- Fixed stride sample
+    - 32개의 frame을 stride 2, 3, 4 로 얻음
+- Uniform sample
+    - 전체 클립을 일정한 간격으로 나누어 32개의 frame sampling
+
+<br> 
+
+<p align=center><img src="./images/14.png" width=50%></p>
+
+<br>
+
+<p align=center><img src = "./images/15.png" width = 50%></p>
+
+<br>
+<br>
+
+**Pseudo Heatmaps for Joints and Limbs**
+- GCN 기반의 방식은 recognition 성능을 올리기 위해서 multiple streams(joint, bone, ect. )의 결과를 ensembple
+- 이 방식은 PoseConv3D에서도 적용가능
+- 이 실험에서 저장한 (x, y, c) 를 이용하여 joint heatmap과 limb heatmap 생성 가능 
+- 3D-CNN의 input으로 joint heatmap, limb heatmap 둘 다 좋음
+- Joint-PoseConv3D의 결과와 Limb-PoseConv3D의 결과를 ensemple을 하면 성능 향상 가능
+
+<br>
+<br>
+
+**3D heatmap Volumes v.s 2D Heatmap Aggregations**
+- 3D heatmap volume은 2D-pose를 나타내는데 더 "lossless" 함
+    - 2D psedo images aggregation (colorization or temporal convolutions 으로 만든) 보다
+- 이전 연구들의 결과와 함께 PoTion (≤ 85) 보다 GCN 또는 PoseConv3D (all ≥ 90)의 정확도가 훨씬 높다는 사실 확인
+
+<br>
+
+<p align=center><img src="./images/16.png" width=50%></p>
+
+<br>
+<br>
+
+
+## 5. Conclusion
+- 이 연구에서 3D heatmap volume을 input으로 하는 3D-CNN 기반의 skeleton-based action recognition 방식인 **PoseConv3D** 제시
+- GCN 기반 방식의 한계인 robustness, interoperability, scalability 를 극복하는 방법
+- 학습할 weight 양이 적은 3D-ConvNets과 compact한 3D heatmap volume을 input으로, GCN 기반의 방식보다 더 좋은 성능을 만듦 (Accuracy, Efficiency)
+- 이 연구는 PoseConv3D를 기반으로 여려 벤치마크에서 skeleton-based, multi-modality based action recognition 모두에서 최첨단의 기술을 달성
+
+
+<br>
+<br>
+
+
+## A. Visualization
+- 4가지 dataset에 대한 pose extract 결과를 제공
+
+<br>
+
+- **NTURGB+D**
+    - 거의 완벽한 pose extract 가능
+        - 배경이 복잡하지 않고 한 프레임에 최대 두명의 사람이 Occulusion이 거의 없이 존재하기 때문
+    
+    <br>
+
+    <p align=center>
+    <img src="./images/17.png" width=50%>
+    </p>
+
+    <br>
+
+- **FineGYM**
+    - Ground-truth bounding box를 기반으로 pose를 추출했지만, 완벽하지는 않음
+    - Extractor는 COCo-keypoint에서 거의 잘 일어나지 않는 동작이거나 motion blur가 생겼을 때 pose를 잘 추출하지 못함
+    - Pose 추출은 완벽하게 하지 못했지만 skeleton-based action recognition을 하기에는 충분
+
+    <br>
+
+    <p align=center><img src="./images/18.png" width=50%></p>
+
+    <br>
+
+- **Kinetics400**
+    - Action recognition을 위한 인간 중심의 dataset
+    - 사람의 크기, 위치 그리고 수도 매우 다양해서 NTURGB+D 나 FineGYM 보다 human skeleton을 extract 하는 것이 훨씬 어려움
+
+    <br>
+
+    <p align=center><img src="./images/19.png" width=50%></p>
+
+    <br>
+
+- **Volleyball**
+    - Group activity recognition을 위한 dataset
+    - 각 frame은 12명의 사람을 포함 (각 팀에 6명)
+
+    <br>
+
+    <p align=center><img src="./images/20.png" width=50%></p>
+
+    <br>
+
+<br>
+<br>
+
+## B. Generating Pseudo Heatmap Volumes
+- PoseConv3D의 input인 pseudo heatmap volume 을 만드는 과정 설명
+    - Pose estimator로는 HRNet 사용하여 Pose를 추출하고 (x, y, c) 형태로 저장
+    - Heatmap을 만들기 위해 Uniform sampling을 수행하여 T개의 frame을 균일하게 sampling 한 후 나머지 frame을 폐기
+    - Global cropping box를 찾아 모든 T frame에 대하여 crop 
+    - 주어진 코드 파일을 살펴보면 위의 두 과정을 거친 후 heatmap 생성하도록 pipeline 구성
+
+<br>
+
+<p align=center><img src="./images/21.png"></p>
+
+<br>
+
+<br>
+<br>
+
+## C. Detailed Architectures of PoseConv3D
+### C.1. Different variants of PoseConv3D
+**C3D** <br>
+- RGB-based action recognition을 위한 초기의 3D-CNN 모델
+- 8개의 3D Convolution layer로 구성
+- 적용하기 위해서 채널의 크기를 반으로 줄임 (64-> 32)
+- Poaw-C3D-s는 마지막 2개의 convolution layer를 없앰
+
+<br>
+
+**X3D**
+- Action recognition을 위한 최신 모델
+- vanilla convolution, 즉 일반적인 convolution을 depth-wise convolution으로 대체하면서 적은 수의 파라미터와 FLOPs로 경쟁력있는 recognition을 가능하게 함
+- Pose-X3D-s의 경우 기존의 X3D-s에서 첫번째 stage를 제거했다는 점 외에 크게 달라진 것이 없음
+- Pose-X3D-s을 위해 각 stage의 
