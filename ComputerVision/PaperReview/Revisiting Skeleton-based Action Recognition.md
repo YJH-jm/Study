@@ -481,7 +481,7 @@ GCN에 대한 내용 공부하고 추가 할 것
     <br>
 
 - **Kinetics400**
-    - Action recognition을 위한 인간 중심의 dataset
+    - Action recognition을 위한 인간 중심의 dataset이 아님
     - 사람의 크기, 위치 그리고 수도 매우 다양해서 NTURGB+D 나 FineGYM 보다 human skeleton을 extract 하는 것이 훨씬 어려움
 
     <br>
@@ -531,6 +531,208 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 **X3D**
 - Action recognition을 위한 최신 모델
-- vanilla convolution, 즉 일반적인 convolution을 depth-wise convolution으로 대체하면서 적은 수의 파라미터와 FLOPs로 경쟁력있는 recognition을 가능하게 함
+- vanilla convolution, 즉 일반적인 convolution을 depth-wise convolution으로 대체하면서 적은 수의 파라미터와 FLOPs로 좋은 성능의 recognition을 가능하게 함
 - Pose-X3D-s의 경우 기존의 X3D-s에서 첫번째 stage를 제거했다는 점 외에 크게 달라진 것이 없음
-- Pose-X3D-s을 위해 각 stage의 
+- Pose-X3D-s을 위해 하이퍼파라미터 값을 2.2에서 1.1로 바꿔 각 stage의  convolution layers를 균일하게 제거
+
+<br>
+
+**SlowOnly**
+- RGB-based action recognition 의 유명한 3D-CNN
+- ResNet 마지막 두 stage의 layer들을 2D에서 3D로 변환
+- SlowOnly를 skeleton-based action recognition 방식으로 바꾸기 위해서, 기존의 처음의 stage에서 네트워크의 channel-width를 반으로 줄임 (64->32)
+- Pose-SlowOnly-wd (with channel-width 64) 와 Pose-SlowOnly-HR (2x 큰 input, deeper network)
+- 더 무거운 backbone을 사용한다고해도 성능이 향상되지 않음
+
+<br>
+
+<p align=center><img src="./images/22.png" width=50%></p>
+
+<br>
+<br>
+
+### C.2 RGBPose-Conv3D instantiated with SlowOnly
+- RGBPose-Conv3D는 RGB-Pose dual-modality action recognition의 대표적인 방식이며 다양한 3D-CNN들을 backbone으로 사용할 수 있음
+
+<br>
+
+<p align=center><img src="./images/23.png" width=50%></p>
+
+<br>
+
+- RGB path는 낮은 frame rate를 가지고 더 큰 channel width를 가짐
+    - RGB는 low level feature
+- Pose path는 더 긴 frame rate를 가지고 작은 channel width를 가짐
+- Time stride convolutions는 두 pathways 사이에 bi-directional lateral connections을 다른 두 modality들 사이의 의미를 충분히 교환하기 위해서 사용
+    - 이 실험에서는 res3, res4 이후에 
+- 또한 late fusion 방식을 통해 두 pathway에서 오는 결과를 합쳐 더 좋은 성능을 만듦
+- RGBPose-Conv3D는 개별적으로 loss를 가지며 각 pathway에서 학습
+- 두 개의 modality에서 학습한 하나의 loss는 심각한 overfitting 발생할 수 있음 
+
+<br>
+<br>
+
+## D.Supplementary Experiments
+### D.1. Ablation Study on Pose Extraction
+
+<br>
+
+<p align=center><img src="./images/24.png" width=50%></p>
+
+<br>
+
+**2D v.s. 3D Skeletons** <br>
+- 2D skeleton을 이용하는 경우 정확도가 훨씬 높게 나옴 (a)
+- 2D pose를 3D로 확장하여 recognition 과정을 진행하는 경우 성능이 좋아지지 않거나 심지어 떨어지는 경우도 존재 (b)
+
+<br>
+
+**Bottom-Up v.s. Top-Down** <br>
+- HRNet의 Top-Down 방식이 가장 높은 성능
+- Bottom-Up 방식의 결과도 무시할 수 없으나, 가장 높은 성능을 가지는 실험을 고려하면 Top-Down 방식
+- Frmae에 사람이 많지 않으면 Top-Down 방식이 더 빠름
+
+<br>
+
+**Interested Person v.s. All Persons** <br>
+- 비디오에 많은 사람이 존재하지만, 그 모든 사람이 우리가 관심을 가지는 행동을 하는 것이 아님
+    - FineGYM 운동 선수의 동작만이 의미가 있고 청중들과 같은 다른 사람들의 행동은 관련없음
+- 3가지의 다른 사람에 대한 boundning box를 사용
+    - Detection
+    - Tracking (with Siamese-RPN)
+    - Ground Truth
+
+<br>
+
+**Coordinates v.s. Heatmaps**
+- 3D heatmap을 저장하는 것은 방대한 양의 디스크 공간 필요
+- 더 효율적으로 진행하기 위해서 2D pose를 (x, y, score) 로 저장 한 후 3D heatmap volume으로 재구성
+
+<br>
+<br>
+
+
+### D.2. Multi-Modality Action Recognition Results on UCF101 and HMDB51
+- PoseConv3D는 매우 큰 dataset로 pretrain한 weights 이용 가능
+- Kinetics400 데이터로 미리 pretraining 시킨 weight를 사용하여 PoseConv3D 초기화
+- 규모가 큰 dataset으로 사전 학습시킨 weight를 이용하면 "Linear", "Finetune" 패러다임 모두에서 소규모 데이터 세트의 다운스트림 인식 작업에 도움이 됨
+
+<br>
+
+<p align=center><img src="./images/25.png" width=50%></p>
+
+
+<br>
+
+- Skeleton-based action recognition 와 I3D 를 결합하여 실험
+
+<br>
+
+<p align=center><img src="./images/26.png" width=50%></p>
+
+<br>
+<br>
+
+### D.3. Using 3D Skeletons in PoseConv3D
+- PoseConv3D는 2D skeleton keypoint heatmap을 쌓아 input으로 사용
+- 3D skeleton만 존재한다면 PoseConv3D에 사용하기 위해 projection 
+- NTURGB+D dataset의 경우 Microsoft Kinect v2 센서를 이용하여 3D skeleton 획득
+- 이 dataset은 3D 관절을 2차원 이미지 좌표로 projectio 한 데이터 제공
+
+<br>
+
+<p align=center><img src="./images/27.png" width=50%></p>
+
+<br>
+
+- 3D CNN이 projection으로 잃은 정보 보상 가능
+
+<br>
+<br>
+
+### D.4. Practice for Group Activity Recognition
+- PoseConv3D에서 group activity recognition에서 모든 사람들을 하나의 heatmap volume으로 나타내는 것이 가장 좋다는 것을 발견
+
+<br>
+
+<p align=center><img src="./images/28.png" width=50%></p>
+
+<br>
+
+- A
+    - N명의 사람에게 N개의 channel 할당
+    - PoseConv3D의 input N x K channel (K 대신)
+- B
+    - 3D heatmap volume을 각 사람에 대하여 (K x T x H x W) 으로 생성하고 N 명의 사람이 weights를 공유하면서 skeleton feature를 추출하기 위해 다른 PoseConv3D를 사용
+    - N명의 사람의 특징을 하나의 feature vector로 만들기 위해 average pooling 사용 
+- C
+    - B의 마지막, inter-person modeling을 위한 average pooling을 하기 전 몇 개의 encoder 추가
+
+<br>
+
+- A는 High-dimension input으로 overfitting 발생하고 Top-1 Accuracy는 75.3%
+- B, C는 계산량이 엄청 늘어나지만 (＞13X) 만족할만한 recognition 성능 얻지 못함
+    - 기껏해야 Volleyball에서 Top-1에서 85.7% 87.9% 의 성능을 얻음
+- 이 실험에서 사용한 방식으로는 91.3%의 성능
+
+<br>
+<br>
+
+### D.5 Uniform Sampling for RGB-based recognition
+- Uniform Sampling이 skeleton-based action recognition에서 좋은 성과를 거두었기 때문에 RGB-based action recognition에서도 효과가 있는지 검증하기 위해서 적용
+- Input frame을 16으로 고정
+
+<br>
+
+<p align=center><img src="./images/29.png" width=50%></p>
+
+<br>
+
+- Uniform sampling의 이점은 두 데이터셋트의 길이가 매우 다양한 경우 발생
+- 이와 반대로, Kinetics400에 uniform sampling을 적용하는 경우는 정확도가 약간 떨어짐
+
+<br>
+<br>
+
+### D.6. NTU-60 Error Analysis
+- NTU-60 X-Sub, 94.1%의 Top-1 정확도 
+    - 최신의 가장 높은 모델의 결과보다 2.6% 높음
+- 연구를 더 발전시키기 위하여, confusion score를 정의
+
+<br>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?S=n_{ij}&plus;n_{ji}" title="https://latex.codecogs.com/svg.image?S=n_{ij}+n_{ji}" /></p>
+
+<p align=center><img src="https://latex.codecogs.com/svg.image?n_{ij}" title="https://latex.codecogs.com/svg.image?n_{ij}" /> &nbsp; : class i 이지만 class j라고 인식된 비디오의 수 </p>
+
+<br>
+
+- 총 1770개의 action classes pair 존재
+- 가장 헷갈리기 쉬운 5개의 confusion pair 표로 제시
+
+<br>
+
+<p align=center><img src="./images/30.png" width=50%></p>
+
+<br>
+
+### D.7 Why skeleton-based pose estimation performs poorly on Kinetics400
+- 높은 성능의 2D skeleton을 이용하는 PoseConv3D는 skeleton-based action recognitiond 에서의 Kinetics400에 대한 Top1 정확도를 38.0%에서 47.7%로 향상시킴 
+- 하지만 다른 dataset에 비하면 Kinetics400에 대한 정확도는 상대적으로 낮음
+    1. 인간 중심 데이터가 아니기 때문에 skeleton을 찾기 힘듦
+    2. Frame에 사람이 매우 작게 나타나서 skeleton 을 찾기 힘듦
+
+<br>
+
+<p align=center><img src="./images/32.png" width=50%></p>
+
+<br>
+
+- Kinetics-Motion 데이터에 대한 class 평균 정확도 제공
+- 사람의 body motion과 관련된 30개의 class 제공
+
+<br>
+
+<p align=cetner><img src="./images/33.png"></p>
+
+<br>
