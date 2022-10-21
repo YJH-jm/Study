@@ -222,9 +222,9 @@ GCN에 대한 내용 공부하고 추가 할 것
 - **PoseConv3D** 
     - 다양한 3D-CNN 모델들이 backbone 사용 될 수 있음
     - 3D-CNN 초기 stage에서 downsampling 제거 
-        - 3D heatmap volume은 RGB 클립만큼 크지 않기 때문 
+        - 3D heatmap volume는 RGB 클립의 해상도만큼 크지 않기 때문 
     - shallower(fewer layers) & thiner (fewer channels)
-        - 3D heatmap volumes이 이미 mid-level 특징이기 때문에
+        - 3D heatmap volume이 이미 mid-level 특징이기 때문에
     - 이 논문에서 위에 있는 내용을 바탕으로 가장 대표적인 3개의 3D-CNN 알고리즘 선택
         - C3D
         - SlowOnly
