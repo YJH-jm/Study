@@ -1,21 +1,22 @@
 
 ## Abstract 
-- 기존의 많은 skeleton based action recognition 방식에서는 GCNs을 선택하여 skeleton 특징 추출
-- 하지만 GCN 을 기본으로 한 방법들은 robustness, interoperability, scalibility 에 약함
-- 이 논문에서는 새로운 방식의 Skeleton based action recongnition 방식을 제시하고 이를  **PoseConv3D** 라 함
-- PoseConv3D는 3D heatmap volume에 의존함
+- Skeleton based action recognition 에서  기존의 많은 알고리즘은 GCNs 기반의 방식을 선택
+- 하지만 GCN 을 기반의 모델들은 robustness, interoperability, scalability 에 한계 존재
+- 이 논문에서는 새로운 방식의 skeleton based action recongnition 방식을 제시하고 이를  **PoseConv3D** 라 함
+- 기존의 GCN 기반의 방식들이 human skeleton의 graph sequence에 의존하는 대신 PoseConv3D는 3D heatmap volume에 의존함
 - GCN 방식과 비교하여 PoseConv3D 방식은
-    - 시공간의 특징을 학습하는데 더 효과적
+    - 시공간적인 특징을 학습하는데 더 효과적
     - pose estimation noise 에 더욱 강함
     - cross-dataset 에 대하여 더욱 일반화가 잘됨
     - multi-person 에 대하여 추가적인 계산 비용 없음
+    - 다른 modality와 early fusion stage에서 융합하여 성능을 향상
 
 <br>
 <br>
 
 ## 1. Introduction
 - 사람의 skeleton은 영상에서 주로 관절들의 좌표 리스트 []의 시퀀스로 나타남
-    - 좌표는 pose estimator에서 extract
+    - 좌표는 pose estimator에서 추출
 - 관절에 대한 정보만 들어있기 때문에 배경의 다양성이나 빛의 변화와 같은 contextual nuisances에 강함
 - Skeleton-based action recognition에서 가장 많이 사용되고 있는 방법은 GCN(graph convolutional networks) 
 - GCN은 모든 timestep마다 모든 사람의 관절이 노드가 됨
@@ -23,30 +24,40 @@
 
 GCN에 대한 내용 공부하고 추가 할 것 
 
+
+<br>
+
 - GCN을 기본으로 한 방식들을 몇 가지 한계가 존재
     1. Robustness
-        - GCN은 사람의 좌표를 직접적으로 다루기 때문에 좌표 이동의 분포에 영향을 받음
+        - GCN은 사람의 좌표를 직접적으로 다루기 때문에 다른 pose estimator를 사용하므로 생기는 좌표 이동 분포에 영향을 받아 recognition 성능에 영향을 미침
     2. Interoperability
-        - RGB, optical flow 와 같은 다른 modalities를 결합하여 사용하면 성능 향상이 가능함을 예전 연구들에서 증명
+        - RGB, optical flow, skeletons 등의 서로 다른 modality는 상호보완적  
+        - 다른 modalities를 결합하여 사용하면 성능 향상이 가능함을 예전 연구들에서 증명
         - 하지만 GCN의 경우는 skeleton들의 그래프를 사용하기 때문에 결합이 어려움
     3. Scalability
-        - GCN은 모든 사람의 관절을 노드로 하기 때문에 GCN의 complexity는 사람의 수에 따라 선형적으로 증가함
+        - GCN 기반의 방식은 모든 사람의 관절을 노드로 하기 때문에 GCN의 complexity는 사람의 수에 따라 선형적으로 증가함
 
 <br>
 <br>
 
-- 이 논문에서는 GCN 방식보다 경쟁력있는 새로운 프레임워크인 **PoseConv3D** 제시
+- 이 논문에서는 GCN 기반의 방식보다 경쟁력있는 새로운 프레임워크인 **PoseConv3D** 제시
 
-<br> 
-
-<p align=center><img src = "./images/1.png" width = 50%></p>
-
-<br>
 
 - PoseConv3D는 2D pose estimator에서 얻은 2D pose를 input으로 사용
+
+<br><p align=center><img src = "./images/1.png" width = 30%></p><br>
+
 - HRNet은 skeleton의 관절들의 heatmap들을 쌓아 2D pose 표현 
-- 다른 timestpe의 heatmap들은 3D heatmap volume을 만들기 위해 시간축으로 쌓음
-- PoseConv3D는 3d Convolutional neural network 사용
+
+<br>
+
+<p align=center><img src = "./images/34.png" width = 30%></p>
+
+<br>
+
+
+- 다른 timestep의 heatmap들은 3D heatmap volume을 만들기 위해 시간축으로 쌓음
+- PoseConv3D는 3D convolutional neural network 이용하여 3D heatmap volume 으로 action recognition 진행 
 - GCN과의 차이는 아래의 표에 정리
 
 <br>
@@ -55,19 +66,14 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 <br>
 
-
-<br>
-<br>
-
 - PoseConv3D는 위에 언급된 GCN의 문제 해결 
-    1. 3D heatmap volume은 up-stream pose estimation 보다 더 robost
+    1. 3D heatmap volume을 사용하는 하면서 up-stream pose estimation 보다 더 robust 해짐
         - 경험적으로 PoseConv3D 방식이 다양한 접근법으로 얻은 input skeleton에 대하여 일반화가 잘됨
-    2. 발전되는 Convolution Network 적용 가능 다양한 Modality와 함께 사용할 수 있음  
-    3. 연상의 overhead 없이 많은 사람들에게 적용 가능
+    2. 발전하는 다양한 Convolution Network 적용 가능하며 다양한 Modality와 함께 사용할 수 있음
+    3. 연산 overhead 증가 없이 많은 사람들이 있는 영상에도 적용 가능
         - 3D heatmap volumne은 사람의 수와 관련 없음
-
 - PoseConv3D 성능을 검증하기 위해 여러개의 데이터 셋 이용
-    - FineGYM. NTURGB-D, UCF101, HMDB51, Kinetics400, Volleyball, ..
+    - FineGYM. NTURGB-D, UCF101, HMDB51, Kinetics400, Volleyball
 
 <br>
 <br>
@@ -107,26 +113,21 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 ### CNN for skeleton-based action recognition
 - 2D-CNN-based 접근법들은 manually 하게 설계된 변환을 기반으로 skeleton sequence를 psedo image로 먼저 모델링
-- 그 중 하나의 방식은 색상 인코딩 또는 학습된 모듈과 함께 heatmap을 시간축으로 합쳐 2D input으로 사용
+- 그 중 하나의 방식은 색상 인코딩 또는 학습된 모듈과 함께 heatmap을 시간축을 따라 합쳐(aggregate) 2D input으로 사용
     - 잘 설계하더라도 heatmap을 합치는 경우 정보가 손실
 - 또 다른 방법은 직접적으로 skeleton sequence 좌표를 psedo image로 변환
     - 보통 2D input (shape: K x T)
         - K : 관절의 수 (ex > cocodataset : 17)
         - T : temporal length
     - 이런 input은 convolution 의 지역적 특성을 이용할 수 없기 때문에 GCN보다 효과적이지 않음
-
-    <br>
-
-    - 예전 아주 소수의 연구들이 3D-CNN 방식을 선택
-        - 3D input을 만들기 위하여 거리 matrices의 psedo image를 쌓거나 3d skeleton을 요약하여 직육면체로 만듦
-        - 이 방식들 역시 정보 손실이 존재하여 낮은 성능을 가짐
-- 이 연구는 heatmap을 시간축으로 쌓아 3D heatmap volumne으로 만들어 정보 손실이 없도록 함
+- 아주 소수의 연구들이 3D-CNN 방식을 선택
+    - 3D input을 만들기 위하여 거리 matrices의 psedo image를 쌓거나 3d skeleton을 요약하여 직육면체로 만듦
+    - 이 방식들 역시 정보 손실이 존재하여 낮은 성능을 가짐
+- 이 논문의 연구는 heatmap을 시간축으로 쌓아 3D heatmap volume으로 만들어 정보 손실이 없도록 함
 - 시공간에 대한 특징 학습을 잘 할 수 있도록 2D가 아닌 3D-CNN 사용
 
 <br>
 <br>
-
-
 
 ## 3. Framework
 
@@ -138,29 +139,28 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 
 ### 3.1 Good Practices for Pose Extraction
-- Skeleton-based action recognition의 가장 중요한 pre-processing 과정은 pose 추출을 정확하게 하는 것
+- Skeleton-based action recognition의 가장 중요한 pre-processing 과정은 pose (또는 skeleton) 추출이며 이는 마지막 recognition 정확도에 큰 영향을 줌
 
 <br>
 
 - 일반적으로 2D pose estimation은 3D pose estimation보다 좋은 성능을 가짐
-- 이 실험에서는 2D의 Top-down 방식의 pose estimator를 선택
-    - Benchmark dataset과 비교하면 2D Bottom-up 방식보다 더 좋은 성능을 얻음
-- 여러 사람들 중 몇 명의 사람들에게만 관심이 있을 때, skleton-based recognition에서 좋은 성과를 얻기 위해서는 몇 가지의 사전 지식이 필요
-    - 비디오의 첫 프레임에서의 관심 있는 사람에 대한 위치 등
+- 이 실험에서는 2D Top-down 방식의 pose estimator를 선택
+    - Benchmark dataset에 대한 성능 비교하면 2D Bottom-up 방식보다 더 좋은 성능을 얻음
+- 한 frame에 여러 사람이 존재하는데 그 중 몇 명의 사람들의 행동에만 관심이 있을 때, skleton-based recognition에서 좋은 성과를 얻기 위해서는 몇 가지의 사전 지식이 필요
+    - 비디오의 첫 프레임에서의 관심 있는 사람들에 대한 위치 등
 - 예측된 heatmap의 저장 관점에서, 이전 문헌에서는 (x, y, c) 로 저장
     - c : 예측된 heatmap의 최대 score
     - (x, y) : c에 대응되는 좌표
 - 위에서 처럼 저장하는 것은 성능 저하가 거의 없이 저장 공간을 줄일 수 있음  
 
-
 <br>
 <br>
-
 
 ### 3.2 From 2D Poses to 3D Heatmap Volumne
-- 2D Pose가 추출되고 난 후, PoseConv3D에 적용하기 위해 결과를 3D heatmap volume (K x H x W)으로 재구성
+- 비디오에서 2D Pose가 추출되고 난 후, PoseConv3D에 적용하기 위해 결과를 3D heatmap volume (K x H x W)으로 재구성
     - K : 관절의 수
     - H, W : frame 의 height, width
+- Top-Down에서 얻어진 heatmap을 사용할 수 있지만 이 실험에서는 skeleton의 관절 좌표인 오직 (x, y, c)를 사용
 - Skeleton 관절에 대한 좌표를 가지고 K 개의 가우시안 맵을 생성
 
 <br>
@@ -190,7 +190,7 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 <br>
 
-- 위의 과정은 한 사람에 대한 결과지만 여러 사람으로 확장되어도 모든 사람에 대한 k번째 가우시안 맵은 확장되지 않음
+- 위의 과정은 한 사람에 대한 결과지만 여러 사람으로 확장되어도 모든 사람에 대한 k번째 관절 좌표를 k번째 가우시안 맵에 축적하면 heatmap에 대한 확장 없이 가능
 - 결과적으로 **3D Heatmap Volumne**은 시간 축으로 heatmap (J 또는 L) 을 쌓으며 만들어짐
     -  **K x T x H x W**
 
@@ -199,22 +199,29 @@ GCN에 대한 내용 공부하고 추가 할 것
 - 추후에 3D heatmap volume의 redundency를 줄이기 위해 2가지 기술을 적용
 - **Subjects Centered Cropping**
     - Heatmap을 frame 크기만큼 만드는 것은 비효율적
-    - 특히 행동을 분석해야 하는 사람이 전체이미지에서 좁은 영역에 있을 경우
+    - 특히 행동을 분석해야 하는 사람이 전체 이미지에서 좁은 영역에 있을 경우
     - 이런 경우 프레임들에 걸쳐 모든 2D pose를 감싸는 가장 작은 bounding box를 찾음
-    - 모든 2D Pose와 그들의 행동이 유지가 되면 3D heatmap volume을 공간적으로 줄일 수 있음
+    - 프레임들을 이 box로 crop하고 target size로 resize
+    - 모든 2D Pose와 행동들이 유지되면서 heatmap volume을 공간적으로 줄일 수 있음
 - **Uniform Sampling** 
-    - 기존의 RGB 기반 action recognition 방식은 짧은 일정 기간의 윈도우로 샘플링을 진행
-    - 이 방식은 일정한 시간 간격으로 n개로 나누고 n개의 구간에서 임의로 하나의 frame을 선택 
-
+    - 3D heatmap volume은 frame을 샘플링하면서 줄일 수 있음 
+    - 기존의 RGB 기반 action recognition 방식은 short temporal-window로 샘플링을 진행
+    - 이 논문에서는 위의 방법과는 다른 uniform sampling 방식 제공 
+    - 이 방식은 비디오에서 n개의 프레임을 샘플링 하기 위해서, 비디오를 일정한 길이 n개의 부분으로 나누고 각 구간에서 임의로 하나의 frame을 선택 
+    
 <br>
 <br>
 
-
-# 추가ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ... 
 ### 3.3 3D-CNN for Skeleton-based Action Recognition
+- Skeleton-based action recognition에서는 GCN 기반 방식들을 주로 사용
+- RGB-based action recognition 에서는 3D CNN 기반 방식들 주로 사용 
+- Skeleton-based action recognition에서의 3D-CNN의 skeleton sequence의 시공간적인 동적임을 잘 포착할 수 있다는 것을 보여주기 위해 PoseConv3D와 RGBPose-Conv3D를 디자인
+
+<br>
+
 - **PoseConv3D** 
-    - 다양한 3D-CNN backbone으로 인스턴스화 될 수 있음
-    - 3D-CNN 초기 단계에서 downsampling 제거 
+    - 다양한 3D-CNN 모델들이 backbone 사용 될 수 있음
+    - 3D-CNN 초기 stage에서 downsampling 제거 
         - 3D heatmap volume은 RGB 클립만큼 크지 않기 때문 
     - shallower(fewer layers) & thiner (fewer channels)
         - 3D heatmap volumes이 이미 mid-level 특징이기 때문에
@@ -733,6 +740,6 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 <br>
 
-<p align=cetner><img src="./images/33.png"></p>
+<p align=cetner><img src="./images/33.png" width=50%></p>
 
 <br>
