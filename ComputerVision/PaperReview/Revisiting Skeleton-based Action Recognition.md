@@ -11,8 +11,8 @@
 <br>
 
 ### Skeleton-based Action Recognition 장점
-- Video based HAR은 다양한 영상 데이터를 수집해야한다는 단점 존재
-    - 촬영각도, 배경, 체구 변화 등에 따라 성능 변화가 존재
+- Video based HAR은 다양한 영상 데이터를 수집해야 한다는 단점 존재
+    - 촬영 각도, 배경, 체구 변화 등에 따라 성능 변화가 존재
 - Skeleton-based HAR 여러 변화에도 강건한 성능 보유 
     - 촬영 각도, 배경 관련 요소 존재하지 않음
     - Skeleton 자체를 입력 데이터로 사용하기 때문에 행동에 대한 좋은 특징 추출 가능
@@ -41,7 +41,7 @@
 <br>
 
 - 2D Convolution, Graph Convolution 둘 다 지역적인 정보를 취합해 feature를 찾는 과정
-- 2D Convolution은 특정 필셀 또는 위치와 인접해있는 정보를 모음
+- 2D Convolution은 특정 픽셀 또는 위치와 인접해있는 정보를 모음
 - Graph Convolution은 노드와 연결되어 있는 노드들의 정보를 모음
 
 <br>
@@ -51,7 +51,7 @@
 ### Skeleton 연결 
 - Intra-body connection
     - 영상 내 프레임 안에서 이루어짐
-    - 인간 관절 사이에 어떤 관절들이 연결이 되어야하는지 (이미 정의됨)
+    - 인간 관절 사이에 어떤 관절들이 연결이 되어야 하는지 (이미 정의됨)
 - Inter-frame connection
     - 프레임 간 동일한 관절에 대한 연결 생성
 
@@ -79,7 +79,9 @@
 - 모든 프레임에 대한 Skeleton을 사용해 모델 학습하는 것은 연산적으로 비효율
 - 하이퍼파라미터 gamma를 지정해 특정 시점의 전 후로 gamma의 반 시점에 대하여 연산
 
+    <br>
 
+    <p align=center><img src="./images/47.png" width=50%></p>
 
 
 <br>
