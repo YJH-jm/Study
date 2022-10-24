@@ -1,4 +1,90 @@
 
+## Basic
+### Human Action(Activity) Recognition
+- 입력 데이터 종류에 따른 HAR
+
+<br>
+
+<p align=center><img src="./images/42.png" width=50%></p>
+
+<br>
+<br>
+
+### Skeleton-based Action Recognition 장점
+- Video based HAR은 다양한 영상 데이터를 수집해야한다는 단점 존재
+    - 촬영각도, 배경, 체구 변화 등에 따라 성능 변화가 존재
+- Skeleton-based HAR 여러 변화에도 강건한 성능 보유 
+    - 촬영 각도, 배경 관련 요소 존재하지 않음
+    - Skeleton 자체를 입력 데이터로 사용하기 때문에 행동에 대한 좋은 특징 추출 가능
+
+
+<br>
+<br>
+
+### Graph
+- Graph는 여러 점 (Vertex, Node)과 선(Edge)의 집합
+- Pose Estimation의 결과는 개별 관절은 Node, 관절 간 연결은 Edge
+
+<br>
+
+<p align=center><img src="./images/43.png" width=50%></p>
+
+<br>
+
+
+- Graph Convolution
+
+<br>
+
+<p align=center><img src="./images/46.png" width=50%></p>
+
+<br>
+
+- 2D Convolution, Graph Convolution 둘 다 지역적인 정보를 취합해 feature를 찾는 과정
+- 2D Convolution은 특정 필셀 또는 위치와 인접해있는 정보를 모음
+- Graph Convolution은 노드와 연결되어 있는 노드들의 정보를 모음
+
+<br>
+<br>
+
+
+### Skeleton 연결 
+- Intra-body connection
+    - 영상 내 프레임 안에서 이루어짐
+    - 인간 관절 사이에 어떤 관절들이 연결이 되어야하는지 (이미 정의됨)
+- Inter-frame connection
+    - 프레임 간 동일한 관절에 대한 연결 생성
+
+
+<br>
+
+<p align=center><img src="./images/44.png" width=50%></p>
+
+<br>
+<br>
+
+### ST-GCN (Spatial Temporal Graph Convolution Networks)
+- 개별 영상 내 모든 프레임에 대해 연결 진행 (Intra-body and Inter-frame connection)
+- 그래프 내 특정 관절 (Node)를 선택하고 이와 지역적, 시간적으로 연결된 관절 선택
+    - 연결된 관절 선택 범위 (D)를 지정하는 함수를 Sampling Function이라고 정의
+    - 논문에서는 D 값을 1로만 설정 
+    - 검정색, 빨간색 그리고 그 뒤에 시간에 해당하는 초록색 노드들이  Graph Convolution 연산이 진행될 노드
+
+    <br>
+
+    <p align=center><img src="./images/45.png" width=50%></p>
+
+    <br>
+
+- 모든 프레임에 대한 Skeleton을 사용해 모델 학습하는 것은 연산적으로 비효율
+- 하이퍼파라미터 gamma를 지정해 특정 시점의 전 후로 gamma의 반 시점에 대하여 연산
+
+
+
+
+<br>
+<br>
+
 ## Abstract 
 - Skeleton based action recognition 에서  기존의 많은 알고리즘은 GCNs 기반의 방식을 선택
 - 하지만 GCN 을 기반의 모델들은 robustness, interoperability, scalability 에 한계 존재
@@ -20,10 +106,7 @@
 - 관절에 대한 정보만 들어있기 때문에 배경의 다양성이나 빛의 변화와 같은 contextual nuisances에 강함
 - Skeleton-based action recognition에서 가장 많이 사용되고 있는 방법은 GCN(graph convolutional networks) 
 - GCN은 모든 timestep마다 모든 사람의 관절이 노드가 됨
-
-
-GCN에 대한 내용 공부하고 추가 할 것 
-
+- 시간, 공간적으로 연결되어있는 노드들의 관계가 input이 됨
 
 <br>
 
@@ -234,15 +317,36 @@ GCN에 대한 내용 공부하고 추가 할 것
 
 - **RGBPose-Conv3D**
     - PoseConv3D의 interoperability를 보여주기 위해 초기에 human skeleton과 RGB 프레임들을 합친 모델 제시
+
+    <br>
+    <p align=center><img src="./images/10.png" width=50%></p>
+    <br>
+
     - 이 two-stream modality는 Pose modality와 RGB modality를 각각 수행함
+
+
+<br>
 
 ## 4. Experiments
 ### 4.1 Dataset Preparation
 - 이 실험에서 6개의 데이터 사용
-    - FineGYM
+    - **FineGYM**
+
+        <br>
+        <p align=center><img src="./images/35.png" width=50%></p>
+        <br>
+
         - 잘 정제된 29,000 개의 체조(운동) 영상
         - 99개의 humam action class
-    - NTURGB+D
+
+        <br>
+
+    - **NTURGB+D**
+
+        <br>
+        <p align=center><img src="./images/36.png" width=50%></p>
+        <br>
+
         - 연구실에서 모은 매우 방대한 양의 human action recognition dataset
         - NTU-60, NTU-120 두 가지 버전 존재
         - NTU-60
@@ -250,19 +354,58 @@ GCN에 대한 내용 공부하고 추가 할 것
             - 60개의 human action class
         - NTU-120
             - 114,000개의 비디오
-            - 120개의 human action class 
-    - Kinetics400, UCF101, HMDB51
+            - 120개의 human action class
+        - 데이터 셋은 세가지 방식으로 나뉨
+            - Cross-subject(**X-Sub**), Cross-view(**X-view**, for NTU-60), Cross-up(**X-Set**, for NTU-120)
+                - Daily Action, Health-related Action, Mutual Action
+                - 다른 수평 이미지 viewpoint를 가진 3대의 카메라 
+                - 17가지 경우의 다른 condition에서 촬영
+            - Training과 validation에서 다른 action subject, camera view, camera setup을 사용
+        - 3D camera skeleton 은 센서로 취득
+
+        <br>
+
+    - **Kinetics400, UCF101, HMDB51**
         - 이 세개의 dataset은 web에서 얻은 일반적인 action recognition dataset
         - Kinetics400
+
+            <br>
+            <p align=center><img src="./images/37.png" width=50%></p>
+            <br>
+            
             - 300,000 개의 비디오
             - 400개의 human action class
+
+        <br>
+
         - UFC101
+
+            <br>
+            <p align=center><img src="./images/38.jpg" width=50%></p>
+            <br>
+
             - 13,000개의 비디오
             - 101개의 human action class
+        
+        <br>
+        
         - HMDB51
+
+            <br>
+            <p align=center><img src="./images/39.jpg" width=50%></p>
+            <br>
+
             - 6,700개의 비디오
             - 51개의 human action class
+        
+    <br>
+    
     - Volleyball
+
+        <br>
+        <p align=center><img src="./images/40.jpg" width=50%></p>
+        <br>
+
         - Group activity recognition dataset
         - 4830개의 비디오
         - 8개의 group action class
@@ -288,12 +431,11 @@ GCN에 대한 내용 공부하고 추가 할 것
 </p>
 
 <br>
-
 <br>
 
 **Robustness** <br>
 - Input의 keypoints를 p의 확률로 없앤 후 이 변화가 얼마나 최종 정확도에 영향을 미치는지 확인 
-- 체조 동작에서  몸통이나 얼굴의 keypoint 보다 사지의 keypoint가 더 중요하기 때문에 각 프레임에서 한 개의 limb keypoint를 drop 함
+- 체조 동작에서 몸통이나 얼굴의 keypoint 보다 사지의 keypoint가 더 중요하기 때문에 각 프레임에서 한 개의 limb keypoint를 drop 함
 
 <br>
 
@@ -304,31 +446,40 @@ GCN에 대한 내용 공부하고 추가 할 것
 <br>
 <br>
 
-
-# 추각ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱ
 **Generalization** <br>
-- FineGYM 데이터셋에 대한 교차 모델 검사를 설계
-- Pose 추정을 위해 HRNet(Higher-Quality, HQ)과 MobileNet(Lower-Quality, LQ)은 두 가지 모델을 사용하고 그 위에 PoseConv3D 모델을 각각 학습 
-- 테스트 과정에서, HQ로 학습된 모델에 LQ input을 주고 그 반대도 수행함
-
-<p align=center>
-<img src="./images/8.png" width=50%>
-</p>
+- Generalizationd을 확인하기 위해 FineGYM 데이터셋에 대한 교차 모델 검사를 설계
+- Pose 추정을 위해 HRNet(Higher-Quality, HQ)과 MobileNet(Lower-Quality, LQ)은 두 가지 모델을 사용하고 두 모델 뒤에 PoseConv3D 모델을 각각 학습
 
 <br>
+
+<p align=center><img src="./images/41.png" width=50%></p>
+
+<br>
+
+- 테스트 과정에서, HQ로 학습된 모델에 LQ input을 주고 그 반대도 수행함
+
+<br>
+
+<p align=center><img src="./images/8.png" width=50%></p>
+
+<br>
+
+- (b)는 **GroundTrutu boxes**를 이용하는 경우 HQ, **tracking** 결과를 이용하는 경우 LQ
+
 <br>
 
 **Scalability**
 - GCN 기반의 방식들은 비디오에 있는 사람의 수가 증가하면 scale이 선형적으로 증가하기 때문에 group action recognition 방식에서 성능이 떨어짐
-- 이를 증명하기 위해서 Volleyball dataset 사용
-- 각 비디오에는 13명의 사람 존재 
+- Volleyball dataset 사용하여 증명 가능
+- 각 비디오에는 13명의 사람 존재하기 때문에 GCN 기반의 input은 13배 증가
+- PoseConv3D의 경우에는 단 한장의 heatmap만 이용
 
 <br>
 <br>
 
 ### 4.3 Multi-Modality Fusion with RGBPose-Conv3D
 
-- 앞에서 계속 언급했던 것 처럼 PoseConv3D는 Early-stage feature fusion 단계에서 다른 modality들과 잘 결합할 수 있음
+- 앞에서 계속 언급했던 것 처럼 PoseConv3D는 Early-stage feature fusion을 이용하여 다른 modality들과 잘 결합할 수 있음
 
 <br>
 
@@ -337,11 +488,11 @@ GCN에 대한 내용 공부하고 추가 할 것
 <br>
 
 
-- RGBPose-Conv3D, 초기 stage에서 RGB-pathway와 Pose-pathway는 cross-modality 특징 결합을 하는데 lateral connection이 이용됨
+- RGBPose-Conv3D, early stage에서 RGB-pathway와 Pose-pathway는 cross-modality 특징 결합을 하는데 lateral connection이 이용됨
 - RGB와 Pose modality를 각각 학습시키고 이를 RGBPose-Conv3D를 초기화 시키는데 이용
-- 몇 번의 epoch로 fine tuning 시켜 lateral connection 학습
+- 몇 번의 epoch로 finetuning 시켜 lateral connection 학습
 - 최종 예측은 각 pathway에서 오는 예측 score를 합한 값으로 얻음
-- 초기와 마지막 fusion을 다시 합치면 더 좋은 결과 얻을 수 있음
+- Early-stage fusion과  Late fusin을 둘 다 이용하면 더 좋은 성능을 얻을 수 있음
 
 <br>
 
@@ -408,7 +559,7 @@ GCN에 대한 내용 공부하고 추가 할 것
 <br>
 
 **Uniform Sampling**
-- Input이 작은 사이즈의 temporal window를 가지게 되면 human action의 전체적인 역동성을 파악하기 힘듦
+- Input으로 작은 size의 temporal window를 이용하면 human action의 전체적인 역동성을 파악하기 힘듦
 - Fixed stride sample
     - 32개의 frame을 stride 2, 3, 4 로 얻음
 - Uniform sample
@@ -421,6 +572,12 @@ GCN에 대한 내용 공부하고 추가 할 것
 <br>
 
 <p align=center><img src = "./images/15.png" width = 50%></p>
+
+<br>
+
+- NTU-60과 FineGYM은 비디오의 길이가 다양함
+- Uniform Sampling은 긴 비디오에서 성능이 더 좋음
+- 또한 RGB-based recognition 방식에서도 uniform sampling 방식이 더 좋음
 
 <br>
 <br>
@@ -513,7 +670,7 @@ GCN에 대한 내용 공부하고 추가 할 것
 ## B. Generating Pseudo Heatmap Volumes
 - PoseConv3D의 input인 pseudo heatmap volume 을 만드는 과정 설명
     - Pose estimator로는 HRNet 사용하여 Pose를 추출하고 (x, y, c) 형태로 저장
-    - Heatmap을 만들기 위해 Uniform sampling을 수행하여 T개의 frame을 균일하게 sampling 한 후 나머지 frame을 폐기
+    - Heatmap을 만들기 위해 Uniform sampling을 수행하여 T개의 frame을 균일하게 나누고 sampling 한 후 나머지 frame을 폐기
     - Global cropping box를 찾아 모든 T frame에 대하여 crop 
     - 주어진 코드 파일을 살펴보면 위의 두 과정을 거친 후 heatmap 생성하도록 pipeline 구성
 
