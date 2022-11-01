@@ -34,13 +34,30 @@
     - trained Quantization (양자화)
     - Huffman coding
 - 세 방법을 모두 적용하여 정확도에 영향을 미치지 않고 용량을 35 ~ 49 배를 줄임
-- Pruning은 중요한 네트워크 연결만 학습할 수 있도록 네트워크를 가지치기 하는 것
-- 
+- Pruning은 중요한 네트워크 연결만 학습할 수 있도록 네트워크를 가지치기 하여 중요한 연결만 학습하는 것
+- Quantization은 가중치를 양자화하여 가중치 공유를 잘 할 수 있도록 만들고 Huffman coding을 적용할 수 있도록 만듦
+- 두 과정에서 남은 중요한 연결에 대한 finetuning과 양자화된 centroids 위한 재학습을 진행
+- 이 방법은 off-chip DRAM이 아닌 on-chip SRAM cache에 저장 할 수 있게 함
+- Application size와 다운로드 대역폭이 제한된 모바일 어플리케이션에서 복잡한 뉴럴 네트워크를 사용 할 수 있게 함
+
+
 
 <br>
 <br>
 
 ## 1. Introduction
+- Computer vision에서 딥러닝은 매우 강력한 기술이지 맘ㅎ은 수의 가중치들은 상당히 많은 저장 공간과 메모라 대역폭이 필요함
+- 이는 딥러닝 네크워크를 모바일 시스템에 탑재하기 어렵게 만듦
+
+<br>
+
+- 많은 mobile-first 회사들의 앱들은 다양한 앱스토어를 통하여 업데이트가 되고 이 회사들은 binary 파일의 크기에 민감
+    - App store에서 "100MB 가 넘는 app은 Wi-Fi 연결이 될 때까지 다운로드 할 수 없음" 등의 제약이 있기 때문 
+
+<br>
+
+- d
+
 
 <br>
 <br>
