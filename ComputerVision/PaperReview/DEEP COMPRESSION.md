@@ -46,7 +46,7 @@
 <br>
 
 ## 1. Introduction
-- Computer vision에서 딥러닝은 매우 강력한 기술이지 맘ㅎ은 수의 가중치들은 상당히 많은 저장 공간과 메모라 대역폭이 필요함
+- Computer vision에서 딥러닝은 매우 강력한 기술이지 많은 수의 가중치들은 상당히 많은 저장 공간과 메모라 대역폭이 필요함
 - 이는 딥러닝 네크워크를 모바일 시스템에 탑재하기 어렵게 만듦
 
 <br>
@@ -56,8 +56,22 @@
 
 <br>
 
-- d
+- Memory access 과정에서 에너지 소비가 많이 발생하게 됨 
+- 45nm 이하 CMOS기술에서 , 32 bit floating point 덧셈은 **0.9pJ**, 32 bit SRAM chache는 **5pJ**, 반면에 32 bit DRAM은 **640pJ** 요구함 
+- 큰 네트워크는 on-chip 저장 공간에 맞지 않기 때문에 DRAM access가 필요
 
+<br>
+
+- 이 연구의 목표는 모바일 장치에 딥러닝 모델을 탑재시켜 추론이 가능할 수 있도록 저장 공간과 에너지 소비를 줄이는 것
+- 이를 위하여 "deep compression" 제안
+    - 정확도를 보존하고 뉴럴 네트워크의 저장 공간을 줄이기 위한 3 단계의 파이프라인 방식
+- 불필요한 연결을 제거하고 주요한 연결만 남기는 prun
+- 가중치를 양자화하여 많은 연결들이 같은 가중치를 공유하고, 그로 인해서 codebook (effective weights)와 indice 만 저장하면 됨
+
+<br>
+
+- 이 논문에서 주장하는 이 실험의 가장 중요한 insight는 pruning과 quantization을 통해서 ~ 없이 네트워크를 압축할 수 있다는 것
+- 이 과정을 통해 네트워크를 압축하면 모든 가중치들을 on-chip cache에서 이용가능
 
 <br>
 <br>
@@ -66,4 +80,23 @@
 - 초기 연구에서부터, pruning을 사용하면 네트워크 복잡도를 감소시키고 overfitting을 막을 수 있다는 것이 증명됨
 - 2015년 연구에서 최신의 CNN 모델에서 pruning 기법을 사용하더라도 정확도의 손실이 없음을 확인
 - 첫 번째로 일반적인 네트워크 학습을 진행
-- 모든 연결(가중치 값)에서 
+- 모든 연결(가중치 값)에서 가중치 값이 작은 연결들을 가지치기
+    - 특정 threshold 값보다 작은 경우 
+- 남아있는 sparse한 연결들의 가중치 값들을 얻기 위해 네트워크 재학습
+- Pruning은 AlexNet의 파라미터를 9배, VGG16의 파라미터를 13배 감소시킴
+
+<br>
+
+- Pruning의 결과로 나온 sparse 한 구조를 CSR 또는 CSC 형식으로 저장 
+
+<br>
+
+- 
+
+<br>
+<br>
+
+## 3. Trained Quantization and Weight Sharing
+- 
+<br>
+<br>
