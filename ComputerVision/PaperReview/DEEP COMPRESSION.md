@@ -40,8 +40,6 @@
 - 이 방법은 off-chip DRAM이 아닌 on-chip SRAM cache에 저장 할 수 있게 함
 - Application size와 다운로드 대역폭이 제한된 모바일 어플리케이션에서 복잡한 뉴럴 네트워크를 사용 할 수 있게 함
 
-
-
 <br>
 <br>
 
@@ -82,21 +80,135 @@
 - 첫 번째로 일반적인 네트워크 학습을 진행
 - 모든 연결(가중치 값)에서 가중치 값이 작은 연결들을 가지치기
     - 특정 threshold 값보다 작은 경우 
+        - 3보다 작은 경우 
+
+    <br>
+    <p align=center><img src="./images/2/2.png" width=50%><p>
+    <br>
+
 - 남아있는 sparse한 연결들의 가중치 값들을 얻기 위해 네트워크 재학습
 - Pruning은 AlexNet의 파라미터를 9배, VGG16의 파라미터를 13배 감소시킴
 
 <br>
 
-- Pruning의 결과로 나온 sparse 한 구조를 CSR 또는 CSC 형식으로 저장 
+- Pruning의 결과로 나온 sparse 구조를 CSR(Compressed Sparse Row) 또는 CSC(Compressed Sparse Column) 형식으로 저장 
+- CSR, CSC는 2a+n+1 개의 원소 필요
+    - a : 0 이 아닌 요소의 수
+    - n : column 또는 row의 수 
+
+    - COO (Coordinate Format)
+        - 행렬에 포함된 0이 아닌 값을 가진 데이터에 대하여 행과 열의 위치 정보를 기록 
+        - 0 이 아닌 원소의 수가 a개 일 때 3a 만큼의 원소 필요
+
+    <br>
+    <p align=center><img src="./images/2/3.png" width=50%><p>
+    <br>
+
+    - CSR (Compressed Sparse Row)
+        - 행의 압축 정보인 Row Pointer 를 이용하여 표현
+        - 2a + (n+1) 만큼의 원소 필요, a는 0이 아닌 원소 수, n은 행의 길이
+        - 일반적으로 COO 보다 메모리가 적게 사용 됨
+        - Row Pointer에 접근해서 각 행에 0이 아닌 원소의 수가 몇 개 인지 알 수 있음
+
+    <br>
+    <p align=center><img src="./images/2/4.png" width=50%><p>
+    <br>
+    
 
 <br>
 
-- 
+- 더 압축하기 위해서, 절대적인 위치를 저장하는 대신 index의 차이를 저장
+- 이 차이를 convolution layer에 8비트, fc layer에 5비트로 인코딩
+- 인코딩 범위보다 큰 index 차이가 생기는 경우 zero padding solution을 이용
+    - 차이 값을 저장하기 위해 3bits만을 사용할 때, 그 차이가 3bits 보다 크면 패딩 삽입
+
+    <br>
+    <p align=center><img src="./images/2/5.png" width=50%></p>
+    <br>
+
+    - index 4에 위치한 원소와 index 15에 위치한 원소의 거리가 8보다 크기 때문에 중간에 0을 삽입하여 3bit로 표현 가능하게 만들어줌
 
 <br>
 <br>
 
 ## 3. Trained Quantization and Weight Sharing
+- Pruning 한 네트워크는 각 가중치를 표현하기 위한 bit수를 줄이는 Quantization 과정과 가중치 공유를 통하여 더 압축 가능
+
+
+<br>
+<p align=center><img src="./images/2/6.png" width=50%></p>
+<br>
+
+- 4개의 input 4개의 output이 존재하는 경우
+- 16(n = 4x4) 개의 가중치 존재
+- k = 4로 설정, 즉 4개의 cluster를 사용한다는 의미
+- 압축률의 계산은 아래와 같은 식으로 진행
+    - k = 4로 설정한 경우 4개의 클러스터를 이
+
+
+    <br>
+
+    <p align=center><img src="./images/2/7.png" > <br>
+    n : 총 가중치의 수 <br>
+    k : 클러스터의 수 
+
+    </p>
+
+    <br>
+    
+    <p align=center><img src="./images/2/8.png"></p>
+
+<br>
+
+- 각 cluster들의 평균값을 구하여 centroids 라고 이 값들을 해당 클러스터에서 이 값을 공유하여 사용
+- centroids 들은 계속 사용하는 것이 아니라 fine-tuning을 통해 업데이트
+
+
+<!-- 1. 실제로 사용할 가중치의 개수 k를 설정
+2. 해당 k개의 가중치를 별도의 메모리에 저장한 뒤에 이를 공유 (sharing)
+3. 해당 k개의 가중치를 fine-tuning을 통하여 학습시켜 정확도를 올림 -->
+
+
+<br>
+
+### 3.1 Weight Sharing
 - 
+
+
+### 3.2 Initialization of Shared Weights
+### 3.3 Feed-Forward and Back-Propagation
+
 <br>
 <br>
+
+## 4. Huffman Coding 
+
+
+<br>
+<br>
+
+## 5. Experiments
+### 5.1 LeNet-300-100 and LeNet-5 on MNIST
+### 5.2 AlexNet on ImageNet
+### 5.3 VGG-16 on ImageNet
+
+## 6. Discussions
+### 6.1 Pruning and Quantization Working Together
+### 6.2 Centeroid Initialization
+### 6.3 Speedup and Energy Efficiency
+### 6.4 Ratio of Weights, Index and Codebook
+
+<br>
+<br>
+
+## 7. Related Work
+
+<br>
+<br>
+
+## 8. Future Work
+
+<br>
+<br>
+
+## 9. Conclusion
