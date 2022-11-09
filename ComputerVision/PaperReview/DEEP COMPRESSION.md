@@ -28,7 +28,7 @@
 <br>
 
 ## Abstract
-- Neural Network는 계산 집약적이고 메모리 집약적이기 때문에 제한된 하드웨어 리소스를 가진 임베디드 시스템에 적요하기에 어려움
+- Neural Network는 계산 집약적이고 메모리 집약적이기 때문에 제한된 하드웨어 리소스를 가진 임베디드 시스템에 적용하기에 어려움
 - 이를 해결하기 위해 세 단계의 파이프라인으로 구성된 "**deep compressin**" 을 도입
     - Pruning (가지치기)
     - trained Quantization (양자화)
@@ -145,7 +145,6 @@
 - 압축률의 계산은 아래와 같은 식으로 진행
     - k = 4로 설정한 경우 4개의 클러스터를 이
 
-
     <br>
 
     <p align=center><img src="./images/2/7.png" > <br>
@@ -172,17 +171,88 @@
 <br>
 
 ### 3.1 Weight Sharing
-- 
+- 학습된 네트워크의 각각의 레이어의 공유되는 가중치를 정하기 위해서 K-means clustering 방법을 이용
+    - 같은 cluster로 묶인 데이터는 같은 가중치를 공유
+- 가중치는 같은 layer에서만 공유되며 layer들끼리 공유하지 않음
 
+<br>
+<p align=center><img src="./images/2/9.png"></p>
+<br>
+
+- n개의 가중치들 <img src="./images/2/10.png"> 을 k개의 클러스터 <img src="./images/2/11.png">로 분류
+- 모든 가중치와 centroid와의 거리
+
+# 추가.....
 
 ### 3.2 Initialization of Shared Weights
+- centroid = 공유 가중치 = 코드북
+- centroid 초기화는 클러스터링 성능에 영향을 미치고, 이는 네트워크 예측 성능에도 영향을 줌
+- 이 논문에서는 3가지 초기화 방법을 실험
+    - Forgy(random)
+    - Density-based
+    - Linear
+- Network pruning 후에 가중치들은 bimodal(양봉) 분포를 가짐
+
+<br>
+<p align=center><img src="./images/2/12.png" width=50%></p>
+<br>
+
+- **Forgy**
+    - 가중치 중에서 랜덤으로 k개를 선택하여 이것을 초기 중심점으로 사용
+    - 2개의 피크를 가지고 있기 때문에 이 두 피크점 주변에 초기 중심점이 존재할 가능성 높음
+    - 그림에서 노란색 점
+- **Density-based**
+    - 가중치의 CDF에서 y축에 대하여 동일한 간격으로 나누고 CDF에서 이에 대응하는 x축의 가중치값을 초기 중심점으로 사용
+    - 이 방법은 초기 중심점들이 두 피크점들 근처로 초기 중심점이 더 밀집하게 존재하지만 Forgy 방법보다는 덜함
+    - 그림에서 파란색 점 
+- **Linear**
+    - 가중치의 [min, max] 사이에서 동일한 간격으로 선택
+    - 이 방법은 가중치 분포에 변하지 않고 앞의 두 방법보다 더 골고루 중심점들이 분포
+    - 그림에서 빨간색 점
+
+<br>
+
+- 빈도가 높은 가중치가 선택되는 것이 유리한 것이 아니라 절대값이 큰 가중치가 더욱 중요한 역할을 수행
+    - 즉, 절대값이 큰 가중치가 더 중요한 역할을 함
+- 하지만 큰 값의 가중치는 수가 적음
+- Forgy와 density-based 는 절대값이 큰 중심점을 적게 가지므로 절대값이 큰 가중치를 표현하기 어려움
+- Linear 초기화는 이 문제를 해결 가능
+
+<br>
+
 ### 3.3 Feed-Forward and Back-Propagation
+- K-means 알고리즘을 이용하여 적절한 중심점을 찾았다고 하더라도 같은 cluster는 centroid에 해당하는 값에 할당이되어야하므로 어느 정도 데이터 유실이 있을 수 있음 
+- 중심점을 조금 더 적절한 값으로 fine-tuning 해주기 위해서 
+- Forward를 하고 backpropagation을 진행 한 후에 기울기를 구하고
+- 공유 가중치 테이블의 index는 각 연결에 대한 정보를 저장 
+- Back-propagation 과정에서, 각 공유 가중치의 기울기는 계산되며 이를 바탕으로 값이 갱신됨  
+
+<br>
+
+<p align=center><img src="images/2/13.png" width=50%></p>
+
+<!-- <br>
+수식 넣기.. 
+<p align=center><img src="images/"></p>
+
+<br> -->
 
 <br>
 <br>
 
 ## 4. Huffman Coding 
+- Huffman code는 무손실 데이터 압축에 사용되는 optimal prefix code
+- Source symbol (여기에서는 공유 가중치)을 인코딩하기위해 가변 길이의 코드워드(codeward) 사용
+- 테이블은 각 symbol의 발생 확률에서 만들어짐
+- 더 흔한 symbol 일수록 더 적은 bit수로 표현
 
+<br>
+<p align=center><img src="./images/2/14.png" width=50%></p>
+<br>
+
+- AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 
+- 각 cluster에 같은 수의 가중치들이 할당되는것이 아님
+    - 특정 중심점이 많이 사용될 수 있음 
 
 <br>
 <br>
