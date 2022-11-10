@@ -250,7 +250,11 @@
 <p align=center><img src="./images/2/14.png" width=50%></p>
 <br>
 
-- AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 
+- AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 sparse 행렬 index를 보여줌
+- 두 분포는 편향되어 있음 
+    - 대부분의 양자화 된 가중치들은 두 피크 근처에 분포함
+    - 희소 행렬의 index 차이는 거의 20을 초과하는 것은 거의 없음
+- Huffman coding은 이 non-uniformly 하게 분포된 값들을 20-30% 줄일 수 있음 
 - 각 cluster에 같은 수의 가중치들이 할당되는것이 아님
     - 특정 중심점이 많이 사용될 수 있음 
 
@@ -258,6 +262,17 @@
 <br>
 
 ## 5. Experiments
+- 4개의 네트워크에 prun, quantization, huffman encoded를 실행
+    - 2개의 모델은 MNIST에 2개의 이미지는 ImageNet에 적용
+- 제시하는 압축 파이프 라인을 이용하면 정확도의 성능 저하 없이 서로 다른 네트워크에서 네트워크 저장 공간을 35에서 49배까지 줄일 수 있음 
+
+<br>
+
+- 학습은 Caffe 프레임워크로 진행이 됨
+- Pruning은 blob에 마스크를 더하여 
+
+<br>
+
 ### 5.1 LeNet-300-100 and LeNet-5 on MNIST
 ### 5.2 AlexNet on ImageNet
 ### 5.3 VGG-16 on ImageNet
