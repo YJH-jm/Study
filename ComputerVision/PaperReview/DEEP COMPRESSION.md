@@ -192,6 +192,7 @@
     - Density-based
     - Linear
 - Network pruning 후에 가중치들은 bimodal(양봉) 분포를 가짐
+    - 가중치가 특정값보다 작은 값들이 사라졌기 때문
 
 <br>
 <p align=center><img src="./images/2/12.png" width=50%></p>
@@ -212,21 +213,22 @@
 
 <br>
 
-- 빈도가 높은 가중치가 선택되는 것이 유리한 것이 아니라 절대값이 큰 가중치가 더욱 중요한 역할을 수행
-    - 즉, 절대값이 큰 가중치가 더 중요한 역할을 함
+- 딥러닝에서는 자주 나오는 가중치보다 절대값이 큰 가중치가 더 중요한 역할을 수행하므로 빈도가 높은 가중치가 선택되는 것이 유리한 것이 아니라 절대값이 큰 가중치를 선택하는 것이 중요
 - 하지만 큰 값의 가중치는 수가 적음
 - Forgy와 density-based 는 절대값이 큰 중심점을 적게 가지므로 절대값이 큰 가중치를 표현하기 어려움
-- Linear 초기화는 이 문제를 해결 가능
+- Linear 초기화를 통하여 이 점을 해결하고 정확도를 높임
+- 그림의 오른쪽의 초록색 x 점이 linear 로 선택된 점이고 이를 fine-tuning 한 값이 빨간색 점
+
 
 <br>
 
 ### 3.3 Feed-Forward and Back-Propagation
 - K-means 알고리즘을 이용하여 적절한 중심점을 찾았다고 하더라도 같은 cluster는 centroid에 해당하는 값에 할당이되어야하므로 어느 정도 데이터 유실이 있을 수 있음 
-- 중심점을 조금 더 적절한 값으로 fine-tuning 해주기 위해서 
-- Forward를 하고 backpropagation을 진행 한 후에 기울기를 구하고
+- 중심점을 조금 더 적절한 값으로 fine-tuning 해주기 위해서 Forward를 하고 backpropagation 
+- Forward를 하고 Backpropagation을 통해 얻은 기울기를 구한 후, 각 cluster마다 구해진 기울기를 종합하여 모든 centroid 각각을 어떤 방향으로 업데이트 할 것인지 결정
 - 공유 가중치 테이블의 index는 각 연결에 대한 정보를 저장 
 - Back-propagation 과정에서, 각 공유 가중치의 기울기는 계산되며 이를 바탕으로 값이 갱신됨  
-
+    - 
 <br>
 
 <p align=center><img src="images/2/13.png" width=50%></p>
@@ -241,6 +243,45 @@
 <br>
 
 ## 4. Huffman Coding 
+<!-- - K-means 알고리즘의 특성상, 각 cluster마다 같은 수의 가중치들이 존재하지는 않음
+    - 이런 특성을 이용하면 정확도의 손실없이 압축이 가능  -->
+- 고정 길이 부호
+    
+    <br>
+    <p align=center><img src="./images/2/18.png" width=50%></p>
+    <br>
+
+- Huffman coding
+    1. 각 symbol을 그 출현 빈도와 함께 하나의 노드로 만듦
+
+    <br>
+
+    <p align=center><img src="./images/2/15.png" width=30%></p>
+    
+    <br>
+    
+    2. 모든 노드를 우선순위큐에 삽입
+        - 가장 key값(출연 빈도)이 작은 노드가 왼쪽에 오는 것을 확인 
+    
+    <br>
+    <p align=center><img src="./images/2/16.png" width=30%></p>
+    <br>
+
+    3. 우선순위 큐에 노드가 하나 남을 때 까지 아래 과정 반복
+        1. 우선순위 큐에서 두개의 노드 추출
+            - 가장 작은 두 노드를 꺼냄
+        2. 두 개의 노드를 자식노드로 하는 새로운 노드를 생성하여 우선순위 큐에 삽입
+
+    <br>
+    <p align=center><img src="./images/2/17.png" width=50%></p>
+    <br>
+
+    4. 트리 구축이 완료된 후 각가의 노드의 위치까지 재귀적으로 조회하며 왼쪽 경로에 0, 오른쪽 경로에 1 부여
+
+<br>
+<p align=center><img src="./images/2/19.png" width=50%></p>
+<br>
+
 - Huffman code는 무손실 데이터 압축에 사용되는 optimal prefix code
 - Source symbol (여기에서는 공유 가중치)을 인코딩하기위해 가변 길이의 코드워드(codeward) 사용
 - 테이블은 각 symbol의 발생 확률에서 만들어짐
@@ -251,12 +292,15 @@
 <br>
 
 - AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 sparse 행렬 index를 보여줌
-- 두 분포는 편향되어 있음 
+- K를 32개로 설정 한다면 총 32개의 중심점(centroid)이 존재하고 특정한 중심점들이 많이 나오는 것을 확인 할 수 있음 
+- 즉, 분포는 편향되어 있음 (biased distribution) 
     - 대부분의 양자화 된 가중치들은 두 피크 근처에 분포함
     - 희소 행렬의 index 차이는 거의 20을 초과하는 것은 거의 없음
-- Huffman coding은 이 non-uniformly 하게 분포된 값들을 20-30% 줄일 수 있음 
-- 각 cluster에 같은 수의 가중치들이 할당되는것이 아님
-    - 특정 중심점이 많이 사용될 수 있음 
+- 만약 편향되어있지 않고 uniform하게 존재했다면 허프만 코딩을 이용해도 비트수를 줄이기 힘듦
+- 위의 분포처럼 편향되게 존재한다면 정확도의 손실없이 압축 가능
+- Huffman coding은 이 non-uniformly 하게 분포된 값들을 20-30% 줄일 수 있음
+
+
 
 <br>
 <br>
@@ -267,20 +311,131 @@
 - 제시하는 압축 파이프 라인을 이용하면 정확도의 성능 저하 없이 서로 다른 네트워크에서 네트워크 저장 공간을 35에서 49배까지 줄일 수 있음 
 
 <br>
+<p align=center><img src ="./images/2/20.png" width=50%></p>
+<br>
 
-- 학습은 Caffe 프레임워크로 진행이 됨
-- Pruning은 blob에 마스크를 더하여 
+- AlexNet은 240MB에서 6.9MB로 크기가 감소하고 이는 on-chip SRAM에 모델을 저장 가능하므로 DRAM에 저장하여 많은 에너지를 사용하는 것을 방지 할 수 있음 
 
 <br>
 
+# 수정
+- 학습은 Caffe 프레임워크로 진행
+- Pruning은 blob에 마스크를 더하여 pruning 된 연결의 업데이트를 방지함>
+- Quantization과 가중치 공유는 가중치를 저장하고 공유하는 코드북 구조와 각 layer의 기울기를 게산한 후의 group-by-index를 유지하면서 실행
+- 공유된 각 가중치들은 bucket에 떨어지는 모든 가중치들과 함께 업데이트 됨
+- Huffman coding은 학습이 필요하지 않고 fine-tuning이 끝난 후에 offline으로 실행
+
+<br>
+<br>
+
 ### 5.1 LeNet-300-100 and LeNet-5 on MNIST
+- LeNet-300-100은 2개의 hidden layer가 각각 300, 100개의 뉴런을 가지고 있는 fully-connected 네트워크
+    - MNIST 데이터셋에 대하여 1.6%의 에러율
+- LeNet-5는 2개의 convolution layer와 2개의 fully connected layer를 가진 네트워크
+    - MNIST 데이터셋에 대하여 0.8%의 에러율
+
+<br>
+<p align=center><img src= "./images/2/21.png" width=50%></p>
+<br>
+
+- Table 2,3은 압축 파이프라인의 통계를 보여줌
+- 압축률은 codebook과 sparse index의 오버헤드를 포함
+- 대부분의 압축은 Pruning 과 Quantization에서 발생
+
+<br>
+<br>
+
+
 ### 5.2 AlexNet on ImageNet
+- ImageNet으로 학습
+    - 1.2M개 학습데이터, 50k개 검증데이터
+
+<br>
+<p align=center><img src="./images/2/22.png" width=50%></p>
+<br>
+
+- AlexNet Caffee 모델이 reference 모델
+- 정확도에 영향을 미치지 않고 2.88% 압축
+- 각 Convolution layer에 256개의 공유 가중치 존재하고 이는 8bit로 인코딩 됨
+    - 즉, 공유가중치는 8bit로 표현됨
+- 각 Fully-Connected layer에는 32개의 공유 가중치가 존재하고 이는 5bit로 인코딩
+- Relative sparse index는 4bit로 인코딩
+
+<br>
+<br>
+
 ### 5.3 VGG-16 on ImageNet
+- AlexNet의 결과를 확인하고, 더 크고 최신의 네트워크인 VGG-16을 ImageNet 데이터로 학습 
+- VGG-16은 더 많은 convolution layer와 3개의 fully-connected layer로 구성
+
+<br>
+<p align=center><img src="./images/2/23.png" width=50%></p>
+<br>
+
+- VGG16 네트워크는 최대 49배 압축이 가능
+- Convolution layer의 가중치는 8bit로, Fully-connected layer는 5bit로 표현 가능
+- Index bit는 5bit 만큼 사용 
+- 가장 용량이 큰 두 layer인 fc6, fc7은 압축률이 1.6%가 됨
+- 이렇게 감소된 용량은 실시간 이미지 프로세싱에 중요한 역할을 함
+    - 배치 프로세싱과 다르게 이미지 전반에 걸쳐 layer들의 재사용이 거의 없는 경우
+- 빠른 Object detection에도 중요한 역할을 함 
+    - 하나의 Conv pass가 많은 FC pass에 의해 사용되는 경우
+- 압축의 결과로 on-chip SRAM에 모델 저장이 가능하고 적절한 대역폭 요구사항을 가짐
+- 이러한 감소 없이는 대역폭 요구사항을 감당할 수 없음
+
+<br>
+<br>
 
 ## 6. Discussions
 ### 6.1 Pruning and Quantization Working Together
+
+<br>
+<p align=center><img src="./images/2/24.png" width=50%></p>
+<br>
+
+- Prunng과 Quantization을 각각 또는 같이 수행했을 때의 압축률에 따른 정확도를 확인 할 수 있음
+- Pruning과 Quantization을 각각 실행하는 경우 압축률이 8% 보다 작아지게 되면 정확도가 급격하게 떨어지게 됨
+- 하지만 두 방식을 동시에 적용하면 압축률이 3%가 되어도 정확도의 손실이 없음
+- 맨 오른쪽의 SVD 결과를 확인하면 이는 비용이 비싸지만 압축률 또한 좋지 않음
+
+<br>
+<p align=center><img src="./images/2/25.png" width=50%></p>
+<br>
+
+- Conv layer(left), FC layer(middle), all layer(right)의 각 연결당 더 적은 bit수롤 사용할 수록 얼마나 정확도가 떨어지는지 보여줌 
+- 각각의 그림은 top-1, top-5 정확도를 보여줌
+- Quantization 만 적용한 경우와 Quantization과 Pruning을 같이 적용한 경우 둘의 차이는 거의 없음 
+    - 이는 Pruning이 Quantization과 같이 잘 어우러짐을 보여줌
+
+<br>
+
+- Quantization은 Pruning 한 네트워크에서 잘 작동함
+    - Pruning을 하지 않은 AlexNet은 Quantization할 6천만개의 가중치가 존재하고 Pruning한 AlexNet은 오직 6백 70만개의 가중치가 존재하지만 같은 중심점(centroids)를 가지는 경우 후자가 더 성능이 좋음
+
+<br>
+
+- Conv layer는 FC layer보다 정확도를 유지하기 위해 더 많은 bit 수가 필요
+- Conv layer는 4bit 보다 적어지면 급격하게 정확도가 떨어지는 반면에 FC layer는 조금 더 robust 함
+
+<br>
+<br>
+
 ### 6.2 Centeroid Initialization
+
+<br>
+<p align=center><img src="./images/2/26.png" width=50%></p>
+<br>
+
+- 중심점 초기화 방법에 따른 정확도를 보여주고 네트워크는 2 ~ 8 비트로 양자화를 진행
+- Linear 초기화는 3bit 일 때를 제외하고 모든 케이스에서 다른 방법보다 좋음 
+
+<br>
+<br>
+
+
 ### 6.3 Speedup and Energy Efficiency
+- Deep Compression은 
+
 ### 6.4 Ratio of Weights, Index and Codebook
 
 <br>
