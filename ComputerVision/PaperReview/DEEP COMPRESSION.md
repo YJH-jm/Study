@@ -11,15 +11,8 @@
     - 포워딩을을 위해 많은 내적 연산 수행
     - 특히 메모리 접근 과정에서 많은 에너지 소비 발생 가능 
 
-    <br>
-    <p align=center><img src="./images/2/1.jpeg" width=50%></p>
-    <br>
-
-- 뉴럴 네크워크 용량과 에너지 소비량을 줄일수 있는 Deep Compression 제안 
-
 <br>
 <br>
-
 
 # DEEP COMPRESSION: COMPRESSING DEEP NEURAL NETWORKS WITH PRUNING, TRAINED  QUANTIZATION AND HUFFMAN CODING
 **2016년 ICLR에서 best paper로 선정된 우수 논문**
@@ -32,13 +25,17 @@
 - 이를 해결하기 위해 세 단계의 파이프라인으로 구성된 "**deep compressin**" 을 도입
     - Pruning (가지치기)
     - trained Quantization (양자화)
-    - Huffman coding
+    - Huffman coding (하프만 코딩)
 - 세 방법을 모두 적용하여 정확도에 영향을 미치지 않고 용량을 35 ~ 49 배를 줄임
 - Pruning은 중요한 네트워크 연결만 학습할 수 있도록 네트워크를 가지치기 하여 중요한 연결만 학습하는 것
-- Quantization은 가중치를 양자화하여 가중치 공유를 잘 할 수 있도록 만들고 Huffman coding을 적용할 수 있도록 만듦
-- 두 과정에서 남은 중요한 연결에 대한 finetuning과 양자화된 centroids 위한 재학습을 진행
-- 이 방법은 off-chip DRAM이 아닌 on-chip SRAM cache에 저장 할 수 있게 함
-- Application size와 다운로드 대역폭이 제한된 모바일 어플리케이션에서 복잡한 뉴럴 네트워크를 사용 할 수 있게 함
+- Quantization은 가중치를 양자화하여 가중치를 공유하도록 함
+- 이 두 과정 후에 Huffman coding을 적용
+- 처음 두 단게 이후 남아있는 연결과 양자화된 중심점(centroids)을 finetuning하기 위한 재학습을 진행
+- Pruning으로 네트워크 연결을 9 ~ 13배 줄임
+- Quantization으로 각 연결을 나타내는 표현 (가중치)를 32bit에서 5bit로 줄임
+- 이 방법은 off-chip DRAM memory가 아닌 on-chip SRAM cache에 저장 할 수 있게 함
+- 애플리케이션 크기와 다운로드 대역폭이 제한된 모바일 어플리케이션에서 복잡한 뉴럴 네트워크를 사용 할 수 있게 함
+- 기준이 되는 CPU, GPU, 모바일 GPU에서, 압축된 모델은 층간 속도를 3~4배 증가시키고 에너지 효율을 3~7배 증가시킴
 
 <br>
 <br>
@@ -51,31 +48,55 @@
 
 - 많은 mobile-first 회사들의 앱들은 다양한 앱스토어를 통하여 업데이트가 되고 이 회사들은 binary 파일의 크기에 민감
     - App store에서 "100MB 가 넘는 app은 Wi-Fi 연결이 될 때까지 다운로드 할 수 없음" 등의 제약이 있기 때문 
+- 그 결과로 binary 크기를 100MB 씩 증가시키는 기능은 10MB씩 증가시키는 기능보다 더 철저한 검토를 받음 
+- 비록 모바일에서 작동하는 딥 뉴럴 네트워크는 여러 좋은 특징들을 가지고 있음
+    - 개인정보 보호
+    - 더 좁은 네트워크 대역폭
+    - 실시간 프로세싱
+- 하지만 큰 저장공간이 필요하다는점이 딥 뉴럴 네트워크가 모바일 앱에 통합되는 것을 어렵게 함 
 
 <br>
 
-- Memory access 과정에서 에너지 소비가 많이 발생하게 됨 
-- 45nm 이하 CMOS기술에서 , 32 bit floating point 덧셈은 **0.9pJ**, 32 bit SRAM chache는 **5pJ**, 반면에 32 bit DRAM은 **640pJ** 요구함 
-- 큰 네트워크는 on-chip 저장 공간에 맞지 않기 때문에 DRAM access가 필요
+- 두 번째 문제는 에너지 소비
+- 큰 뉴럴 네트워크를 실행하는 것은 가중치를 fetch하기 위해 많은 메모리 대역폭을 요구하고 내적을 하기 위해서 내적 연산을 하기 위해 많은 계산 수행
+    - 이는 결국 상당한 에너지 소비가 발생
+- 모바일 장치는 베터리가 제한적이고 전력을 많이 소비하는 딥 뉴럴 네트워크는 탑재시키기 어려움
+
+<br>
+
+- 에너지 소비는 대부분 메모리에 접근 할 때 발생  
+- 45nm CMOS 에서, 32 bit floating point 덧셈을 하는 경우  **0.9pJ**, 32 bit SRAM chache 접근하는 경우 **5pJ**, 32 bit DRAM 메모리에 접근하는 경우 **640pJ** 이 필요함 
+- 큰 네트워크는 on-chip 저장 공간에 맞지 않기 때문에 비용이 더 큰 DRAM 메모리에 접근을 해야 함
+
+<br>
+
+<p align=center><img src="./images/2/1.jpeg" width=50%></p>
 
 <br>
 
 - 이 연구의 목표는 모바일 장치에 딥러닝 모델을 탑재시켜 추론이 가능할 수 있도록 저장 공간과 에너지 소비를 줄이는 것
 - 이를 위하여 "deep compression" 제안
     - 정확도를 보존하고 뉴럴 네트워크의 저장 공간을 줄이기 위한 3 단계의 파이프라인 방식
-- 불필요한 연결을 제거하고 주요한 연결만 남기는 prun
-- 가중치를 양자화하여 많은 연결들이 같은 가중치를 공유하고, 그로 인해서 codebook (effective weights)와 indice 만 저장하면 됨
+- 불필요한 연결을 제거하고 주요한 연결만 남기는 Pruning (가지치기)
+- 가중치를 Quantization (양자화) 하여 많은 연결들이 같은 가중치를 공유
+    - 그로 인해서 코드북(codebook, 유효한 가중치)과 index들만 저장하면 됨
+- 마지막으로 Huffman coding으로 편향적으로 분포된 가중치들의 이점을 얻음
 
 <br>
 
-- 이 논문에서 주장하는 이 실험의 가장 중요한 insight는 pruning과 quantization을 통해서 ~ 없이 네트워크를 압축할 수 있다는 것
+- Pruning과 Quantization을 통해서 두 과정이 서로 방해없이 네트워크를 높은 압축률로 압축할 수 있다는 것을 알아냄
 - 이 과정을 통해 네트워크를 압축하면 모든 가중치들을 on-chip cache에서 이용가능
 
 <br>
 <br>
 
 ## 2. Network Pruning
-- 초기 연구에서부터, pruning을 사용하면 네트워크 복잡도를 감소시키고 overfitting을 막을 수 있다는 것이 증명됨
+
+<br>
+<p align=center><img src="./images/2/30.png" width=50%></p>
+<br>
+
+- Pruning을 사용하면 네트워크 복잡도를 감소시키고 과적합을 막을 수 있음
 - 2015년 연구에서 최신의 CNN 모델에서 pruning 기법을 사용하더라도 정확도의 손실이 없음을 확인
 - 첫 번째로 일반적인 네트워크 학습을 진행
 - 모든 연결(가중치 값)에서 가중치 값이 작은 연결들을 가지치기
@@ -85,6 +106,8 @@
     <br>
     <p align=center><img src="./images/2/2.png" width=50%><p>
     <br>
+
+
 
 - 남아있는 sparse한 연결들의 가중치 값들을 얻기 위해 네트워크 재학습
 - Pruning은 AlexNet의 파라미터를 9배, VGG16의 파라미터를 13배 감소시킴
@@ -166,7 +189,6 @@
 <!-- 1. 실제로 사용할 가중치의 개수 k를 설정
 2. 해당 k개의 가중치를 별도의 메모리에 저장한 뒤에 이를 공유 (sharing)
 3. 해당 k개의 가중치를 fine-tuning을 통하여 학습시켜 정확도를 올림 -->
-
 
 <br>
 
@@ -434,21 +456,70 @@
 
 
 ### 6.3 Speedup and Energy Efficiency
-- Deep Compression은 
+- Deep Compression은 latency에 중점을 둔 모바일에서 실행되는 어플리케이션에 타겟팅함
+    - 자율주행 자동차에 내장된 보행자 감지와 같은 실시간 추론과 같은
+- 하나의 Batch가 모일 때까지 지연(latency)가 발생하기 때문에 성능과 에너지 효율을 측정할 때, 이 논문에서는 batch의 크기가 1인 경우를 고려 
+
+<br>
+
+- Fully connected layer는 모델 사이즈에 크게 영향을 주고 (90%) Deep Compression으로 가장 많이 압축이 됨 (VGG-16에서 96%의 가중치 가지치기)
+- 압축되지 않은 Fast R-CNN 는 전체 시간의 38%까지 FC layer에서 소비됨
+- 따라서 FC layer를 보면 에너지와 성능 측면에서 Deep Compression의 효과를 알수 있음
+- 그래서 이 논문에서는 AlexNet과 VGG-16의 FC6, FC7, FC8을 기준으로 하기로 함
+- Batch가 없는 경우, activation 벡터는 하나의 Column을 가진 벡터이기 때문에 계산은 각각 원본/가지치기된 모델에 대한 dense / sparse 행렬-벡터 곱으로 압축됨
+- 논문을 연구할 당시의 CPU, GPU에 대한 BLAS 라이브러라는 간접 조회와 상대적인 인덱싱을 지원하지 않으므로 양자화된 모델을 벤치마킹 하지 않음
+
+<br>
+
+- 이 논문에서 세개의 다른 규격의 하드웨어로 비교
+    - 데스크톱 프로세서 : NVIDIA GeForce GTX Titan X 
+    - 데스크톱 프로세서 : the Intel Core i7 5930K
+    - 모바일 프로세서 : NVIDIA Tegra K1
+
+<br>
+<p align=center><img src="./images/2/27.png" width=50%></p>
+<br>
+
+- CPU / GPU / TK1 의 Dense(pruning x)/ Pruning 네트워크에서의 계산 시간이 얼마나 단축되는지 보여줌
+    - CPU에 맞춰 정규화
+- Batch 크기가 1인 경우, 평균적으로 pruning을 하게되면 3 ~ 4배 정도 속도가 증가
+    - 메모리 공간이 더 작고 데이터 전송 오버헤드를 줄일 수 있기 때문, 특히 cache 메모리에 저장되지 않은 큰 행렬같은 경우
+
+<br>
+<p align=center><img src ="./images/2/28.png" width=50%></p>
+<br>
+
+- 다른 하드웨에에서의 에너지 효율을 보여줌 
+- 에너지 소비를 구하기 위해 전력 소비량과 계산 시간을 곱함
+- Pruning 과정을 거치면 3 ~ 7 배 에너지를 더 적게 사용 가능
+
+<br>
+<br>
+
 
 ### 6.4 Ratio of Weights, Index and Codebook
+- Pruning은 가중치 행렬을 조금더 sparse하게 만들기 때문에 0이 아닌 원소를 저장할 공간이 필요
+- Quantization은 코드북(codebook)에 대한 저장 공간을 필요로 함
+
+
+<br>
+<p align=center><img src="./images/2/29.png" width=50%></p>
+<br>
+
+- 4개의 네트워크를 양자화할 때 3가지 요소를 부내하는 것을 보여줌
+- 평균적으로 가중치와 sparse index는 5 비트들로 인코딩되기 때문에 각각 대략 50%의 확률로 존재
+- 코드북 (Codebook)의 overhead는 매우 작음
 
 <br>
 <br>
 
-## 7. Related Work
-
-<br>
-<br>
-
-## 8. Future Work
-
-<br>
-<br>
 
 ## 9. Conclusion
+- 이 논문에서 정확도에 영향을 미치지 않고 뉴럴 네트워크를 압축하는 "Deep Compression" 제공
+- 이 방식은 중요하지 않은 연결을 가지치지(Pruning)하고 , 네트워크를 양자화 (Quantization)하여 가중치 공유를 하고, 그 후 하프만 코딩 (Huffman Coding)을 적용
+- AlexNet과 같은 경우는 정확도 손실없이 가중치 저장 공간을 35배를 줄임
+- VGG-16과 LeNet 네트워크에도 정확도의 하락없이 네트워크를 각각 49배, 39배 압축할 수 있음 
+- 이는 모바일 앱에 네트워크를 올릴 수 있는 요구조건을 만족
+- Deep Compression를 적용한 후에 off-chip DRAM(640pJ/access) 메모리가 아닌 on-chip SRAM cache(5pJ/access)에 저장 가능
+- 모바일에서 네트워크가 돌아가서 딥러닝 네트워크를 더 에너지 효율적을 만듦
+- 이 압축 방법은 복잡한 뉴럴 네트워크를 어플리케이션 크기와 다운로드 대역폭이 제한되어있는 모바일 어플리케이션에서도 용이하게 사용 할 수 있게 해줌
