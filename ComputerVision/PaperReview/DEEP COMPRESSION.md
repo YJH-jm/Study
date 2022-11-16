@@ -75,6 +75,11 @@
 <br>
 
 - 이 연구의 목표는 모바일 장치에 딥러닝 모델을 탑재시켜 추론이 가능할 수 있도록 저장 공간과 에너지 소비를 줄이는 것
+
+<br>
+<p align=center><img src="./images/2/31.png" width=80%></p>
+<br>
+
 - 이를 위하여 "deep compression" 제안
     - 정확도를 보존하고 뉴럴 네트워크의 저장 공간을 줄이기 위한 3 단계의 파이프라인 방식
 - 불필요한 연결을 제거하고 주요한 연결만 남기는 Pruning (가지치기)
@@ -96,28 +101,23 @@
 <p align=center><img src="./images/2/30.png" width=50%></p>
 <br>
 
-- Pruning을 사용하면 네트워크 복잡도를 감소시키고 과적합을 막을 수 있음
+- Pruning(가지치기)을 사용하면 네트워크 복잡도를 감소시키고 과적합을 막을 수 있음
 - 2015년 연구에서 최신의 CNN 모델에서 pruning 기법을 사용하더라도 정확도의 손실이 없음을 확인
-- 첫 번째로 일반적인 네트워크 학습을 진행
-- 모든 연결(가중치 값)에서 가중치 값이 작은 연결들을 가지치기
-    - 특정 threshold 값보다 작은 경우 
+- Pruning 과정 
+    1. 일반적인 네트워크 학습을 진행
+    2. 모든 연결(가중치 값)에서 가중치 값이 특정 threshold 값보다 작은 경우 연결들을 가지치기
         - 3보다 작은 경우 
 
-    <br>
-    <p align=center><img src="./images/2/2.png" width=50%><p>
-    <br>
+        <br>
+        <p align=center><img src="./images/2/2.png" width=50%><p>
+        <br>
 
-
-
-- 남아있는 sparse한 연결들의 가중치 값들을 얻기 위해 네트워크 재학습
+    3. 남아있는 희소(sparse)한 연결들의 가중치 값들을 얻기 위해 네트워크 재학습
 - Pruning은 AlexNet의 파라미터를 9배, VGG16의 파라미터를 13배 감소시킴
 
 <br>
 
 - Pruning의 결과로 나온 sparse 구조를 CSR(Compressed Sparse Row) 또는 CSC(Compressed Sparse Column) 형식으로 저장 
-- CSR, CSC는 2a+n+1 개의 원소 필요
-    - a : 0 이 아닌 요소의 수
-    - n : column 또는 row의 수 
 
     - COO (Coordinate Format)
         - 행렬에 포함된 0이 아닌 값을 가진 데이터에 대하여 행과 열의 위치 정보를 기록 
@@ -137,10 +137,12 @@
     <p align=center><img src="./images/2/4.png" width=50%><p>
     <br>
     
+    - CSC (Compressed Sparse Column)
+        - 열의 압축 정보를 이용한다는 점만 제외하고 CSR과 같음
 
 <br>
 
-- 더 압축하기 위해서, 절대적인 위치를 저장하는 대신 index의 차이를 저장
+- 절대적인 위치를 저장하는 대신 index의 차이를 저장
 - 이 차이를 convolution layer에 8비트, fc layer에 5비트로 인코딩
 - 인코딩 범위보다 큰 index 차이가 생기는 경우 zero padding solution을 이용
     - 차이 값을 저장하기 위해 3bits만을 사용할 때, 그 차이가 3bits 보다 크면 패딩 삽입
@@ -155,66 +157,82 @@
 <br>
 
 ## 3. Trained Quantization and Weight Sharing
-- Pruning 한 네트워크는 각 가중치를 표현하기 위한 bit수를 줄이는 Quantization 과정과 가중치 공유를 통하여 더 압축 가능
-
+- Quantization (양자화) 과정과 가중치 공유를 통하여 각 가중치를 나타내는 bit 수를 줄여 가치지기를 한 네트워크를 더 압축 가능 
+- 여러 연결(가중치)들이 같은 가중치 값을 공유하게 만들면서 우리가 저장할 유효한 가중치의 수를 제한하고 이 공유된 가중치들을 fine-tuning 함 
 
 <br>
 <p align=center><img src="./images/2/6.png" width=50%></p>
 <br>
 
-- 4개의 input 4개의 output이 존재하는 경우
-- 16(n = 4x4) 개의 가중치 존재
-- k = 4로 설정, 즉 4개의 cluster를 사용한다는 의미
-- 압축률의 계산은 아래와 같은 식으로 진행
-    - k = 4로 설정한 경우 4개의 클러스터를 이
 
-    <br>
+- 4개의 input 4개의 output이 존재하면 총 16개의 가중치 존재하고 각 가중치들은 32 bit로 표현
+- 16개의 가중치들은 4개의 클러스터로 묶음
+    - 위의 그림에서 4가지 색으로 표현
+- 같은 클러스터로 묶인 가중치들의 평균값을 구하고 이를 centroids (중심점)이라 하고 해당 클러스터에서 이 값들을 공유하여 사용
+    - 즉, centroids = 중심점 = 공유 가중치 
+- 각 가중치는 공유 가중치 테이블에 작은 index만 저장 
 
-    <p align=center><img src="./images/2/7.png" > <br>
-    n : 총 가중치의 수 <br>
-    k : 클러스터의 수 
+<br>
+<p align=center><img src="images/2/13.png" width=50%></p>
+<br>
 
-    </p>
-
-    <br>
-    
-    <p align=center><img src="./images/2/8.png"></p>
+- 중심점들을 업데이트 하기 위해, 각 가중치의 기울기들을 가중치의 클러스터에 맞게 할당하고 이 값들을 합쳐 하나의 값으로 만듦
+- 합친 값을 학습률과 곱하고 그 값을 기존의 중심점, 즉 공유 가중치 값에서 뺌
 
 <br>
 
-- 각 cluster들의 평균값을 구하여 centroids 라고 이 값들을 해당 클러스터에서 이 값을 공유하여 사용
+- 압축률의 계산은 아래와 같은 식으로 진행
+    
+    <br>
+    <p align=center><img src="./images/2/7.png" > <br>
+    n : 총 가중치의 수 <br>
+    k : 클러스터의 수  <br>
+    b : 가중치를 나타내는 bit 수
+    </p>
+    <br>
+
+    - 총 가중치 수 x 각 가중치를 나타내는 bit 수
+    - 총 가중치 수 x 각 클러스터를 나타내는 bit 수 (index를 표현하기 위해 인코딩되는 bit 수)
+    - 클러스터의 수 x 각 가중치를 나타내는 bit 수
+
+<br>
+
+- 압축률의 식을 위의 예제에 적용해보면 3.2의 압축률을 얻음
+
+    <br>  
+    <p align=center><img src="./images/2/8.png"></p>
+    <br>
+
+
 - centroids 들은 계속 사용하는 것이 아니라 fine-tuning을 통해 업데이트
 
-
-<!-- 1. 실제로 사용할 가중치의 개수 k를 설정
-2. 해당 k개의 가중치를 별도의 메모리에 저장한 뒤에 이를 공유 (sharing)
-3. 해당 k개의 가중치를 fine-tuning을 통하여 학습시켜 정확도를 올림 -->
-
+<br>
 <br>
 
 ### 3.1 Weight Sharing
-- 학습된 네트워크의 각각의 레이어의 공유되는 가중치를 정하기 위해서 K-means clustering 방법을 이용
-    - 같은 cluster로 묶인 데이터는 같은 가중치를 공유
+- 학습된 네트워크의 각각의 레이어의 공유되는 가중치를 정하기 위해서 K-means 클러스터링 방법을 이용
+    - 같은 클러스터로 묶인 데이터는 같은 가중치를 공유
 - 가중치는 같은 layer에서만 공유되며 layer들끼리 공유하지 않음
 
 <br>
 <p align=center><img src="./images/2/9.png"></p>
 <br>
 
-- n개의 가중치들 <img src="./images/2/10.png"> 을 k개의 클러스터 <img src="./images/2/11.png">로 분류
-- 모든 가중치와 centroid와의 거리
+- n개의 가중치들 <img src="./images/2/10.png"> 을 k개의 클러스터 <img src="./images/2/11.png"> 로 분류
 
-# 추가.....
+<br>
+<br>
+
 
 ### 3.2 Initialization of Shared Weights
-- centroid = 공유 가중치 = 코드북
-- centroid 초기화는 클러스터링 성능에 영향을 미치고, 이는 네트워크 예측 성능에도 영향을 줌
+- 중심점 = centroids = 공유 가중치 = 코드북(codebook)
+- 중심점 초기화는 클러스터링 성능에 영향을 미치고, 이는 네트워크 예측 성능에도 영향을 줌
 - 이 논문에서는 3가지 초기화 방법을 실험
     - Forgy(random)
     - Density-based
     - Linear
-- Network pruning 후에 가중치들은 bimodal(양봉) 분포를 가짐
-    - 가중치가 특정값보다 작은 값들이 사라졌기 때문
+- 네트워크 가지치기 후에 가중치들은 bimodal(양봉) 분포를 가짐
+    - 가중치의 크기가 특정값보다 작은 값들이 사라졌기 때문
 
 <br>
 <p align=center><img src="./images/2/12.png" width=50%></p>
@@ -235,38 +253,26 @@
 
 <br>
 
-- 딥러닝에서는 자주 나오는 가중치보다 절대값이 큰 가중치가 더 중요한 역할을 수행하므로 빈도가 높은 가중치가 선택되는 것이 유리한 것이 아니라 절대값이 큰 가중치를 선택하는 것이 중요
+- 딥러닝에서는 자주 나오는 가중치보다 절대값이 큰 가중치가 더 중요한 역할을 수행하므로 빈도가 높은 가중치가 선택되는 것이 유리한 것이 아니라 절대값이 큰 가중치를 선택하는 것이 유리
 - 하지만 큰 값의 가중치는 수가 적음
 - Forgy와 density-based 는 절대값이 큰 중심점을 적게 가지므로 절대값이 큰 가중치를 표현하기 어려움
 - Linear 초기화를 통하여 이 점을 해결하고 정확도를 높임
 - 그림의 오른쪽의 초록색 x 점이 linear 로 선택된 점이고 이를 fine-tuning 한 값이 빨간색 점
 
-
+<br>
 <br>
 
 ### 3.3 Feed-Forward and Back-Propagation
-- K-means 알고리즘을 이용하여 적절한 중심점을 찾았다고 하더라도 같은 cluster는 centroid에 해당하는 값에 할당이되어야하므로 어느 정도 데이터 유실이 있을 수 있음 
-- 중심점을 조금 더 적절한 값으로 fine-tuning 해주기 위해서 Forward를 하고 backpropagation 
-- Forward를 하고 Backpropagation을 통해 얻은 기울기를 구한 후, 각 cluster마다 구해진 기울기를 종합하여 모든 centroid 각각을 어떤 방향으로 업데이트 할 것인지 결정
+- K-means 알고리즘을 이용하여 적절한 중심점을 찾았다고 하더라도 같은 클러스터는 중심점에 해당하는 값에 할당되므로 어느 정도 데이터 유실이 있을 수 있음 
+- 중심점을 조금 더 적절한 값으로 fine-tuning 해주기 위해서 Forward를 하고 Backpropagation 
+- Forward를 하고 Backpropagation을 통해 얻은 기울기를 구한 후, 각 클러스터마다 구해진 기울기를 종합하여 각각의 중심점을 어떤 방향으로 업데이트 할 것인지 결정
 - 공유 가중치 테이블의 index는 각 연결에 대한 정보를 저장 
 - Back-propagation 과정에서, 각 공유 가중치의 기울기는 계산되며 이를 바탕으로 값이 갱신됨  
-    - 
-<br>
-
-<p align=center><img src="images/2/13.png" width=50%></p>
-
-<!-- <br>
-수식 넣기.. 
-<p align=center><img src="images/"></p>
-
-<br> -->
 
 <br>
 <br>
 
 ## 4. Huffman Coding 
-<!-- - K-means 알고리즘의 특성상, 각 cluster마다 같은 수의 가중치들이 존재하지는 않음
-    - 이런 특성을 이용하면 정확도의 손실없이 압축이 가능  -->
 - 고정 길이 부호
     
     <br>
@@ -313,22 +319,19 @@
 <p align=center><img src="./images/2/14.png" width=50%></p>
 <br>
 
-- AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 sparse 행렬 index를 보여줌
+- AlexNet의 마지막 fully-connected layer의 양자화된 가중치들의 확률 분포와 희소 행렬 index를 보여줌
 - K를 32개로 설정 한다면 총 32개의 중심점(centroid)이 존재하고 특정한 중심점들이 많이 나오는 것을 확인 할 수 있음 
 - 즉, 분포는 편향되어 있음 (biased distribution) 
     - 대부분의 양자화 된 가중치들은 두 피크 근처에 분포함
     - 희소 행렬의 index 차이는 거의 20을 초과하는 것은 거의 없음
 - 만약 편향되어있지 않고 uniform하게 존재했다면 허프만 코딩을 이용해도 비트수를 줄이기 힘듦
 - 위의 분포처럼 편향되게 존재한다면 정확도의 손실없이 압축 가능
-- Huffman coding은 이 non-uniformly 하게 분포된 값들을 20-30% 줄일 수 있음
-
-
-
+- Huffman coding은 학습이 필요하지 않고 fine-tuning이 끝난 후에 offline으로 실행
 <br>
 <br>
 
 ## 5. Experiments
-- 4개의 네트워크에 prun, quantization, huffman encoded를 실행
+- 4개의 네트워크에 pruning, quantization, huffman encoded를 실행
     - 2개의 모델은 MNIST에 2개의 이미지는 ImageNet에 적용
 - 제시하는 압축 파이프 라인을 이용하면 정확도의 성능 저하 없이 서로 다른 네트워크에서 네트워크 저장 공간을 35에서 49배까지 줄일 수 있음 
 
@@ -337,15 +340,6 @@
 <br>
 
 - AlexNet은 240MB에서 6.9MB로 크기가 감소하고 이는 on-chip SRAM에 모델을 저장 가능하므로 DRAM에 저장하여 많은 에너지를 사용하는 것을 방지 할 수 있음 
-
-<br>
-
-# 수정
-- 학습은 Caffe 프레임워크로 진행
-- Pruning은 blob에 마스크를 더하여 pruning 된 연결의 업데이트를 방지함>
-- Quantization과 가중치 공유는 가중치를 저장하고 공유하는 코드북 구조와 각 layer의 기울기를 게산한 후의 group-by-index를 유지하면서 실행
-- 공유된 각 가중치들은 bucket에 떨어지는 모든 가중치들과 함께 업데이트 됨
-- Huffman coding은 학습이 필요하지 않고 fine-tuning이 끝난 후에 offline으로 실행
 
 <br>
 <br>
@@ -366,7 +360,6 @@
 
 <br>
 <br>
-
 
 ### 5.2 AlexNet on ImageNet
 - ImageNet으로 학습
