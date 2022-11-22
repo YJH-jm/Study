@@ -1,9 +1,26 @@
 ## Basic
+참고
+- https://wikidocs.net/24996
+- https://www.youtube.com/watch?v=AA621UofTUA
+
+<br>
+<br>
+
 ### 자연어 처리 (기계 번역) 개요
 - Seq2Seq는 소스 문장을 고정된 크기의 context vector로 만들어 사용하기 때문에 성능의 제한이 존재
 - 2015년 Attention 기법이 나오기 시작하면서 입력 시퀀스 전체에서 정보를 추출하는 방법
-- 2017년에 Transformer가 나온 후 자연어 관련 tast에서 RNN 기반의 방식보다는 attention 기반의 방식이 주가 됨
+- 2017년에 Transformer가 나온 후 자연어 관련 작업에서 RNN 기반의 방식보다는 attention 기반의 방식이 주가 됨
 - 그 이후에 나온 GPT, BERT는 각각 Transformer의 디코더(Decoder), 인코더 (Enocder) 구조를 활용
+
+<br>
+<br>
+
+### Seq2Seq 모델 구조
+- 입력 문장을 받는 RNN 셀을 인코더, 출력 문장을 출력하는 RNN 셀을 디코더라고 함
+- 실제로는 성능 문제로 RNN 이 아닌 LSTM 이나 GRU 셀로 구성
+- 입력 문장은 단어 토큰화를 통해 단어 단위로 쪼개짐
+- 단어 토큰은 각각 RNN 셀의 입력이 됨
+- 인코더 RNN 셀은 모든 단어를 입력 받은 뒤의 인코더 RNN 셀의 마지막 시점의 hidden state 값을 디코더에 넘겨주는데 이를 context vector라 함 
 
 <br>
 <br>
@@ -15,8 +32,6 @@
 - 매번 새로운 단어가 들어올 때마다 hidden state 값이 갱신
 - 마지막 단어가 들어왔을 때의 hidden state vector는 source 문장 전체의 정보가 들어있음  
 - 그 고정된 context vector는 디코더의 입력으로 사용
-
-
 
 <br>
 
@@ -46,10 +61,52 @@
 
 ### Seq2Seq with Attention : 디코더
 - 디코더는 매번 인코더의 모든 출력 중에서 어떤 정보가 중요한지 계산
-    
+
 
 <br>
+
+- 에너지 (Energy) 
+    - 소스 문장에서 나왔던 모든 출력값들 중에서 어떤 값과 가장 연관성이 있는지를 알기 위해 수치로 구한 것 
+
+    <br>
+
+    <p align=center><img src="./images/3/1.png"><br> 
+                    i : 현재 디코더가 처리 중인 인덱스 <br>
+                    j : 각각의 인코더 출력 인덱스</p>
+
+    <br>
+
+    - 매번 출력 단어를 만들 때마다 모든 j를 고려, 즉 인코더의 모든 출력 고려하겠다는 의미
+
+<br>
+
+- 가중치 (Weight)
+    - 에너지 값에 softmax를 취하여 확률 값 얻음
+   
+    <br>
+
+    <p align=center><img src="./images/3/2.png"></p>
+
+    <br>
+<br>
+
+- 가중치 합 (Weighted sum)
+    - 가중치 값들을 소스 문장의 각각의 hidden state와 곱하여 전부 더해준 값
+    - 디코더의 이전 hidden state와 함께 들어가는 입력
+
+
+<br>
+
+- Attention 가중치를 사용하여 각 출력이 어떤 입력 정보를 참고했는지 알 수 있음 
+
 <br>
 
 # Attention is All You Need
 ## Abstract 
+- 시퀀스 변역 모델은 복잡한 인코더와 디코더를 포함한 RNN이나 CNN모델 사용
+- 가장 좋은 성능을 내는 모델은 인코더와 디코더를 연결하는 attention 매커니즘 사용
+- 이 논문에서는 간단한 매커니즘은 **Transformer** 를 제안
+- 두 가지 기계 번역 task를 실행한 결과 다른 알고리즘보다 Transformer가 훨씬 더 좋은 성능을 보이는 것을 확인
+- 하지만 학습을 시킬 때 요구되는 시간은 현저하게 적음
+- 이 논문에서는 Transformer가 다른 작업에서도 일반화가 잘 되는 것을 확인 
+    - 데이터 양이 많고 제한된 학습 데이터를 
