@@ -123,6 +123,5 @@
 
 - Recurrent 모델은 전형적으로 입력과 출력 시퀀스의 심볼 자리를 통한 요소 계산
 
-$$ \Alpha \rightarrow \Omega $$
+$$\Alpha \rightarrow \Omega $$
 
-$ \Alpha \rightarrow  $
