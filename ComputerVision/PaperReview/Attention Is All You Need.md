@@ -109,4 +109,20 @@
 - 두 가지 기계 번역 task를 실행한 결과 다른 알고리즘보다 Transformer가 훨씬 더 좋은 성능을 보이는 것을 확인
 - 하지만 학습을 시킬 때 요구되는 시간은 현저하게 적음
 - 이 논문에서는 Transformer가 다른 작업에서도 일반화가 잘 되는 것을 확인 
-    - 데이터 양이 많고 제한된 학습 데이터를 
+    - 데이터 양이 많고 제한된 학습 데이터에 모두에서 English constituency에 성공적으로 적용됨
+
+<br>
+<br>
+
+## Introduction
+- Recurrent neural networks(RNN), long-short-term memory(LSTM), gated recurrent neural network은 특히 시퀀스 모델링과 변환 문제에 대해서 최신의 접근법을 제시
+    - 언어 모델링, 기계 번역 등
+- Recurrent 언어 모델과 인코더-디코더 구조를 벗어나기 위해 많은 시도를 함
+
+<br>
+
+- Recurrent 모델은 전형적으로 입력과 출력 시퀀스의 심볼 자리를 통한 요소 계산
+
+$ \Alpha \rightarrow \Omega $
+
+$ \Alpha \rightarrow  $
