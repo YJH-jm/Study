@@ -114,14 +114,55 @@
 <br>
 <br>
 
-## Introduction
-- Recurrent neural networks(RNN), long-short-term memory(LSTM), gated recurrent neural network은 특히 시퀀스 모델링과 변환 문제에 대해서 최신의 접근법을 제시
+## 1 Introduction
+- Recurrent neural networks(RNN), long-short-term memory(LSTM), gated recurrent neural network(GRU)은 특히 시퀀스 모델링과 변환 문제에 대해서 최신의 접근법을 제시
     - 언어 모델링, 기계 번역 등
 - Recurrent 언어 모델과 인코더-디코더 구조를 벗어나기 위해 많은 시도를 함
 
 <br>
 
-- Recurrent 모델은 전형적으로 입력과 출력 시퀀스의 심볼 자리를 통한 요소 계산
+- Recurrent 모델은 hidden state의 시퀀스 $h_{t}$를 만들기 위해서는 이전 단계의 hidden state 인 $h_{t-1}$과 $t$에서의 입력이 필요함, 즉 이전 값이 입력으로 들어감
+- 이런 순차적인 특징은 병렬화를 못하게 만듦
+- 최근의 연구는 factorizaion tricks과 conditional computation을 통해 계산의 효율을 매우 높임
+- 하지만 순차적인 계산의 근본적인 제약은 여전히 남아있음
 
-$$\Alpha \rightarrow \Omega $$
+<br>
 
+- Attention 매커니즘은 다양한 작업에 사용되는 강력한 시퀀스 모델링과 변환 모델의 필수적인 부분
+- 또한 attention은 입력,출력의 시퀀스 길이에 상관없는 모델의 종속성 모델링을 허용
+- 지금까지는 몇 가지 경우를 제외하고는 모두, recurrent 네트워크와 함께 사용됨
+
+<br>
+
+- 이 논문에서 **Transformer** 를 제안
+- 이 모델 구조는 recurrent 구조를 피하고 입력과 출력 사이의 전역적인 종속성을 알아내기 위해 attention 매커니즘을 이용
+- Transformer를 이용하여 병렬화가 명확하게 가능
+
+<br>
+<br>
+
+## 2 Background
+- Sequential 계산을 줄이기 위해 Extended Neural GPU, ByteNet, ConvS2S 등의 모델이 사용됨
+    - 이 모델 모두 convoultional neural network를 기본 블럭으로 사용
+    - 모든 입,출력 자리에서 병렬적으로 hidden representations 사용 가능 
+### 추가
+
+<br>
+
+- Self-attention (intra-attention)은 시퀀스의 representation을 계산하기 위한 하나의 시퀀스의 다른 자리들과 관련된 attention 매커니즘
+
+<br>
+
+- Recurrent attention을 기반으로 한 end-to-end 메모리 네트워크는 간단한 언어로 질문하고 답하는 언어 모델링에서 좋은 성능을 보임
+
+<br>
+
+- Transformer는 입력과 출력의 representatio을 계산하기 위해 RNN과 CNN을 사용하지 않고 온전히 self-attention만 이용 
+    
+
+<br>
+<br>
+
+## 3 Model Architecture
+- 가장 경쟁력있는 neural 시퀀스 변환 모델은 인코더-디코더의 구조를 가진 모델
+- 인코더는 입력 시퀀스
