@@ -25,7 +25,7 @@
 <br>
 <br>
 
-### Seq2Seq 모델의 한게
+### Seq2Seq 모델의 한계
 - 소스 문장을 압축하여 context vetor (문맥 벡터)에 압축
     - 병목현상이 일어나 성능 하락의 원인
     - 소스 문장의 길이와 상관없이 항상 고정된 크기의 context vector를 만들어야 하므로 성능 하락
@@ -62,7 +62,6 @@
 ### Seq2Seq with Attention : 디코더
 - 디코더는 매번 인코더의 모든 출력 중에서 어떤 정보가 중요한지 계산
 
-
 <br>
 
 - 에너지 (Energy) 
@@ -70,11 +69,13 @@
 
     <br>
 
-    <p align=center><img src="./images/3/1.png"><br> 
-                    i : 현재 디코더가 처리 중인 인덱스 <br>
-                    j : 각각의 인코더 출력 인덱스</p>
+    <p align=center>
+    <img src="./images/3/1.png"></p>
+    
+    $$i : 현재 디코더가 처리 중인 인덱스$$
+    $${j} : 각각의 인코더 출력 인덱스 $$
 
-    <br>
+    
 
     - 매번 출력 단어를 만들 때마다 모든 j를 고려, 즉 인코더의 모든 출력 고려하겠다는 의미
 
@@ -166,3 +167,112 @@
 ## 3 Model Architecture
 - 가장 경쟁력있는 neural 시퀀스 변환 모델은 인코더-디코더의 구조를 가진 모델
 - 인코더는 입력 시퀀스
+
+<br>
+<br>
+
+### 3.1 Encoder and Decoder Stacks
+
+**Encoder**
+- 6개의 동일한 layer들을 쌓아서 구성
+- 각 layer들은 2개의 sub-layer 로 구성
+    - Multi-head self-attention, simple position-wise fully connected feed-forward network
+- 각 sub-layer 주변에서 residual connection을 적용하고 sub-layer를 통과한 값들과 합쳐 layer normalize를 진행
+- Rsidual connection을 용이하게 진행하기 위해, 모델의 모든 sub-layer과 embedding layer들의 output의 차원을 ($d_{model}$) 512로 맞춤
+
+<br>
+
+**Decoder**
+- 디코더도 동일하게 6개의 동일한 layer들을 쌓아서 구성
+- 디코더에는 인코더에는 존재하지 않는 세 번째 sub-layer 존재
+- 
+- 인코더와 마찬가지로 각 sub-layer 주변에 residual connection을 적용하고, sub-layer를 통과한 값들과 합쳐 layer normalization을 진행
+- 
+
+<br>
+<br>
+
+### 3.2 Attention
+- Attention은 어떤 단어가 다른 단어들과 각각 어떤 연관성을 가지는지 구하는 것
+- 3가지 요소가 존재
+    - Query (쿼리) : 무언가를 물어보는 주체
+    - Key (키) : 물어보는 대상
+    - Value (값)
+
+
+    <br>
+
+    - "I" 라는 단어가 "I am a teacher"라는 문장의 각 단어와 어떤 연관성을 갖는지 알고싶을 때 "I"가 query, "I am a teacher"의 각 단어가 key가 됨 
+
+
+
+<p align=center><img src="./images/3/3.png" width=80%></p>
+
+
+<br>
+
+<p align=center><img src="./images/3/4.png" width=80%></p>
+
+
+<br>
+
+
+- Attention은 query와 key-value 쌍을 output에 매핑 
+    - Query, key, value 는 모두 벡터
+- output은 value들의 weighted sum으로 계산됨
+- 
+
+#### 3.2.1 Scaled Dot-Product Attention
+$$Attention(Q,K,V)=softmax(\frac{QK^{T}}{\sqrt{d_{k}}})V$$
+
+<br>
+<br>
+
+
+#### 3.2.2 Multi-Head Attention
+$$head_{i}=Attention(QW_{i}^{Q},KW_{i}^{k},VW_{i}^{V})$$
+$$MultiHead(Q,K,V)=Concat(head_{1},...,head_{h})W^{O}$$
+
+
+
+#### 3.2.3 Applications of Attention in our Model
+### 3.3 Position-wise Feed-Forward Networks
+### 3.4 Embeddings and Softmax
+- 학습된 embedding을 이용하여 input token(단어)과 output token을 $d_{model}$ 차원의 벡터로 변환
+    - 작은 차원의 연속적인 값으로 표현
+- 또한 학습된 선형변환과 softmax를 사용하여 decoder의 output을 에측된 다음 token의 확률로 바꿈
+- 이 모델에서,두 embedding layer들과 pre-softmax 선형 변환은 같은 가중치를 공유
+- Embedding layer에서는 가중치들에 $\sqrt{d_{model}}$을 곱함
+
+<br>
+<br>
+
+### 3.5 Positional Encoding
+- 논문에서 제시하는 모델은 recurrence와 convolution이 존재하지 않기 때문에 시퀀스의 순서를 알 수 없음
+- 시퀀스에서의 token의 상대적 또는 절대적 위치에 대한 정보를 제공해야 함
+- 따라서 "positional encoding"을 인코더와 디코더 스택의 하단에 추가함
+- positional encoding은 embedding과 마찬가지로 $d_{model}$ 차원을 가졌기 때문에 두 결과를 더할 수 있음 (element-wise)
+- positional encoding에는 여러 방법이 존재하나(학습되거나 고정된 방법) 이 실험에서는 sine, cosine 함수를 이용
+
+<br>
+
+$$PE_{(pos, 2i)}=sin(pos/10000^{2i/d_{model}})$$
+$$PE_{(pos, 2i+1)}=cos(pos/10000^{2i/d_{model}})$$
+$$i : 차원$$
+$$pos : 단어의 위치$$
+
+<br>
+
+- positional encoding의 각 차원은 정현파에 대응됨
+- 어떤 고정된 offset $k$에 대하여 $PE_{pose+k}$는 $PE_{pos}$의 선형 함수로 나타낼 수 있기 때문에 이 모델이 상대적 위치를 쉽게 알 수 있을 것이라고 가정
+
+<br>
+
+- 학습된 positional embedding 사용하여 실험해보았으나 두 방법의 결과가 거의 비슷
+    - Table 3, (E) 참고
+- 그럼에도 이 실험에서는 정현파를 이용한 방법을 선택했는데 그 이유는 학습하는 동안 경험한 시퀀스보다 더 긴 시퀀스를 추론 할 수 있기 때문
+
+<br>
+<br>
+
+## 4 Why Self-Attention
