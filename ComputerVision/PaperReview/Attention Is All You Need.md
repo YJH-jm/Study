@@ -199,31 +199,74 @@
     - Key (키) : 물어보는 대상
     - Value (값)
 
-
     <br>
 
     - "I" 라는 단어가 "I am a teacher"라는 문장의 각 단어와 어떤 연관성을 갖는지 알고싶을 때 "I"가 query, "I am a teacher"의 각 단어가 key가 됨 
 
-
-
-<p align=center><img src="./images/3/3.png" width=80%></p>
-
-
 <br>
 
-<p align=center><img src="./images/3/4.png" width=80%></p>
+- 논문에서 제시하는 attention 흐름
 
+    <p align=center><img src="./images/3/3.png" width=80%></p>
 
-<br>
+    <br>
 
+    <p align=center><img src="./images/3/4.png" width=80%></p>
 
-- Attention은 query와 key-value 쌍을 output에 매핑 
+    <br>
+
+- 위의 한 단어가 아닌 행렬곱을 이용
+
+    <br>
+
+    <p align=center><img src="./images/3/7.png" width=80%></p>
+
+    <br>
+
+    <p align=center><img src="./images/3/8.png" width=80%></p>
+
+    <br>
+
+- Attention은 query와 key-value 쌍을 output에 매핑한다고 볼 수 있음 
     - Query, key, value 는 모두 벡터
-- output은 value들의 weighted sum으로 계산됨
+- Attention은 value에 weighted sum 방식으로 계산이 되는데 각 value에 곱해지는 가중치들은 query와 대응되는 key의 값들을 
 - 
 
+<br>
+<br>
+
 #### 3.2.1 Scaled Dot-Product Attention
+
+<br>
+
+<p align=center><img src="./images/3/6.png" width=30%></p>
+
+<br>
+
+- 위와 같은 구조를 가지는 특정한 attention을 "Scaled Dot-Product Attention"이라 함 
+- Input은 쿼리와 $d_{k}$ 의 차원을 가지는 키, 그리고 $d_{v}$의 차원을 가지는 value들로 구성
+- Query와 모든 key들을 dot product를 진행하고 그 값들을 $\sqrt{d_{k}}$ 로 나눈 후 softmax 함수를 적용하여 각 value들에 적용할 weight들을 구함
+- 
+
+<br>
+
+- 실제로 attention을 계산을 할 때는 여러 query들에 대하여 한번에 계산하며 아래와 같은 식으로 표현 가능
+
+<br>
+
 $$Attention(Q,K,V)=softmax(\frac{QK^{T}}{\sqrt{d_{k}}})V$$
+
+<br>
+
+- 가장 흔하게 사용되는 Attention 기법 2가지는 addictive attention과 dot-product (multiplicative) attention
+- Dot-product attention은 scaling factor인 $\frac{1}{d_{k}}$ 를 제외하고는 논문에서 제시하는 알고리즘과 같음
+- Addictive attention은 하나의 hidden layer를 가진 feed-forward network를 이용하여 compatibility function을 계산
+- 두 방법은 이론적으로는 복잡도가 비슷하나 실제적으로 dot-product 방식이 더 빠르고 공간 효율이 좋음
+
+<br>
+
+- $d_{k}$가 작은 값일 떄는 두 매커니즘의 성능이 비슷했으나
+
 
 <br>
 <br>
