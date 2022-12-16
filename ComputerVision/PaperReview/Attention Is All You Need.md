@@ -230,7 +230,8 @@
 - Attention은 query와 key-value 쌍을 output에 매핑한다고 볼 수 있음 
     - Query, key, value 는 모두 벡터
 - Attention은 value에 weighted sum 방식으로 계산이 되는데 각 value에 곱해지는 가중치들은 query와 대응되는 key의 값들을 
-- 
+
+# weight = compatibility function of (Q,K)???
 
 <br>
 <br>
@@ -273,8 +274,39 @@ $$Attention(Q,K,V)=softmax(\frac{QK^{T}}{\sqrt{d_{k}}})V$$
 
 
 #### 3.2.2 Multi-Head Attention
+
+<br>
+
+<p align=center><img src="./images/3/5.png" width=50%></p>
+
+<br>
+
+
+- $d_{model}$ 차원의 key, value, query 들을 이용하여 한 번의 attention을 수행하는 것보다 key, value, query들을 $h$ 번 다른, 각각 학습된 liner projection을 이용하여 각각 $d_{k}=\frac{d_{model}}{h}$, $d_{k}$, $d_{v}$ 으로 linear projection 수행
+- 각각 다르게 projection 된 query, key, value 들에 병렬적으로 attention을 수행하고 이를 통해 $d_{v}$ 차원의 결과 values를 생성
+- 그 후 이 값들을 합치고 projection하여 최종 output을 얻음
+
+<br>
+<br>
+
+<p align=center><img src="./images/3/9.png" widht=80%></p>
+
+<br>
+
+
 $$head_{i}=Attention(QW_{i}^{Q},KW_{i}^{k},VW_{i}^{V})$$
 $$MultiHead(Q,K,V)=Concat(head_{1},...,head_{h})W^{O}$$
+
+<br>
+
+<p align=center><img src="./images/3/10.png" width=50%></p>
+
+<br>
+
+<2>
+
+<br>
+<br>
 
 
 
