@@ -296,6 +296,6 @@ $$Q : quantizer$$
 - NN의 파라미터들을 quantization 한 후 조정한는 경우도 존재
     - **QAT(Quantization Aware Training)**
         - 모델 재학습
-    - **PTA(Post-Training Quantization)**
+    - **PTQ(Post-Training Quantization)**
         - 모델 재학습 없음
 
