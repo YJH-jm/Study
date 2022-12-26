@@ -299,3 +299,117 @@ $$Q : quantizer$$
     - **PTQ(Post-Training Quantization)**
         - 모델 재학습 없음
 
+<br>
+
+<p align=center><img src="./images/4/9.png" width=50%></p>
+
+<br>
+
+**1) Quantization-Aware Training**
+- 학습된 모델이 있을 때, 양자화를 시키면 학습된 모델의 파라미터에 변화가 생길 수 있음 
+- 그러면 floating point precision으로 학습된 모델이 수렴되었을 때의 결과와 달라질 수 있음
+- 즉, floating point precision으로 최적으로 학습한 결과보다 양자화를 한 경우 성능이 떨어질 수 있음
+- 이 문제점은 양자화된 NN의 파라미터들을 재학습하며 loss를 줄여주면 됨
+- 그 중 가장 유명한 방법은 QAT(Quantization-Aware Training)
+- Floating point에서 양자화 한 모델에 forward, backward pass가 진행
+- 모델의 parameter는 각 기울기 업데이트 후에 양자화 
+- 특히 가중치 업데이트가 부동 소수점 정밀도로 수행된 후 projection을 수행하는 것이 중요
+    - 양자회된 precision으로 기울기를 계속 구하다보면 기울기가 0이 되거나 높은 error를 가지게 됨
+
+<br>
+
+
+
+- Backpropagation을 진행할 때 가장 중요한 문제는 어떻게 미분 불가능한 양자화 함수를 처리할 것인지
+    - 양자화를 거치면, 대부분의 기울기가 0을 가지게 됨
+- 이 문제를 해결하기 위해 기울기를 근사화하는 방법을 사용하는데 가장 보편적으로 사용하는 함수가 STE (Straight Through Estimator)
+- STE는 밑의 그림처럼 roudning 연산을 무시하고 identity function으로 근사화
+
+<br>
+
+<p align=center><img src="./images/4/10.png" width=50%></p>
+
+<br>
+
+- STE를 주로 사용하지만 대신하는 다른 방식 존재
+    - Stochastic neuron, combinatorial optimization, target propagation, Gumbel softmax를 이용하는 방법 등
+- Non-STE 방식
+    - 가중치를 양자화하기 위해 regularization operator 사용
+        - 미분 불가능한 quantiation 연산자 제거
+    - ProQuant
+        - 양자화 공식에서 rounding 연산자 제거하고 W-shape라는 non-smooth regularization 함수를 이용하여 가중치를 양자화
+    - AdaRound, 
+    - 등등..
+- 많은 연구들이 진행되고 있지만 많은 튜닝 과정이 필요하므로 아직까지 STE가 가장 많이 보편적으로 사용되는 방법
+
+<br>
+
+- QAT 동안 양자화 파라미터들을 효과적으로 학습하는 방법 존재
+- PACT
+    - Uniform Quantization을 하는 동안 활성화 출력의 clipping range를 학습
+- QIT
+    - Non-uniform quantization 설정을 확장하며 양자화 레벨과 스텝을 학습 가능
+- LSQ
+    - QAT를 진행하는 동안 ReLU와 같은 non-negative 활성화 함수의 scaling factor를 학습하기 위한 새로운 기울기 측정법
+- LSQ+
+    - LSQ의 아이디어를 swish, h-swish와 이 음수의 값을 만드는 활성화 함수에도 사용할 수 있도록 일반화 한 방법
+
+<br>
+
+**Summary (QAT)**
+- QAT는 STE의 근사화가 꼼꼼하게 이뤄지지 않지만 잘 작동을 함
+- 하지만 QAT의 가장 큰 단점은 NN 모델을 재학습시키는데 드는 계산 비용
+- 양자화를 적용하기 전의 정확도를 얻기 위해서는 수백번의 epoch를 반복해야 함
+- 만약 양자화 된 모델이 긴 기간동안 사용되고, 효율성과 정확도가 중요하다면 QAT를 수행하는 가치가 있지만 모든 모델이 그런 것은 아님
+
+<br>
+
+**2) Post-Training Quantization**
+- 계산 비용이 비싼 QAT 대안으로 사용할 수 있는 방법은 PTQ (Post-Training Quantization)
+- PTQ는 fine-tuning 없이 가중치를 조절하는 방법
+- PTQ의 계산에 대한 오버헤드는 아주 작거나 무시할만함
+- 재학습을 하기 위해 충분히 많은 학습 데이터가 필요한 QAT와 다르게, PTQ는 데이터가 제한되어있거나 라벨링이 되지 않은 경우에 사용 가능
+- 하지만 QAT에 비하면 낮은 정확도를 가짐
+    - 특히 low-precision으로 양자화를 진행하는 경우
+
+<br>
+
+- PTQ의 정확도를 개선하기 위하여 다양한 방법들이 제시
+    - 양자화 후 가중치의 평균과 분산의 내재된 편향을 관찰하고 편향된 값을 보정하는 방법
+    - 서로 다른 layer 또는 channel의 가중치의 범위 (활성화 출력의 범위) 등을 동일하게 만들어 양자화 오류를 줄이는 방법
+    - ACIQ
+        - 분석적으로 PTQ를 위한 최적의 clippinjg range와 channel-wise bitwidth를 설정
+        - 이 방법은 정확도가 감소하는 문제는 해결했지만, channel-wise quantization은 하드웨어에 효과적으로 적용하기 어려움
+    - OMSE
+        - 활성화에 channel-wise quantization을 제거
+        - 양자화 된 tensor값과 floating point tensor 값 사이의 L2 distance를 최적화하면서 PTQ를 수행하는 방법 제시
+    - 그 외 다양한 방법존재
+
+<br>
+
+**Summary (PTQ)**
+- PTQ는 모든 가중치과 활성화 출력에 대한 양자화 파라미터들이 재학습 없이 결정 
+- 하지만 QAT와 비교하면 낮은 정확도 획득
+
+<br>
+
+**3) Zero-shot Quantization**
+- 양자화 후 정확도가 떨어지는 것을 최소화하려면 학습 데이터 중 일부를 사용해야 함
+1. 활성화의 범위를 알아야 함 
+    - Clipping range와 scaling factor를 결정하기 위해, 즉 calibration 하기 위해 
+2. 양자화된 모델은 모델의 파라미터를 결정하고 정확도가 떨어지는 것을 막기 위해 재학습이 필요할 수 있음
+- 하지만 많은 경우 양자화를 진행하는 도중에 학습 데이터에 접근하는 것은 불가능
+    - 학습 데이터의 크기가 매우 커서 배포할 수 없거나, 보안과 사생활 문제로 독점적이거나 민감하기 때문
+- 이 문제를 해결하기 위해서 zero-shot quantization 제시
+- ZSQ는 finetuning의 여부에 따라 2단게로 나뉨
+    - **Level 1 : ZSQ + PTQ**
+        - 데이터 없음 + finetuning 안함
+    - **Level 2 : ZSQ + QAT**
+        - 데이터 없음 + finetuning 필요
+- Level 1
+    - Finetuning이 필요하지 않기 때문에 빠르고 쉽게 양자화 가능
+    - Finetuning은 보통 시간이 오래 걸리고, 적절한 hyperparameter를 찾는 과정이 필요
+- Level 2
+    - Finetuning의 과정을 거치기 때문에 더 높은 정확도를 얻을 수 있음 
+    - 
+
