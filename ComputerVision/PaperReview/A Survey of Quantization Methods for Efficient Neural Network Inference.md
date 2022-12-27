@@ -1,4 +1,25 @@
 ## Basic
+### AI acceleration
+
+<br>
+
+<p align=center><img src="./images/4/11.png" width=50%></p>
+
+<br>
+
+
+- 예전에는 학습과 이를 위한 clouding computing에 대한 연구가 주로 이루어짐
+- 2년전부터 학습시킨 모델을 적용을 잘 시키기 위한 Inference와 이를 위한 edge computing에 대한 연구가 활발하게 진행
+- Inference와 Edge computing에 초점을 맞춰 AI의 실행 속도를 가속화 시킬 것인지에 대한 연구가 AI acceleration
+- AI acceleration
+    - Compression
+    - Quantization
+    - 등등..
+
+<br>
+<br>
+
+### Floating Point Number vs. Fixed Point Number
 Fixed Point (고정 소수점)
 -  정수를 표현하는 비트와 소수를 표현하는 비트수를 미리 정하고 해당 비트만을 활용하여 실수 표현
 
@@ -41,6 +62,26 @@ Floating Point (부동 소수점)
 <p align=center><img src="./images/4/4.png" width=50%></p>
 
 <br>
+<br>
+
+### Quantization (양자화)
+- Floating point 값을 양자화된 integer 값으로 선형 맵핑하는 것
+- 보통 deep learning에서 양자화는 32bit floating point 에서 8bit integer로 맵핑하는 것을 의미 
+
+<br>
+
+<p align=center><img src="./images/4/12.png" width=50%></p>
+
+<br>
+
+- Quantization 이점
+    - Memory usage
+        - Edge device는 메모리 사이즈가 작기 때문에  
+    - Power consumption
+    - Latency
+        - AI 모델 수행 시간
+
+
 
 Dynamic Range
 -  숫자의 표현 범위를 의미
@@ -48,11 +89,10 @@ Dynamic Range
 Precision / Resolution
 - 범위 내에서 얼마나 세밀하게 숫자를 나눠서 표현하는지 
 
-
 <br>
 <br>
 
-# A A Survey of Quantization Methods for Efficient Neural Network Inference
+# A Survey of Quantization Methods for Efficient Neural Network Inference
 ## Ⅲ Basic Conceopts of Quantization
 ### A. Problem Setup and Notations
 
@@ -60,9 +100,27 @@ Precision / Resolution
 <br>
 
 ### B. Uniform Quantization
-- NN (Neural Network)의 가중치와 activation(활성화 출력)을 유한한 값으로 바꾸기 위해서 양자화 할 함수를 정의하는 것이 우선
-- 이 함수는 floating point의 실제의 값을 작은 precision 범위로 바꿔줌 
+- NN (Neural Network)의 가중치와 활성화 출력인 floating point 값을 작은 precision 범위로 맵핑시키는 함수를 정의하는 것이 우선
+- 가장 보편적인 quantization 식은 아래와 같음 
 
+<br>
+
+$$Q(r)=Int(r/S)-Z$$
+$$Q : Quantization \ operator$$
+$$r : real \ valued \ input \ (weights \ or \ activations)$$
+$$S : scaling \ factor$$
+$$X : integer \ zero \ point$$
+
+<br>
+
+- $Int$ 함수는 rounding operation을 통해 실수 값을 정수값으로 변환
+    - 가장 가까운 정수의 값으로 할당 또는 truncation, ..
+*cf*
+- 논문에 나와있지는 않지만 위의 과정을 거친 후 $Clip$ 과정이 필요한 경우도 존재
+
+<br>
+
+$$Q(r)=Clip(Int(r/S)-Z)$$
 
 <br>
 
@@ -70,17 +128,10 @@ Precision / Resolution
 
 <br>
 
-$$Q(r)=Int(r/S)-Z$$
-$$Q : Quantization \ operator$$
-$$r : real \ valued \ input$$
-$$S : real \ valued \ scaling \ factor$$
-$$X : integer \ zero \ point$$
-
-<br>
-
-- $Int$ 함수는 rounding operation을 통해 real value를 int 값으로 변환
 - 이 방법은 **uniform quantization**
-- 이 방법은 양자화 된 값 $Q(r)$에서  실수값 $r$로 값을 다시 뱐환 가능하고 이를 **dequantization** 이라 함
+    - 실수와 정수간의 맵핑을 만들 때 각 구간, 즉 양자화 레벨을 균등하게 나눔
+- 비 균등하게 나누는 방법을 **non-uniform quantization이라고 함**
+- 이 방법은 양자화 된 값 $Q(r)$에서 실수값 $r$로 값을 다시 변환 가능하고 이를 **dequantization** 이라 함
 
 <br>
 
@@ -95,7 +146,6 @@ $$\widetilde{r}=S\left (Q(r)+Z\right )$$
 
 ### C. Symmetric and Asymmetric Quantization
 - Uniform quantization의 가장 중요한 요소는 scaling factor인 $S$를 선택하는 것
-- Scaling factor는 실수 $r$을 
 
 $$S=\frac{\beta-\alpha}{2^{b}-1}$$
 $$[\alpha, \beta] : clapping \ range$$
@@ -103,7 +153,7 @@ $$b : quantization \ bit \ width$$
 
 <br>
 
-- 가장 먼저 $[\alpha, \beta]$ 의 범위를 결정해야 하는데 이 과정을 *calibration* 이라고 하기도 함
+- 가장 먼저 $[\alpha, \beta]$ 의 범위를 결정해야 하는데 이 과정을 **calibration** 이라고 하기도 함
 - $[\alpha, \beta]$은 칩이 ARM인지 Intel 계열인지에 따라 다름
     - ARM : MinMax 이용
     - Intel : Histogram 이용 
@@ -319,7 +369,6 @@ $$Q : quantizer$$
 <br>
 
 
-
 - Backpropagation을 진행할 때 가장 중요한 문제는 어떻게 미분 불가능한 양자화 함수를 처리할 것인지
     - 양자화를 거치면, 대부분의 기울기가 0을 가지게 됨
 - 이 문제를 해결하기 위해 기울기를 근사화하는 방법을 사용하는데 가장 보편적으로 사용하는 함수가 STE (Straight Through Estimator)
@@ -411,5 +460,24 @@ $$Q : quantizer$$
     - Finetuning은 보통 시간이 오래 걸리고, 적절한 hyperparameter를 찾는 과정이 필요
 - Level 2
     - Finetuning의 과정을 거치기 때문에 더 높은 정확도를 얻을 수 있음 
-    - 
+    - 하지만 이 방법은 선형 활성화 함수의 scale-equivariance 라는 특징을 기반으로 하기 때문에 비선ㄴ형 활성화 함수를 사용하는 모델에 적용하면 성능이 떨어짐
 
+
+<br>
+
+- ZSQ의 연구 방향 중 하나는 pre-trained 된 모델이 학습 할 때 사용하는 실제 데이터와 유사한 가상 데이터를 생성하는 것
+- 생성된 데이터는 calibration을 하거나 경량화 된 모델을 finetuning할 때 사용됨
+- 초기에는 가상 데이터를 생성할 때 GAN 이용
+    - 모델의 최종 output을 이용하여 데이터가 생성되므로 중간 계층의 활성화 출력의 분포와 같은 내부 통계에 대한 정보를 포함하지 못함
+    - 실제 데이터의 분포를 적절하게 만들 수 없음
+- Batch 정규화에 저장된 통계 사용하는 방법 사용
+
+<br>
+
+**Summary (ZSQ)**
+- 전체 양자화 과정에서 학습/검증 데이터를 사용하지 않고 이루어짐
+- 머신 러닝 서비스를 제공하는데 고객의 데이터에 접근할 필요 없이 배포할 때 필요
+- 학습 데이터에 대한 사용이 조안 또는 개인 정보 보호 문제 때문에 힘들 때 필요
+
+#### H. Stochastic Quantization
+-
