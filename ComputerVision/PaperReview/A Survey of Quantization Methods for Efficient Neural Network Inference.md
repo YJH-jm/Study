@@ -100,6 +100,11 @@ Precision / Resolution
 <br>
 
 ### B. Uniform Quantization
+
+<br>
+<p align=center><img src="./images/4/14.png" width=50%></p>
+<br>
+
 - NN (Neural Network)의 가중치와 활성화 출력인 floating point 값을 작은 precision 범위로 맵핑시키는 함수를 정의하는 것이 우선
 - 가장 보편적인 quantization 식은 아래와 같음 
 
@@ -115,6 +120,11 @@ $$X : integer \ zero \ point$$
 
 - $Int$ 함수는 rounding operation을 통해 실수 값을 정수값으로 변환
     - 가장 가까운 정수의 값으로 할당 또는 truncation, ..
+- $Z$는 영점(0)을 의미하는데 실수 0에 맵핑이 되는 정수의 값
+
+
+<br>
+
 *cf*
 - 논문에 나와있지는 않지만 위의 과정을 거친 후 $Clip$ 과정이 필요한 경우도 존재
 
@@ -139,7 +149,7 @@ $$\widetilde{r}=S\left (Q(r)+Z\right )$$
 
 <br>
 
-- $\widetilde{r}은$ rounding operation 때문에 $r$과 같지 않을 수도 있음
+- $\widetilde{r}$ 은 rounding operation 때문에 $r$과 같지 않을 수도 있음
 
 <br>
 <br>
@@ -147,23 +157,52 @@ $$\widetilde{r}=S\left (Q(r)+Z\right )$$
 ### C. Symmetric and Asymmetric Quantization
 - Uniform quantization의 가장 중요한 요소는 scaling factor인 $S$를 선택하는 것
 
+<br>
+
 $$S=\frac{\beta-\alpha}{2^{b}-1}$$
 $$[\alpha, \beta] : clapping \ range$$
 $$b : quantization \ bit \ width$$
 
 <br>
 
+
+$$Z=-round(\frac{\alpha}{S})-2^{b-1}$$
+
+<br>
+
 - 가장 먼저 $[\alpha, \beta]$ 의 범위를 결정해야 하는데 이 과정을 **calibration** 이라고 하기도 함
+
+<br>
+
 - $[\alpha, \beta]$은 칩이 ARM인지 Intel 계열인지에 따라 다름
     - ARM : MinMax 이용
     - Intel : Histogram 이용 
 - MinMax에서 $[\alpha, \beta]=[r_{min}, r_{max}]$ 이고 이는 **asymmetric quantization** 영역
     - **Asymmetric quantization**는 $-\alpha\neq\beta$ 인 경우
-    - **Symmetric quantization**은 $\alpha=\beta$ 인 경우
+    - **Symmetric quantization**은 $-\alpha=\beta$ 인 경우
 
 
 <br>
 <p align=center><img src="./images/4/6.png" width=50%></p>
+<br>
+
+- MinMax 에시
+    - FP32 -> INT8(unsigned)로 변환
+
+    <br>
+
+    <p align=center><img src="./images/4/13.png" width=50%></p>
+
+    <br>
+
+    - Min = -4.75, Max = 4.67
+
+    $$S=\frac{\beta-\alpha}{2^{b}-1}=\frac{4.67-(-4.75)}{256-1}=\frac{9.42}{255}=0.037$$
+
+    $$Z=-round(\frac{\alpha}{S})-2^{b-1}=-round(\frac{-4.75}{0.037})-2^{7}=-round(-128.38)-128=128-128=0$$
+
+    $$Q(-3.57)=Int(-3.57/0.037)-0=-96$$
+
 <br>
 
 - MinMax를 이용하여 symmetric quantization 적용 가능
@@ -196,7 +235,6 @@ $$Q(r)=Int(\frac{r}{S})$$
     - $Z=0$이 되어서 추론하는 동동안 계산 비용이 줄어듦
     - 더 직관적으로 적용이 가능
 
-
 <br>
 
 - MinMax를 이용하여 symmetric, asymmetric quantization을 진행하는 것은 매우 많이 사용하는 방법
@@ -206,13 +244,12 @@ $$Q(r)=Int(\frac{r}{S})$$
     - 즉, 가장 큰 수 대신 i번째로 큰/작은 수를 $\beta, \alpha$ 로 사용 
 - 또는 실수 값과 양자화된 값 사이의 information loss 등의 KL divergence를 최소화하는 $\alpha$와 $\beta$를 선택하는 방법 이용
 
-<br>
-
 **Summary (Symmetric vs Asymmetric Quantization)**
 - Symmetric quantization은 symmetric range를 사용하여 clipping 분할
 - $Z=0$ 이기 때문에 쉽게 계산과 적용 가능
 - 범위가 왜곡되거나 symmetric 하지 않은 경우에서는 차선의 선택
 - 이런 경우에는 asymmetric quantization 사용
+
 
 <br>
 <br>
