@@ -140,7 +140,7 @@ $$Q(r)=Clip(Int(r/S)-Z)$$
 
 - 이 방법은 **uniform quantization**
     - 실수와 정수간의 맵핑을 만들 때 각 구간, 즉 양자화 레벨을 균등하게 나눔
-- 비 균등하게 나누는 방법을 **non-uniform quantization이라고 함**
+- 비 균등하게 나누는 방법을 **non-uniform quantization**이라고 함
 - 이 방법은 양자화 된 값 $Q(r)$에서 실수값 $r$로 값을 다시 변환 가능하고 이를 **dequantization** 이라 함
 
 <br>
@@ -165,7 +165,6 @@ $$b : quantization \ bit \ width$$
 
 <br>
 
-
 $$Z=-round(\frac{\alpha}{S})-2^{b-1}$$
 
 <br>
@@ -187,7 +186,7 @@ $$Z=-round(\frac{\alpha}{S})-2^{b-1}$$
 <br>
 
 - MinMax 에시
-    - FP32 -> INT8(unsigned)로 변환
+    - FP32 -> INT8로 변환
 
     <br>
 
@@ -232,7 +231,7 @@ $$Q(r)=Int(\frac{r}{S})$$
 <br>
 
 - Symmetric quantization가 실제로 더 많이 사용됨
-    - $Z=0$이 되어서 추론하는 동동안 계산 비용이 줄어듦
+    - $Z=0$이 되어서 추론하는 동안 계산 비용이 줄어듦
     - 더 직관적으로 적용이 가능
 
 <br>
@@ -244,10 +243,12 @@ $$Q(r)=Int(\frac{r}{S})$$
     - 즉, 가장 큰 수 대신 i번째로 큰/작은 수를 $\beta, \alpha$ 로 사용 
 - 또는 실수 값과 양자화된 값 사이의 information loss 등의 KL divergence를 최소화하는 $\alpha$와 $\beta$를 선택하는 방법 이용
 
+<br>
+
 **Summary (Symmetric vs Asymmetric Quantization)**
 - Symmetric quantization은 symmetric range를 사용하여 clipping 분할
 - $Z=0$ 이기 때문에 쉽게 계산과 적용 가능
-- 범위가 왜곡되거나 symmetric 하지 않은 경우에서는 차선의 선택
+- 범위가 왜곡되거나 symmetric 하지 않은 경우에서는 좋은 성능을 내지 못함
 - 이런 경우에는 asymmetric quantization 사용
 
 
@@ -255,12 +256,22 @@ $$Q(r)=Int(\frac{r}{S})$$
 <br>
 
 ### D. Range Calibration Algorithms : Static vs Dynamic Quantization
-- Clipping range인 $[\alpha, \beta]$ 을 결정하는 다른 calibration 방법들에 대해서 이야기를 함
 - Quantization 방법을 나누는 다른 방법은 **언제** clipping range를 결정하는지
     - **Static quantization**
+        - 모델의 가중치와 활성화 출력 모두 양자화 사전에 진행
+        - 즉, clipping range가 사전에 미리 계산이 되어있고 추론 시에 고정된 값으로 사용되는 방법
+        - 샘플 입력 데이터를 준비하여 clipping range를 정함
     - **Dynamic quantization**
+        - 모델의 가중치값들은 pretrained 되어 정해진 값
+        - 모델의 가중치에 대해서만 양자화 진행
+        - 활성화 출력은 추론할 때 동적으로 양자화
+            - 활성화 출력은 메모리에 32bit floating point로 read, write
+            - 추론할 때
 - 이 range는 가중치에 대해서는 정적으로 계산이 되고 파라미터들은 추론하는 동안 보통 고정됨
-- 아...모르겠다...ㅠㅠ
+
+<br>
+
+
 
 <br>
 
@@ -302,7 +313,7 @@ $$Q(r)=Int(\frac{r}{S})$$
 <br>
 
 #### a) Layerwise Quantization
-- 한 layer의 모든 convolution filter들의 가중치를 고려하여 cliiping range를 고려
+- 한 layer의 모든 convolution filter들의 가중치를 고려하여 clipping range를 고려
 - 한 layer의 모든 filter들에 같은 clipping range 적용
 - 이 방법은 적용하기에는 매우 쉽지만, 각 filter들의 분포가 다양하기 때문에 정확도가 높지 않음
 - 한 convolution filter가 상대적으로 작은 범위의 파라미터를 가진다면, quantization resolution을 손실 할 수 있음 (다른 filter는 상대적으로 큰 값을 가짐)
