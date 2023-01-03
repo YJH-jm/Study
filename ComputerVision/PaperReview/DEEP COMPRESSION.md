@@ -217,10 +217,12 @@
 - 가중치는 같은 layer에서만 공유되며 layer들끼리 공유하지 않음
 
 <br>
-<p align=center><img src="./images/2/9.png"></p>
+
+$$\underset{C}{argmin}\sum_{i=1}^{k}\sum_{w\in c_{i}}{\left| w-c_{i}\right|}$$
+
 <br>
 
-- n개의 가중치들 <img src="./images/2/10.png"> 을 k개의 클러스터 <img src="./images/2/11.png"> 로 분류
+- n개의 가중치들 $W=\left\{w_{1},w_{2}, ..., w_{n} \right\}$ 을 k개의 클러스터 $C=\left\{c_{1},c_{2}, ..., c_{k} \right\}$ 로 분류
 
 <br>
 <br>
@@ -329,6 +331,7 @@
 - 만약 편향되어있지 않고 uniform하게 존재했다면 허프만 코딩을 이용해도 비트수를 줄이기 힘듦
 - 위의 분포처럼 편향되게 존재한다면 정확도의 손실없이 압축 가능
 - Huffman coding은 학습이 필요하지 않고 fine-tuning이 끝난 후에 offline으로 실행
+
 <br>
 <br>
 
