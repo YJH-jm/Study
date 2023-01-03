@@ -222,7 +222,7 @@ $$\underset{C}{argmin}\sum_{i=1}^{k}\sum_{w\in c_{i}}{\left| w-c_{i}\right|}$$
 
 <br>
 
-- n개의 가중치들 $W=\left\{w_{1},w_{2}, ..., w_{n} \right\}$ 을 k개의 클러스터 $C=\left\{c_{1},c_{2}, ..., c_{k} \right\}$ 로 분류
+- n개의 가중치들 $W=\left\{ w_{1},w_{2}, ..., w_{n} \right\}$ 을 k개의 클러스터 $C=\left\{ c_{1},c_{2}, ..., c_{k} \right\}$ 로 분류
 
 <br>
 <br>
