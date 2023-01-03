@@ -125,7 +125,7 @@
 <br>
 <br>
 
-- 이 논문에서는 GCN 기반의 방식보다 경쟁력있는 새로운 프레임워크인 **PoseConv3D** 제시
+- 이 논문에서는 GCN 기반의 방식보다 경쟁력 있는 새로운 프레임워크인 **PoseConv3D** 제시
 
 
 - PoseConv3D는 2D pose estimator에서 얻은 2D pose를 input으로 사용
@@ -251,7 +251,7 @@
 <br>
 
 <p align=center>
-<img src="https://latex.codecogs.com/svg.image?J_{kij}=e^{-\frac{{(i-x_{k})}^2&plus;{(j-y_{k})}^2}{2*&space;{\sigma&space;}^2}*c_{k}" title="https://latex.codecogs.com/svg.image?J_{kij}=e^{-\frac{{(i-x_{k})}^2+{(j-y_{k})}^2}{2* {\sigma }^2}*c_{k}" /></p>
+<img src="https://latex.codecogs.com/png.image?\dpi{110}J_{kij}=e^{-\frac{{(i-x_{k})}^2&plus;{(j-y_{k})}^2}{2*&space;{\sigma&space;}^2}}*c_{k}" title="https://latex.codecogs.com/png.image?\dpi{110}J_{kij}=e^{-\frac{{(i-x_{k})}^2&plus;{(j-y_{k})}^2}{2*&space;{\sigma&space;}^2}}*c_{k}" /></p>
 
 <p align=center>
 <img src="https://latex.codecogs.com/svg.image?\sigma" title="https://latex.codecogs.com/svg.image?\sigma" />&nbsp; : 가우시안 맵의 분포를 조절 <br>
@@ -481,7 +481,7 @@
 
 ### 4.3 Multi-Modality Fusion with RGBPose-Conv3D
 
-- 앞에서 계속 언급했던 것 처럼 PoseConv3D는 Early-stage feature fusion을 이용하여 다른 modality들과 잘 결합할 수 있음
+- 앞에서 계속 언급했던 것처럼 PoseConv3D는 Early-stage feature fusion을 이용하여 다른 modality들과 잘 결합할 수 있음
 
 <br>
 
@@ -553,7 +553,7 @@
 
 ## 4.5 Ablation on Heatmap Porcessing
 **Subjects-centered Cropping** <br>
-- 데이터에서 사람의 위치와 사이즈는 매우 다양하기 때문에 가능한 작은 size의 H x W의 크기로 행동을 알고 싶은 대상의 정보를 저장하는것이 중요
+- 데이터에서 사람의 위치와 사이즈는 매우 다양하기 때문에 가능한 작은 size의 H x W의 크기로 행동을 알고 싶은 대상의 정보를 저장하는 것이 중요
 - 이를 알기 위해 같은 FINE-GTM dataset을 이용하여 Input size (32x56x56)로 하여 실험 진행
 - 이를 적용하여 실험한 결과 적용하지 않았을 때보다 Mean-Top1 이 **1% (91.7% to 92.7%)** 상승
 
@@ -586,10 +586,10 @@
 
 **Pseudo Heatmaps for Joints and Limbs**
 - GCN 기반의 방식은 recognition 성능을 올리기 위해서 multiple streams(joint, bone, ect. )의 결과를 ensembple
-- 이 방식은 PoseConv3D에서도 적용가능
+- 이 방식은 PoseConv3D에서도 적용 가능
 - 이 실험에서 저장한 (x, y, c) 를 이용하여 joint heatmap과 limb heatmap 생성 가능 
 - 3D-CNN의 input으로 joint heatmap, limb heatmap 둘 다 좋음
-- Joint-PoseConv3D의 결과와 Limb-PoseConv3D의 결과를 ensemple을 하면 성능 향상 가능
+- Joint-PoseConv3D의 결과와 Limb-PoseConv3D의 결과를 ensemble을 하면 성능 향상 가능
 
 <br>
 <br>
@@ -708,7 +708,7 @@
 - ResNet 마지막 두 stage의 layer들을 2D에서 3D로 변환
 - SlowOnly를 skeleton-based action recognition 방식으로 바꾸기 위해서, 기존의 처음의 stage에서 네트워크의 channel-width를 반으로 줄임 (64->32)
 - Pose-SlowOnly-wd (with channel-width 64) 와 Pose-SlowOnly-HR (2x 큰 input, deeper network)
-- 더 무거운 backbone을 사용한다고해도 성능이 향상되지 않음
+- 더 무거운 backbone을 사용한다고 해도 성능이 향상되지 않음
 
 <br>
 
@@ -899,6 +899,6 @@
 
 <br>
 
-<p align=cetner><img src="./images/33.png" width=50%></p>
+<p align=center><img src="./images/33.png" width=50%></p>
 
 <br>
