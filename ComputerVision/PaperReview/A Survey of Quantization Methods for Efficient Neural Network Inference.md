@@ -509,7 +509,7 @@ $$Q : quantizer$$
     - Finetuning은 보통 시간이 오래 걸리고, 적절한 hyperparameter를 찾는 과정이 필요
 - Level 2
     - Finetuning의 과정을 거치기 때문에 더 높은 정확도를 얻을 수 있음 
-    - 하지만 이 방법은 선형 활성화 함수의 scale-equivariance 라는 특징을 기반으로 하기 때문에 비선ㄴ형 활성화 함수를 사용하는 모델에 적용하면 성능이 떨어짐
+    - 하지만 이 방법은 선형 활성화 함수의 scale-equivariance 라는 특징을 기반으로 하기 때문에 비선형 활성화 함수를 사용하는 모델에 적용하면 성능이 떨어짐
 
 
 <br>
@@ -533,10 +533,12 @@ $$Q : quantizer$$
 
 <br>
 
-$$Int(x)=\left\{\begin{matrix}
+$$
+Int(x)=\left\{\begin{matrix}
  \left \lfloor x\right \rfloor \ \ \  with \ probability \ \ \left \lceil x\right \rceil-x
  \\ \left \lceil x\right \rceil  \ \ \  with \ probability \ \ x-\left \lfloor x \right \rfloor
-\end{matrix}\right.$$
+\end{matrix}\right.
+$$
 
 <br>
 
@@ -544,10 +546,12 @@ $$Int(x)=\left\{\begin{matrix}
 
 <br>
 
-$$Binary(x)=\left\{\begin{matrix}
+$$
+Binary(x)=\left\{\begin{matrix}
  -1 \ \ \  with \ probability \ \ 1-\sigma(x)
  \\ +1  \ \ \  with \ probability \ \ \sigma(x)
-\end{matrix}\right.$$
+\end{matrix}\right.
+$$
 
 <br>
 
