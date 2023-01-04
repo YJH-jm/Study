@@ -362,9 +362,13 @@ $$Q(r)=Int(\frac{r}{S})$$
 <br>
 
 $$Q(r)=X_{i}, \ \  if \ r \in [\Delta_{i}, \Delta_{i+1})$$
+
 $$r : 실수$$
+
 $$X_{i} : discrete\ quantization \ level$$
+
 $$\Delta_{i} : quantization \ steps$$
+
 $$Q : quantizer$$
 
 <br>
