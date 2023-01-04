@@ -65,7 +65,7 @@ Floating Point (부동 소수점)
 <br>
 
 ### Quantization (양자화)
-- Floating point 값을 양자화된 integer 값으로 선형 맵핑하는 것
+- 양자화 기법은 32bit floating point 기반의 학습 파라미터들을 이보다 낮은 비트 폭(비트 너비, 비트 수)로 표현하기 위해 사용
 - 보통 deep learning에서 양자화는 32bit floating point 에서 8bit integer로 맵핑하는 것을 의미 
 
 <br>
@@ -74,13 +74,8 @@ Floating Point (부동 소수점)
 
 <br>
 
-- Quantization 이점
-    - Memory usage
-        - Edge device는 메모리 사이즈가 작기 때문에  
-    - Power consumption
-    - Latency
-        - AI 모델 수행 시간
-
+- 양자화를 수행하는 대상은 모델의 가중치(weight), 활성화 출력(activation), 그리고 기울기(gradient) 모두가 해당 가능
+- 기울기의 경우 분포가 매우 극단적일 수 있고 양자화 오류로 인해 학습 중 파라미터의 값들이 수렴이 안되는 문제로 양자화 대상으로 크게 고려되고 있지는 않음 
 
 
 Dynamic Range
@@ -160,7 +155,9 @@ $$\widetilde{r}=S\left (Q(r)+Z\right )$$
 <br>
 
 $$S=\frac{\beta-\alpha}{2^{b}-1}$$
-$$[\alpha, \beta] : clapping \ range$$
+
+$$[\alpha, \beta] : clipping \ range$$
+
 $$b : quantization \ bit \ width$$
 
 <br>
