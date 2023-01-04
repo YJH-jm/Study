@@ -119,7 +119,7 @@ $$X : integer \ zero \ point$$
 <br>
 
 - $Int$ 함수는 rounding operation을 통해 실수 값을 정수값으로 변환
-    - 가장 가까운 정수의 값으로 할당 또는 truncation, ..
+    - 가장 가까운 정수의 값으로 할당 또는 truncation, ... 
 - $Z$는 영점(0)을 의미하는데 실수 0에 맵핑이 되는 정수의 값
 
 
@@ -528,4 +528,302 @@ $$Q : quantizer$$
 - 학습 데이터에 대한 사용이 조안 또는 개인 정보 보호 문제 때문에 힘들 때 필요
 
 #### H. Stochastic Quantization
--
+- 가중치의 변화가 아주 작으면 가중치를 업데이트 시키는 경우 rounding 연산 때문에 가중치가 변하지 않는 현상 발생 
+
+<br>
+
+$$Int(x)=\left\{\begin{matrix}
+ \left \lfloor x\right \rfloor \ \ \  with \ probability \ \ \left \lceil x\right \rceil-x
+ \\ \left \lceil x\right \rceil  \ \ \  with \ probability \ \ x-\left \lfloor x \right \rfloor
+\end{matrix}\right.$$
+
+<br>
+
+- $Int$ 연산자를 위와 같이 정의한다면 binary quantization에서는 사용 할 수 없음 
+
+<br>
+
+$$Binary(x)=\left\{\begin{matrix}
+ -1 \ \ \  with \ probability \ \ 1-\sigma(x)
+ \\ +1  \ \ \  with \ probability \ \ \sigma(x)
+\end{matrix}\right.$$
+
+<br>
+
+- 최근 QuantNoise라는 새로운 방법도 적용 
+
+<br>
+
+## Ⅳ Advanced Concept : Quantization below 8 bits 
+### A. Simulated and Integer-only Quantization
+- 딥러닝 양자화에는 크게 2가지 접근법 존재
+    - **Simulated quantization (fake quantization)**
+    - **Integer-only quantization (fixed-point quantization)**
+
+<br>
+<p align=center><img src="./images/4/15.png" width=70%></p>
+<br>
+
+- Simulated quantization
+    - 양자화 된 모델의 파라미터는 low-precision으로 저장이 되지만 연산 (matrix multiplication, convolution) 은 floating-point으로 수행
+    - 양자화 된 파라미터들은 floating-point로 연산하기 전 역양자화 과정이 필요
+    - Simulated quantization을 이용해서 빠르고 효과적인 low-precision의 장점을 충분히 이용할 수 없음
+- Integer-only quantization
+    - 모든 연산은 low-precision 정수로 수행
+    - 어떤 파라미터와 활성화 출력도 역양자화 할 필요 없음
+
+<br>
+<p align=center><img src="./images/4/16.png" width=70%></p>
+<br>
+
+- 성능이 좋은 integer-only quantization은 batch normalize를 그 전의 layer와 fusion 시킴
+    - integer-only 연산의 batch normalization을 이용한 resiaul network 학습을 위해 제시
+
+<br>
+
+*cf*
+- Model fusion
+    - 모델의 각 기능을 수행하는 layer를 하나로 합치는 과정 
+    - (Conv, BatchNorm), (Conv, ReLU), (BatchNorm, Conv, ReLU) 등의 fusion 존재
+
+    <br>
+    <p align=center><img src="./images/4/17.png" width=40%></p>
+    <br>
+
+<br>
+
+- Dyadic quantization 
+    - inter-only quantization의 종류
+    - Scaling factor가 2의 거듭제곱으로 구성
+    - Dyadic rational 구성
+        - 분자가 정수, 분모가 2의 거듭 제곱으로 구성
+    - 그 결과 나눗셈없이 정수 덧셈, 곱셈 그리고 비트 시프트 연산으로만 모든 계산 수행
+
+<br>
+
+**Summary (Simulated vs Integer-only Quantization)**
+- 일반적으로 integer-only와 dyadic quantization이 simulated/fake quantization 보다 훨씬 이상적
+    - Integer-only quantization은 lower precision을 연산에 사용하고 fake quantization은 연산을 실수로 수행
+- Fake quantization은 연산에 국한된 문제보다 추천 시스템 같이 대역폭에 국한된 문제에 대 효과가 좋음 
+    - 이 문제의 병목현상은 메모리 공간과 메모리에서 파라미터들을 로드하는 비용
+
+<br>
+<br>
+
+### B. Mixed-Precision Quantization
+- Lower precision 양자화를 하면 하드웨어 성능이 향상
+- 모델을 균일하게 매우 작은 bit로 양자화하면 정확도가 매우 떨어짐
+- 이를 해결하기 위해 mixed-precision quantization 사용 
+
+<br>
+
+- 각 layer가 다른 수의 bit precision으로 양자화
+
+<br>
+<p align=center><img src="./images/4/18.png" width=70%></p>
+<br>
+
+- 이 방법은 비트 셋팅을 위한 탐색 공간이 layer가 증가할 때마다 기하급수적으로 증가한다는 문제
+
+<br>
+
+- Mixed-precision quantization의 각 layer의 비트 수를 정하는 것은 탐색 문제
+    - 다양한 조합에 대한 탐색이 필요
+- Reinforcement learning, NAS(Neural Architecture Search) 등의 방법 이용
+- 이런 탐색적인 방법은 계산량이 너무 많고, hyper-parameter의 값에 영향을 크게 받음
+
+<br>
+
+- 다른 방식은 주기적인 함수 정규화을 이용하여 mixed-precision 모델 학습 
+    - 각 layer 별 비트 폭을 학습하는 동안 각 모델의 layer와 정확도를 관점으로 한 다양한 중요도를 자동으로 구별
+
+<br>
+
+- 위의 두 방식과 다른 HAWQ 존재
+    - 2차 미분 연산자를 이용하여 양자화가 각 layer에 미치는 민감도를 측정할 수 있고 이를 바탕으로 비트 폭 결정
+
+<br>
+<br>
+
+**Summary (Mixed-precision Quantization)**
+- Mixed-precision quantization은 low-precision에 대하여 효과적이고 하드웨어 효율적
+- NN의 각 layer들은 양자화에 대하여 민감한지 민감하지 않은지 그룹화하고 이를 기준으로 각 layer를 양자화 할 bit 수 결정
+- 정확도의 감소를 최소화 가능, 적은 bit 수를 사용하여 메모리 저장 공간과 속도에 대한 이점도 획득 가능
+
+<br>
+<br>
+
+### C. Hardware Aware Quantization
+- 양자화의 목표 중 하나는 추론 실행속도를 빠르게 하는 것 
+- 모든 하드웨어가 양자화 된 layer/연산에 대하여 똑같이 속도를 증가시켜주는 것은 아님
+- 사실 양자화는 하드웨어 의존적
+
+<br>
+
+- 최적의 양자화를 하기 위해서는 하드웨어 요소들도 고려해야하고 실제로 하드웨어에서 실험해보는 실증적인 연구 필요
+
+
+<br>
+<br>
+
+### D. Distillation-Assisted Quantization
+- 양자화 된 모델의 정확도를 높이기 위해 model distillation 이용
+- QAT를 할 때 적용
+
+<br>
+
+- Knowledge Distillation (지식 증류 기법)
+    - 학습이 잘 된 큰 모델의 예측은 정답을 매우 잘 맞추면서 클래스 간의 관계를 잘 설명
+        - MNIST 데이터셋에서 2가 정답일 때 3과 7 또한 적지 않은 확률로 나오는데 이는 2, 3, 7이 서로 관련이 크다는 것을 의미
+        - 즉, 학습이 잘 된 모델의 결과를 사용하는 것은 의미 있고 그렇게 학습하는 것을 Knowledge Distillation
+    - 즉, 딥러닝에서 큰 모델 (Teacher)로 부터 증류한 지식을 작은 모델 (Student) 네트워크로 transfer 하는 과정
+
+    <br>
+
+- 정답 label
+    - 개 이미지 label
+
+<br>
+<p align=center><img src="./images/4/19.png" width=50%></p>
+<br>
+
+- 예측 값에 softmax 함수를 취한 label
+    
+    <br>
+
+    $$p_{i}=\frac{exp{z_{i}}}{\sum_{j}{exp{z_{j}}}}$$ 
+
+
+    <br>
+    <p align=center><img src="./images/4/20.png" width=50%></p>
+    <br>
+
+    - 모델에 개의 이미지를 넣었을 때 나오는 출력값
+    - 가장 높은 확률로 개라고 예측
+    - 개를 제외한 고양이와 소, 차 등의 확률을 보면 이 이미지는 개이지만 고양이과 가장 유사하고 차와는 가장 유사하지 않음
+    - 하지만 값이 너무 작아 모델에 반영하게 쉽지 않음 
+
+<br>
+
+- 출력값 분포를 soft 하게 만드는 경우
+    - 위의 출력값을 soft하게 만들면 이 값들이 모델이 가진 지식
+    
+    <br>
+
+    $$p_{i}=\frac{exp{\frac{z_{i}}{T}}}{\sum_{j}{exp{\frac{z_{j}}{T}}}}$$ 
+
+    <br>
+
+    <p align=center><img src="./images/4/21.png" width=50%></p>
+
+    <br>
+
+    - 기존의 softmax와 다른 점은 $T$ 라는 값
+    - $T$ 는 온도라는 hyper-parameter
+        - 이 값이 커지면 값이 soft 해지고, 작아지면 값이 hard 해짐
+
+- 학습
+    - Teacher 모델을 학습 한 후 Student 모델 학습
+
+    <br>
+    <p align=center><img src="./images/4/22.png" width=70%></p>
+    <br>
+
+    $$L=\alpha H(y,\sigma(z_{s}))+\beta H(\sigma(z_{t},T),\sigma(z_{s},T))$$
+    $$\alpha, \beta: hyper-parameter$$
+    $$y:ground\ truth\ class\ label$$
+    $$H:cross-entropy\ loss\ function$$
+    $$z_{s},z_{t}:result from student/teacher model$$
+    $$\sigma:softmax$$
+    $$T: temperature$$
+
+
+<br>
+<br>
+
+
+### E. Extreme Quantization
+- Binarization(이진화)은 1bit로 양자화하여 최대 32배 메모리 사용을 줄이는 방법 
+- Binary(1 bit), ternary(2 bit)로 양자화하게되면 계산이 효율적
+- 하지만 단순하게 1bit로 이진화하는 것은 정확도의 감소가 큼
+
+<br>
+
+- 이를 해결하기 위해 다양한 방법이 제시됨
+- BinaryConnect
+    - 가중치의 값을 {-1, +1} 값으로 제한시키는 방법
+    - Forward 시, 가중치 값이 0이상이면 +1 그 미만이면 1로 이진화 수행
+    - Backward 시, 미분 가능하지 않으므로 STE로 근사화 시켜 계산 
+- BNN (Binarized NN)
+    - 가중치 뿐만이 아니라 활성화 출력 모두 이진화하는 방법
+    - 모델 크기의 축소뿐만이 아니라 행렬 곱셈 연산을 비트열 연산으로 대체할 수 있는 이점 존재  
+        - 이 때의 비트열 연산은 XNOR 연산과 bitcount 연산
+        - 두 비트열에 대한 XNOR 연산 후 1의 개수를 계산하는 것으로 이진화된 두 비트 벡터에 대한 행렬 곱셈 연산이 가능
+- BWN (Binary Weight Network), XOR-Net
+    - Scale factor ($\alpha$) 를 도입하여 정확도 손실 개선
+    - {-1, 1} 대신 {$-\alpha, \alpha$} 를 이용
+    - $\alpha$ 의 값은 실제 실수값의 가중치와 이진화된 가중치의 차이를 가장 작게 하는 값으로 함
+
+    <br>
+
+    $$\alpha, B=argmin{||W-\alpha B||}^2$$
+    $$W\approx \alpha B $$
+
+<br>
+
+- 이진화 기법으로 양자화를 수행하는데 많은 가중치의 값들이 0임을 확인
+- 가중치와 활성화 출력의 값을 {-1, 0, 1}로 제한하는 ternarization (삼진화) 제시
+- 이진화와 마친가지로 추론 속도를 급격하게 줄이고 계산의 비용도 줄임
+- TBN (Ternary-Binary Netwrok)
+    - 네트워크의 가중치는 이진화를 하고 활성화 출력은 삼진화를 진행하여 정확도와 계산 효율이 가장 최적이 되도록 함
+
+<br>
+
+- 단순하게 이진화와 삼진화를 진행하는 것은 정확도가 심각하게 떨어질 수 있으며, 복잡한 분류 문제에는 적용하기 어려움
+- 정확도가 떨어지는 문제를 해결하기 위한 여러 갈래의 방법 존재
+
+<br>
+
+#### a) Quantization Error Minimization
+- 실제 값과 양자화된 값 사이의 양자화 오류를 줄이는 방법
+- HORQ, ABC-Net
+    - 실제 가중치 값을 표현하기 위해 하나가 아닌 여러개의 이진화 값들을 선형으로 연결
+
+    <br>
+
+    $$W\approx \alpha_{1} B_{1}+...+ \alpha_{M} B_{M}$$
+
+    <br>
+
+ 
+#### b) Improved Loss Function
+- 손실 함수를 선택하는 것
+- 이진/삼진화에 대한 영향을 손실에 반영 
+
+<br>
+
+#### c) Improved Training Model
+- BNN+
+    - STE 문제를 해결하고 이를 근사화 하는방법
+- Bi-Real Net
+    - 활성화 함수의 종류를 바꿈
+    - STE를 개선하여 가중치 미분 연산 시에 실제 가중치의 크기까지 고려
+- DoReFa-Net
+    - 기울기도 양자화하야 학습 속도를 개선하는 방법
+
+<br>
+
+**Summary (Extreme Quantization)**
+- 적은 bit 수로 양자화하는 것은 매우 중요하고 유망한 연구
+- 하지만 존재하는 방법들은 하이퍼 파라미터의 조합의 값을 잘 선택하지 않으면 정확도가 떨어지는 단점 존재
+- 하지만 정확도가 많이 중요한 요소가 아니라면 적용 가능 
+
+
+<br>
+<br>
+
+### F. Vector Quantization
+- 가중치를 k-means clustering 을 활용하여 몇 개의 중심점 (centroids)로 압축하는 방법
+- Pruning과 huffman coding을 이용하여 모델 사이즈를 추가로 많이 압축 가능
+    - Deep Compression 논문 참고
+
