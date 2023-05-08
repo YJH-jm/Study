@@ -5,6 +5,100 @@
 <br>
 <br>
 
+## Background
+논문을 더 쉽게 이해하기 위한 기본 지식
+
+### Shape parameter
+
+<br>
+
+<img src="./images/3/1.png" width=40%>
+
+<br>
+
+
+- 10개의 실수값 (PCA coefficients)로 구성된 shape vector
+- 각 실수값은 신장(tall/short) 축과 같은 특정 축 방향에서 object의 팽창, 수축의 정도로 해석 가능
+
+<br>
+<br>
+
+### Pose parameter
+
+<br>
+
+<img src="./images/3/2.png" width=40%>
+
+<br>
+
+- 24x3 실수값으로 구성된 pose vector로, 각 joint parameter에 대응하는 relative rotation을 보존 
+- 각 rotation은 axis-angle rotation representation에서 임의의 3차원 벡터로 인코딩 
+
+<br>
+<br>
+
+
+## 3. Model Formulation
+- SCAPE와 같이 identity-dependent shape와 non-rigid pose dependent shape
+- SCAPE와 다르게 corrective blend shape를 사용한 vertex 기반의 skinning approach
+- **Single blend shape** 는 vertex offset들을 합친 벡터를 의미
+- Artist가 만든 mesh는 **Vertex=6890(N)** , **Joint=23(K)** 로 구성
+
+<br>
+
+<p align=center><img src="./images/3/3.png" width=20%></p>
+
+<br>
+
+- $\bar{T}$ 
+    - 평균 template shape은 zero pose ($ \vec{\theta^{*}}$)에서의 N개의 vertex의 concat
+        - 즉, $\beta$ 에서 나온 평균 체형을 가진 사람의 T-pose를 의미
+    - 색은 Skinning weight를 visualize 한 것
+    - $\bar{T}\in \mathbb{R}^{3N}$ 
+- $W$
+    - **Blend weight의 모음**을 의미하는데, Skinning weight를 의미하는 듯
+        - Skinning weight : 각 vector가 어떤 joint에 가장 많은 영향을 받는지
+    - $W\in \mathbb{R}^{N\times K}$
+
+<br>
+
+<p align=center><img src="./images/3/4.png" width=20%></p>
+
+<br>
+
+- **$B_{s}(\vec{\beta })$**
+    - Blend shape function
+    - $\beta$ 의 coefficient를 얻는 함수 
+    - 입력으로 shape parameter ($\vec{\beta}$), 출력으로는 subject identity의 shape를 조각한 결과
+    - $\mathbb{R}^{\left| \vec{\beta}\right|}\mapsto \mathbb{R}^{3N}$
+    - 평균 shape에 체형에 해당하는 Blend shape function을 더해줌
+- **$J(\vec{\beta})$**
+    - K개의 joint의 위치를 예측하는 함수
+    - (b)의 흰색 점들 의미
+    -  $\mathbb{R}^{\left| \vec{\beta}\right|}\mapsto \mathbb{R}^{3K}$
+
+<br>
+
+<p align=center><img src="./images/3/5.png" width=20%></p>
+
+<br>
+
+- **$B_{p}(\vec{\theta})$**
+    - Pose-dependent blend shape function 
+    - pose parameter ($\theta$)를 input으로 pose-dependent 변형의 효과를 설명
+        - 즉, pose dependent corrective를 설명함
+    - 이 함수의 corrective blend shape은 T-pose에 더해짐
+    - 
+    - $\mathbb{R}^{\left| \vec{\theta}\right|}\mapsto \mathbb{R}^{3N}$
+
+<br>
+
+<p align=center><img src="./images/3/6.png" width=20%></p>
+
+<br>
+
+
+
 ## [code](https://github.com/vchoutas/smplx/tree/main)
 [참고](https://khanhha.github.io/posts/SMPL-model-introduction/) 
 ### [body_models.py](https://github.com/vchoutas/smplx/blob/main/smplx/body_models.py)
