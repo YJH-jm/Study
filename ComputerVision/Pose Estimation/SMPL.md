@@ -37,6 +37,15 @@
 <br>
 <br>
 
+### Model output
+ - 24개의 관절에 대해 각각 3차원 실수값이 부여되지만, 이는 axis-angle ratation representation으로 인코딩 된 형태
+ - 부모 관절에 대한 상댜적 회전을 의미
+ - 24개의 계층은 pelvis에서부터 시작하고 이 pelvis의 관절 위치는 roo / cam_trans에 의해 상대적으로 정의
+ - pelvis에 대해 자식 관계인 나머지 23개의 관절이 상대적으로 정의
+
+ <br>
+ <br>
+
 
 ## 3. Model Formulation
 - SCAPE와 같이 identity-dependent shape와 non-rigid pose dependent shape
@@ -97,6 +106,40 @@
 
 <br>
 
+- $W$
+    - Standard blend skinning function
+    - 추츨한 관절의 중심부 주변의 vertex를 회전하는데 blend weight으로 smoothing 하여 진행
+- $M(\vec{\beta}, \vec{\theta}, \Phi)$
+    - 결과로 생성된 모델
+    - shape, pose parameter들을 vertex들로 맵핑시켜줌
+    - $\Phi$ 는 학습된 model parameter 의미
+
+<br>
+
+- LBS와 DQBS 모두 사용 
+- Skinning method
+
+
+
+<br>
+
+**Blend skinning**
+- 몸의 pose는 골격 구조로 ($\vec{\omega_{k}}\in\mathbb{R}^{3}$) 정의
+- Kinematic tree 구조에서 부모 관절들에 대한 k 의 상대적인 회전에 대한 축-각도 표현(axis-angle representation)
+- 골격 장치는 K=23개의 관절을 가지고 있기 때문에 pose parameter 인 $\vec{\theta}$ 는 $[\vec{\omega}^{T}_{0},... ,\vec{\omega}^{T}_{K}]^{T}$ 으로 표현
+- $|\vec{\theta}|$ = 3 x 23 + 3 = 72개의 parameter들
+    - 3가지 요소가 추가로 존재하는데 이는 root 방향
+- $\bar{\omega}=\frac{\vec{\omega}}{\left\|\vec{\omega} \right\|}$ 는 단위 크기 회전 축을 의미
+- 모든 관절 j에 대한 축 각도는 회전 행렬로 변환
+    - Rodrigues formula를 통해
+
+    $$exp(\vec{\omega}_{j})=I+\hat{\bar{\omega}}_{j}\sin{||\vec{\omega}_{j}||}+\hat{\bar{\omega}}_{j}^{2}\cos {||\vec{\omega}_{j}||}$$
+
+    - $I$ 는 3x3 단위 행랼
+    - $\hat{\bar{\omega}}$ 는 $\bar{\omega}$의 대칭 행렬  
+
+<br>
+<br>
 
 
 ## [code](https://github.com/vchoutas/smplx/tree/main)
