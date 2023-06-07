@@ -300,3 +300,152 @@
             - 부착한 marker의 위치를 추정하고 각도 얻어낸 다음 케릭터를 움직이게 함
             - 실생활에서 적용하여 사용할 수는 없음
     - 3D 관절 회전과 다른 파라미터들을 추정하여 human model에 적용하면 human mesh 획득도 가능 
+
+<br>
+<br>
+
+## 3D Human Pose Estimation 분류
+Forward 과정에서 3D human model이 있는지 없는지에 따라 달라짐
+- Model-base
+
+    <br>
+
+    <p align=left><img src="./images/2/19.png" width=40%></p>
+
+    <br>
+
+    
+
+    - 입력 이미지로부터 3D human model parameter($\theta$, $\beta$) 추정하는 방식
+    - 추정된 parameter들을 3D human model의 입력으로 넣어 3D human mesh를 얻음
+
+    <br>
+    <br>
+
+- Model-free
+
+    <br>
+
+    <p align=cetner><img src="./images/2/20.png" width=30%></p>
+
+    <br>
+
+    - 입력 이미지로부터 3D human mesh vertex들의 좌표들을 직접적으로 추정
+    - 추정한 3D human mesh는 3D human model의 topology와 같다고 가정 
+        - 좌표만 추정하고 mesh의 topology는 3D human model과 같다는 의미
+        - 이로 인해 완전한 model-free는 아님
+
+<br>
+<br>
+
+### Model-base 
+
+<br>
+
+<p align=center><img src="./images/2/19.png" width=60%></p>
+
+<br>
+
+- 3D 관절 회전을 통해 3D mesh를 얻는 과정은 human kinematic chain을 따라 3D relative rotation이 누적되어 적용 (LBS)
+- 부모 joint의 3D rotation 에러가 자식 joint에 영향을 끼칠 수 있음
+    - 즉, end point, leaf node에 error가 쌓여가고 이를 error accumulation이라고 함
+- Error Accumulation 현상으로 인해 model-free에 의해 정확도가 낮을 수 있음
+- 3D human body parameter를 얻으므로 다른 캐릭터로의 포즈 전송 등 여러 application에서 유용하게 사용될 수 있음 
+- Model-based 에시
+    - HMR (Human Mesh Recovery), Pose2Pose, HybrIK, ..
+
+
+<br>
+<br>
+
+#### Model-based 학습
+- In-the-wild image dataset 
+    - 2D pose annotation만 존재, 3D pose annotation 존재하지 않음
+    - 추정된 3D mesh를 입력 2d 이미지 공간으로 project 시킨 후, GT 2D pose와 loss를 계산
+    - 관절에만 loss를 주어도 skinning function 덕분에 관절로부터 떨어져 있는 mesh vertex들도 loss에 영향을 받게 됨
+
+
+    <br>
+
+    <p align=left><img src="./images/2/21.png" width=60%></p>
+
+    <br>
+
+
+    1. 추정된 3D mesh에 joint regression matrix (3D human model에 정의)를 곱해서 3D 관절 좌표 획득
+    2. 사람을 담고있는 입력 이미지를 촬영한 가상의 카메라를 설치 (즉, 사람 crop 이미지를 획득)하고 사람의 3D translation vector를  추정 
+        - 3D translation vector
+            - Regressor가 추정
+            - 사람이 x, y, z축으로부터 어디에 있는지 
+    3. 가상 카메라의 intrinsic parameter와 추정된 3D translation vector를 이용하여 3D 관절 좌표를 입력 2D 이미지 공간으로 project
+        - Intrinsic parameter는 상수로 가정
+            - 이 parameter 추정하면 가능한 경우의 수가 많아짐
+    4. project된 2D 관절 좌표와 GT 2D pose 사이의 L1 loss 계산
+
+
+<br>
+<br>
+
+- MoCap image dataset
+    - 3D pose annotaation 제공
+    - 추정된 3D mesh로부터 3D 관절 좌표를 얻고 GT 3D pose와 loss 계산
+    - 관절에만 loss를 주어도 skinning function 덕분에 관절로부터 떨어져 있는 mesh vertex들도 loss에 영향을 받게 됨
+
+
+    <br>
+
+    <p align=left><img src="./images/2/22.png" width=60%></p>
+
+    <br>
+
+    1. 추정된 3D mesh에 joint regression matrix (3D human model에 정의)를 곱해서 3D 관절 좌표 획득
+    2. 얻은 3D 관절 좌표와 GT 3D oise 사이의 L1 loss 계산
+
+
+<br>
+<br>
+
+### Model-free
+
+<br>
+
+<p align=center><img src="./images/2/20.png" width=50%></p>
+
+<br>
+
+- 예를 들어, SMPL은 6980개의 vertex로 구성되어 있어 6980개의 vertex의 3D 좌표를 모두 추정해야 함 (6980 x  3)
+- 관절과 다르게 vertex는 개수가 매우 많기 때문에 computational overhead 발생
+- 그래서 추정된 mesh vertex들이 3D human model에서 얻는 것처럼 자연스럽게 이어지지 않을 수 있음
+
+    <br>
+
+    <p align=center><img src="./images/2/23.png" width=40%></p>
+
+    <br>
+
+
+- 3D human body parameter를 얻을 수 없기 때문에 다른 application에 적용할 수 없음
+- Error accumulation 현상이 없기 때문에 정확도는 model-base 보다 높을 수 있음
+- Model-free의 예시
+    - I2L-MeshNet, Pose2Mesh, METRO, .. 
+
+
+<br>
+<br>
+
+
+#### Model-free 학습
+- In-the-wild image dataset, MoCap datset들에서 얻는 GT는 2D/3D의 관절 좌표
+- Model-free 접근법들은 Skinning function으로 인해 관절에만 loss를 계산하면 되지만 model-free는 모든 vertex에 loss를 적용 
+
+    <br>
+
+    <p align=center><img src="./images/2/20.png" width=50%></p>
+
+    <br>
+
+    1. Pre-processing stage 에서 GT 2D/3D pose로부터 얻은 3D pseudo-GT mesh를 얻음
+        - Simplify-X 혹은 NeuralAnnot
+        - 3D pseudo-GT mesh는 model-based 에서 사용하여 정확도를 많이 올릴 수 있음 (Optional)
+    2. 얻은 3D mesh와 pre-processing stage 단계에서 얻은 3D pseudo-GT mesh와 L1 loss를 계산하여 학습
+        - 3D pseudo-GT는 model-based 학습때도 동일하게 사용
