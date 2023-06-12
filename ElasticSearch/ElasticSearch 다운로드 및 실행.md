@@ -46,7 +46,6 @@ Docker 기반 설치
     docker run --name es01 --net elastic -p 9200:9200 -p 9300:9300 -it {이미지 ID}
 
     docker ps 
-    
     ```
 
     <br>
@@ -59,7 +58,6 @@ Docker 기반 설치
     ```
     wsl -d docker-desktop
     sysctl -w vm.max_map_count=262144
-
     ```
 
 <br>
@@ -83,7 +81,6 @@ Docker 기반 설치
 
     ```
     docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .
-
     ```
 
     <br>
@@ -94,7 +91,6 @@ Docker 기반 설치
     ```
     curl --cacert http_ca.crt -u elastic https://localhost:9200
     curl -k --cacert http_ca.crt -u elastic https://localhost:9200
-
     ```
 
     <br>
@@ -113,7 +109,6 @@ Docker 기반 설치
     
     ```
     docker pull docker.elastic.co/kibana/kibana:8.8.1
-
     ```
 
     <br>
@@ -127,7 +122,28 @@ Docker 기반 설치
     
     ```
     docker run --name kib-01 --net elastic -p 5601:5601 {이미지 ID}
-
     ```
 
     <br>
+
+- 실행하고 나면 console 창에 아래와 같이 나오는데 주소를 0.0.0.0 을 localhost 바꿔 실행 
+
+    <br>
+
+    ```
+    Go to http://0.0.0.0:5601/?code=______ to get started.
+    ```
+
+    <br>
+
+- 위의 주소로 들어가서 enrollment token 등록
+    - enrollment token이 기억이 안나는 경우 아래 명령어를 실행하여 찾음
+    
+    <br>    
+    
+    ```
+    docker exec -it [es container 이름] /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+    ```
+
+    <br>    
+
