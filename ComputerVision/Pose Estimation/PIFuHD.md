@@ -125,6 +125,9 @@ $$
 #### Loss Function
 - Binary Cross Entropy를 활용하여 occupancy에 대한 binary probability를 학습하는 방식
 
-$$
+<br>
+
+```math
 L_{o}=\sum_{X\in S}\lambda f^{*}(X)\log f^{(L,H)}(X)+(l-\lambda)(1-f^{*}(X))\log (1-f^{(L,H)}(X))
-$$
+```
+<br>
