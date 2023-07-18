@@ -28,27 +28,44 @@
     - 이 과정이 있어야 backpropagation이 가능
     - 미분이 가능하게 바꿔주는 과정
 
+<br>
+<br>
 
-<!-- <p align=center><img src="images/1.png" width=40%></p> -->
-<!-- <p align=center><a href="https://taeu.github.io/paper/deeplearning-paper-vae/">출처</a></p> -->
+
+### Reparameterization Trick
+
+<br>
+
+<p align=center><img src="images/1/1.png" width=40%></p>
+<p align=center><a href="https://taeu.github.io/paper/deeplearning-paper-vae/">출처</a></p>
+
+<br>
+
+```math
+z^{i,l}\sim N(\mu_{i}, \sigma_{i}^{2}I)
+```
+<br>
+
+- 단순히 평균과 표준편차만 이용하면 미분을 할 수 없어 backpropagation이 불가능
+
+
+<br>
+
+```math
+\begin{matrix}z^{i,l}=\mu_{i}+\sigma_{i}\odot \epsilon \\\epsilon\sim N(0,I)\end{matrix}
+```
+
+<br>
+
+- Normal distribution에서 sampling 한 후 표준편차에 더한 후 평균을 더하면 z에 관한 식이 나오고 위와 같은 결과를 얻게 됨
+- z에 대한 식이 만들어지고 이를 미분 가능
+
+
 
 <br>
 <br>
 
 ## VAE 학습
-<!-- ### VAE Loss function
-2가지 loss function의 합으로 구성 <br>
-1. Reonstruction Error
-    - Input과 output의 차이를 최소화 하는 과정
-    - Normal distribution을 가정하면 MSE, Bernoulli distribution을 가정하면 cross-entropy
-    - VAE는 기본적으로 cross-entropy
-2. Regularization
-    - latent vector $z$가 normal distribution을 따라야 한다는 가정
-    - encoder를 통과해서 나오는 $z$ 정규 분포와의 거리가 최소화
-        - $o(z)$ 는 normal distribution
-
-<br> -->
-
 ### VAE Loss Function 유도 과정
 
 <br>
@@ -146,7 +163,11 @@ $$log{p_{\theta}(x^{i})}=E_{z\sim q_{\phi}(z|x^{i})}[logp_{\theta}(x^{i})]$$
 <br>
 
 - Expectation 개념을 이용해 적분으로 변환
-    - $E_{z\sim q_{\phi}(z|x^{i})}\begin{bmatrix}{log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}}\end{bmatrix}=\int_{z}log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}q_{\phi}(z|x^{i})dz$
+
+```math
+E_{z\sim q_{\phi}(z|x^{i})}\begin{bmatrix}{log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}}\end{bmatrix}=\int_{z}log\frac{q_{\phi}(z|x^{(i)})}{p_{\theta}(z)}q_{\phi}(z|x^{i})dz
+```
+
 - KL divergence를 이용하여 변환
     - $KL(P||Q)=\sum_{x} P(x)log\frac{P(x)}{Q(x)}$
     - KL divergence를 이용하면 두 확률분포의 차이(거리)를 계산
@@ -158,22 +179,23 @@ $$log{p_{\theta}(x^{i})}=E_{z\sim q_{\phi}(z|x^{i})}[logp_{\theta}(x^{i})]$$
 
 <br>
 
+```math
+D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}
+```
 
-<!-- $$
--\sum_{j=1}^{D}x_{i,j}log{p_{i,j}}+(1-x_{i,j})log(1-p_{i,j})
-$$ -->
+- Encoder를 통과한 확률분포가 $z$ 의 확률분포와 같아야 함
 
 
+<br>
 
-- $D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}{(z)}\end{pmatrix}$
-    - Encoder를 통과한 확률분포가 $z$ 의 확률분포와 같아야 함
+```math
+D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}
+```
 
-- $D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}$
-    
-    - $ p_{\theta}(z|x^{(i)})$ 는 우리가 알 수 없으므로 계산을 할 수 없음
-    - 다만 KL divergence는 차이이기 때문에 항상 0 보다 크거나 같음을 알 수 있음
+- $ p_{\theta}(z|x^{(i)})$ 는 우리가 알 수 없으므로 계산을 할 수 없음
+- 다만 KL divergence는 차이이기 때문에 항상 0 보다 크거나 같음을 알 수 있음
 
-    <br>
+<br>
 
 ```math
 D_{kL}\begin{pmatrix}q_{\phi}(z|x^{(i)})||p_{\theta}(z|x^{(i)})\end{pmatrix}\geq 0
@@ -215,7 +237,7 @@ L(x^{(i)},\theta,\phi)=E_{z}\begin{bmatrix}log{p_{\theta}(x^{(i)}|z)}\end{bmatri
 <br>
 
 ```math
-\underset{\theta,\phi}{argmin}\sum_{i=1}-E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|g_{\theta}(z)}\end{bmatrix}\end{bmatrix}+D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix}
+\underset{\theta,\phi}{argmin}\sum_{i=1}-E_{q_{\phi}(z|x_{i})}\begin{bmatrix}log\begin{pmatrix}{p(x_{i}|g_{\theta}(z)}\end{bmatrix}\end{bmatrix}+D_{kL}\begin{pmatrix}q_{\phi}(z|x_{i})||p{(z)}\end{pmatrix} \end{bmatrix}
 ```
 
 - 보통은 Loss function 은 minimization 과정을 거치므로 변환
@@ -239,9 +261,9 @@ cf:p\begin{pmatrix}x|g_{\theta}(z)\end{pmatrix}=p_{\theta}(x|z)
     
     <br>
 
-    $$
+    ```math
     q_{\phi}(z|x_{i})\sim N(\mu_{i},\sigma_{i}^{2}I)
-    $$
+    ```
 
     <br>
 
@@ -249,9 +271,10 @@ cf:p\begin{pmatrix}x|g_{\theta}(z)\end{pmatrix}=p_{\theta}(x|z)
     
     <br>
 
-    $$
+    ```math
     p(z)\sim N(0,I)
-    $$
+    ```
+ 
 
     <br>
 
@@ -282,6 +305,13 @@ cf:p\begin{pmatrix}x|g_{\theta}(z)\end{pmatrix}=p_{\theta}(x|z)
 - 현재 샘플링용 함수에 대한 negative log likelihood
 - Autoencoder 관점에서 $x_{i}$에 대한 복원 오차
 
+
+<br>
+
+<p align=center><img src="./images/1/11.jpg" width=50%></p>
+
+<br>
+
 <br>
 
 ```math
@@ -311,42 +341,22 @@ $$
     3. $p_{\theta}$ 가 bernoulli distribution나 gaussian distribution를 따른다고 가정
     - Bernoulli로 가정하면 Cross entropy 식으로 바뀜
 
-        ```math
-        \begin{matrix}log\begin{pmatrix}{p_{\theta}(x_{i}|z^{i})}\end{pmatrix}=log\prod_{j=1}^{D}p_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{i,j}^{x_i,j}(q-p_{i,j})^{1-x_{i,j}}\\=\sum_{j=1}^{D}x_{i,j}logp_{i,j}+(1-x_{i,j})log(1-p_{i,j})\end{matrix}
-        ```
+    ```math
+    \begin{matrix}log\begin{pmatrix}{p_{\theta}(x_{i}|z^{i})}\end{pmatrix}=log\prod_{j=1}^{D}p_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{\theta}(x_{i,j}|z^{i})\\=\sum_{j=1}^{D}logp_{i,j}^{x_i,j}(q-p_{i,j})^{1-x_{i,j}}\\=\sum_{j=1}^{D}x_{i,j}logp_{i,j}+(1-x_{i,j})log(1-p_{i,j})\end{matrix}
+    ```
 
-        - Gaussian으로 가정하면 MSE로 바뀜
-
-    
-
-<br>
-
-### Reparameterization Trick
-
-<br>
-
-<p align=center><img src="https://latex.codecogs.com/svg.image?z^{i,l}\sim&space;N(\mu_{i},&space;\sigma_{i}^{2}I)" title="z^{i,l}\sim N(\mu_{i}, \sigma_{i}^{2}I)" /></p>
-
-<br>
-
-- 단순히 평균과 표준편차만 이용하면 미분을 할 수 없어 backpropagation이 불가능
+    - Gaussian으로 가정하면 MSE로 바뀜
 
 
 <br>
 
-<p align=center><img src="https://latex.codecogs.com/svg.image?\begin{matrix}z^{i,l}=\mu_{i}&plus;\sigma_{i}\odot&space;\epsilon&space;\\\epsilon\sim&space;N(0,I)\end{matrix}" title="\begin{matrix}z^{i,l}=\mu_{i}+\sigma_{i}\odot \epsilon \\\epsilon\sim N(0,I)\end{matrix}" /></p>
+<br>
+
+## Latent variable 차원 특징
 
 <br>
 
-- Normal distribution에서 sampling 한 후 표준편차에 더한 후 평균을 더하면 z에 관한 식이 나오고 위와 같은 결과를 얻게 됨
-
-<br>
-
-### Latent variable 차원 특징
-
-<br>
-
-<p align=center><img src="images/image162.PNG" width=40%/></p>
+<p align=center><img src="images/1/12.PNG" width=40%/></p>
 <p align=center><a href="https://arxiv.org/pdf/1312.6114.pdf">출처</a></p>
 <br>
 
@@ -355,12 +365,11 @@ $$
 <br>
 
 ### VAE 특징
-- VAE와 같은 방식으로 유도
-- 학습이 끝난 이후에는 순수 생성을 위한 목적으로 사용 가능 
-    - Encoder의 이미지를 학습 결과가 Normal distribution을 따르도록 학습이 되므로
-- 종종 흐릿한 이미지 생성    
-    - L2 loss의 한계로 인해서 발생
-
-<br>
+- Decoder가 최소한 학습 데이터는 생성해 낼 수 있음
+    - 생성된 데이터가 학습 데이터와 유사
+- Encoder가 최소한 학습 데이터는 잘 latent vector로 표현
+    - 차원 축소를 위해 많이 사용됨 
+- 종종 흐릿한 이미지 생성
+    - L2 loss의 한계로 인해
 
 <br>
