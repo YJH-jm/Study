@@ -385,3 +385,10 @@ while True:
 <br>
 
 ## GAN을 통한 이미지 생성 예제
+
+<br>
+
+
+<p align=center><img src="./images/1/14.png" width=50%></p>
+
+<br>
