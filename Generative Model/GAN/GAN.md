@@ -106,7 +106,7 @@
 
 <br>
 
-## GAN 학습 
+## GAN 
 
 <br>
 
@@ -132,8 +132,8 @@
 <br>
 <br>
 
-### Discriminator 학습
-Generator가 생성한 이미지와 real 이미지를 잘 분류하기 위해 학습
+### Discriminator 
+Generator가 생성한 이미지와 real 이미지를 분류하는 모델
 
 
 
@@ -152,8 +152,8 @@ Generator가 생성한 이미지와 real 이미지를 잘 분류하기 위해 �
 <br>
 <br>
 
-### Generator 학습
-Discriminator를 속이기 위해 진짜와 구분하기 어려운 이미지를 생성하기 위해 학습
+### Generator 
+Discriminator를 속이기 위한 진짜와 구분하기 어려운 이미지를 생성하는 모델 
 
 <br>
 
@@ -169,4 +169,219 @@ Discriminator를 속이기 위해 진짜와 구분하기 어려운 이미지를 
 <br>
 <br>
 
-### Loss Function
+## GAN loss Function
+
+<br>
+
+$$
+\underset{G}{max}\underset{D}{min} \ L(D, G)=E_{x\sim p_{data}(x)}[-logD(x)]+E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+$$
+
+<br>
+
+- Discriminator는 데이터를 real 이미지와 생성된 fake 이미지를 잘 분류하는 것이 좋으므로 loss function을 최소화 하는 형태로 학습을 진행
+- Generator는 생성된 fake 이미지를 real 이미지로 분류하는 것이 좋으므로 loss function을 최대화 하도록 학습 진행 
+
+<br>
+<br>
+
+#### Discriminator
+
+<br>
+
+$$
+\underset{D}{min} \ L(D, G)=E_{x\sim p_{data}(x)}[-logD(x)]+E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+$$
+
+<br>
+
+- Discriminator는 실제 이미지 그릅(1), 생성된 가짜 이미지 그룹(0) 2개의 데이터를 받아 binary cross entropy 
+- $x\sim p_{data}(x)$ :  실제 데이터 분포로부터 샘플링 한 $x$
+    - 실제 이미지
+- $z\sim p_{z}(z)$ : 정규분포로부터 샘플링한 latent vector $z$
+    - Generator가 이미지를 생성하기 위한 latent vector
+
+<br>
+
+- $E_{x\sim p_{data}(x)}[-logD(x)]$
+    - $D(x)$ 실제 데이터 분포로 부터 샘플링한 데이터가 학습에 사용되었기 때문에 이 값이 최대가 되도록 학습
+    - Loss function은  최소화하는 형태로 학습 진행하기 위해 $-$ 를 곱해줌
+    - 이런 방식을 negative log likelihood
+
+<br>
+
+- $E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]$
+    - $D(G(z))$ 정규분포로부터 샘플링한 데이터를 사용했기 때문에 이 값이 0에 가깝도록 학습
+    - Discriminator의 output은 positive class가 될 확률로 해석
+    - $1-D(G(z))$ 는 negative class 가 될 확률이기 때문에 이를 최대가 되도록 학습
+        - 만약 0.7의 값을 가지고 있다면 negative class가 될 확률은 1-0.7 = 0.3
+    - 위와 마찬가지로 최소화 하는 형태로 학습 진행하기 위해 $-$ 를 곱해줌
+    - 이런 방식을 negative log likelihood
+
+<br>
+<br>
+
+#### Generator
+
+<br>
+
+$$
+\underset{G}{max} \ L(D, G)=E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+$$
+
+
+<br>
+
+- $z\sim p_{z}(z)$ : 정규분포로부터 샘플링한 latent vector $z$
+    - Generator가 이미지를 생성하기 위한 latent vector
+
+
+<br>
+<br>
+
+## GAN 학습
+아래 두 과정을 번갈아 가면서 진행 <br>
+1. **Gradient descent** on discriminator
+
+    <br>
+
+    $$
+    \underset{D}{min} \ L(D, G)=E_{x\sim p_{data}(x)}[-logD(x)]+E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+    $$
+
+    <br>
+
+2. **Gradient ascent** on generator
+
+    <br>
+
+    $$
+    \underset{G}{max} \ L(D, G)=E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+    $$
+
+    <br>
+
+    - 하지만 실제 상황에서는 이러한 generator 목적 함수가 잘 학습이 되지 않음
+    - 처음 generator가 생성한 그림은 매우 이상하기 때문에 discriminator가 분류는 잘함
+    - 즉, 학습 초기에 $D(G(x))$ 값이 매우 작게 나옴
+    - Generator의 손실함수 그래프에서 $D(G(x))$ 값이 낮으면 gradient가 0에 가깝기 때문에 학습이 잘 진행되지 않음
+
+        <br>
+
+        <p align=center><img src="./images/1/11.png" width=40%></p>
+
+        <br>
+
+    - Generatrooor는 샘플들을 통해 $D(G(z))$의 값이 크게 나오게 학습하려고 하지만 위의 문제로 어려워짐
+    - 일반적으로 generator의 학습이 더 오래 걸리고 어려운데 위의 문제 때문에 학습이 더 어려워짐
+
+
+<br>
+
+<hr>    
+
+<br>
+
+
+#### Different Loss function
+아래 두 과정을 번갈아 가면서 진행 <br>
+1. **Gradient descent** on discriminator
+
+    <br>
+
+    $$
+    \underset{D}{min} \ L(D, G)=E_{x\sim p_{data}(x)}[-logD(x)]+E_{z\sim p_{z}(z)}[-log(1-D(G(z)))]
+    $$
+
+    <br>
+
+2. **Gradient descent** on generator
+
+    <br>
+
+    $$
+    \underset{G}{max} \ L(D, G)=E_{z\sim p_{z}(z)}[log(D(G(z)))] \\
+    \underset{G}{min} \ L(D, G)=E_{z\sim p_{z}(z)}[-log(D(G(z)))]
+    $$
+
+    <br>
+
+    - $1-D(G(x))$ 최소화 하는 방향으로 학습 진행
+    - 즉,  $D(G(x))$ 을 최대화 하는 방향으로 학습을 진행
+    - Discriminator와 같이 최소화하는 방향으로 학습을 진행하기 위해서 $-$ 곱해줌
+
+        <br>
+
+        <p align=center><img src="./images/1/11.png" width=40%></p>
+
+        <br>
+
+    - 기존과 동일하게 discriminator를 속이기 위한 목적함수
+    - 가짜같이 보이는 샘플들에 대한 gradient가 커짐
+    - 그 결과 학습이 잘 됨
+
+
+
+<br>
+<br>
+
+## GAN algorithm
+
+
+<br>
+
+<p align=center><img src="./images/1/13.png" width=50%></p>
+
+<br>
+
+- k=1 일 때 더 안정적으로 학습된다는 주장도 존재하고, x>1 을 사용하는 경우도 있음
+    - 최적이라 판명된 방법론 없음
+
+<br>
+<br>
+
+
+```python
+import torch
+import torch.nn as nn
+
+D = nn.Sequential(
+    nn.Linear(28*28, 128),
+    nn.ReLU(),
+    nn.Linear(128, 1),
+    nn.Sigmoid()
+)
+
+G = nn.Sequential(
+    nn.Linear(100, 128),
+    nn.ReLU(),
+    nn.Linear(128, 784),
+    nn.Tanh() # -1 ~ 1 사이의 값
+)
+
+# 입력 이미지 0~255 값을 -1 ~ 1로 맞춰주어야 함
+criterion = nn.BCELoss()
+
+d_optimizer = torch.optim.Adam(D.parameters(), lr=0.01)
+g_optimizer = torch.optim.Adam(G.parameters(), lr=0.01)
+
+
+while True:
+    # train D
+    ## BCE(h(x), y) = -y * log(h(x)) - (1-y)log(1-h(x))
+    loss = criterion(D(x), 1) + criterion(D(G(z)), 0)
+    loss.backward()
+    d_optimizer.step()
+
+    # train G
+    loss = criterion(D(G(z)), 1)
+    loss.backward()
+    g_optimizer.step()
+    
+```
+
+
+<br>
+<br>
+
+## GAN을 통한 이미지 생성 예제
