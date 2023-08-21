@@ -54,6 +54,8 @@ Docker hub 라고 부르는 registry라고 하는 서비스에서 필요한 soft
     docker run httpd
     docker run --name ws2 httpd 
     docker run --name ws3 -p 8081:80 httpd
+    docker run -it -v ${host_shared_folder}:${docker_shared_folder} --name ${container_name} ${docker_image} /bin/bash
+    
     ```
 
     <br>
